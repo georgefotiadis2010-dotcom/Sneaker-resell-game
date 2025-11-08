@@ -1836,10 +1836,10 @@
         <div id="auctions-tab" class="tab-content">
             <div class="section-header">
                 <span>Live Auctions</span>
-                <button class="refresh-btn" onclick="showListAuctionModal()">List Your Shoe</button>
-            </div>
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <span id="next-auction-timer">Next AI Auction in: --:--</span>
+                <div>
+                    <span class="timer">Next AI Auction: <span id="next-auction-timer">--:--</span></span>
+                    <button class="refresh-btn" onclick="showListAuctionModal()">List Your Shoe</button>
+                </div>
             </div>
             <div class="sneaker-grid" id="auctions-grid">
                 <div class="empty-state">
@@ -4681,7 +4681,7 @@
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
             
-            timerElement.textContent = `Next AI Auction in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
         // ==================== GAME ACTIONS ====================
