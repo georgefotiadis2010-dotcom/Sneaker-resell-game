@@ -1832,6 +1832,21 @@
             </div>
         </div>
 
+        <!-- Auctions Tab -->
+        <div id="auctions-tab" class="tab-content">
+            <div class="section-header">
+                <span>Live Auctions</span>
+                <button class="refresh-btn" onclick="showListAuctionModal()">List Your Shoe</button>
+            </div>
+            <div class="sneaker-grid" id="auctions-grid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔨</div>
+                    <div class="empty-state-text">No active auctions</div>
+                    <p>AI auctions appear every 15 minutes. List your own shoe to get started!</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Market Trends Tab -->
         <div id="market-tab" class="tab-content">
             <div class="section-header">
@@ -2322,7 +2337,11 @@
             nextRefresh: 3600,
             milestones: [5000, 10000, 15000, 20000, 25000],
             currentMilestone: 0,
-            shoeTrends: {} // Trends for individual shoe models
+            shoeTrends: {}, // Trends for individual shoe models
+            // Auction System
+            activeAuctions: [], // All active auctions
+            nextAIAuction: 900, // Time until next AI auction (15 mins)
+            auctionIdCounter: 0
         };
 
         // ==================== UTILITY FUNCTIONS ====================
@@ -3984,6 +4003,488 @@
             }
         }
 
+        // ==================== AUCTION SYSTEM ====================
+        
+        // Generate AI auction
+        function generateAIAuction() {
+            // Generate a shoe for auction
+            let shoe = generateSneaker();
+            
+            // Check if shoe meets minimum market value requirement ($750)
+            let attempts = 0;
+            while (shoe.estimatedValue < 750 && attempts < 50) {
+                shoe = generateSneaker();
+                attempts++;
+            }
+            
+            // If we couldn't find a suitable shoe after 50 attempts, skip this auction
+            if (shoe.estimatedValue < 750) {
+                console.log('No suitable shoes for AI auction (all below $750 market value)');
+                return;
+            }
+            
+            // AI sets a minimum bid (usually 50-70% of estimated value)
+            const minBidPercent = random(50, 70) / 100;
+            const minimumBid = Math.floor(shoe.estimatedValue * minBidPercent);
+            
+            const auction = {
+                id: gameState.auctionIdCounter++,
+                shoe: shoe,
+                seller: 'AI Seller',
+                isPlayerAuction: false,
+                minimumBid: minimumBid,
+                currentBid: 0,
+                currentBidder: null,
+                bids: [],
+                timeRemaining: 900, // 15 minutes
+                startTime: Date.now()
+            };
+            
+            gameState.activeAuctions.push(auction);
+            showNotification(`New AI auction: ${shoe.brand} ${shoe.model}!`, 'info');
+            
+            // Schedule AI bids for this auction
+            scheduleAIBids(auction);
+            
+            renderAuctionsTab();
+        }
+        
+        // AI bidder logic - evaluates if a shoe is worth bidding on
+        function evaluateAuctionValue(auction) {
+            const shoe = auction.shoe;
+            const currentBid = auction.currentBid || auction.minimumBid;
+            const estimatedValue = shoe.estimatedValue;
+            
+            // Factors AI considers:
+            // 1. Price vs estimated value
+            const priceRatio = currentBid / estimatedValue;
+            
+            // 2. Shoe rarity (higher tier = more valuable)
+            const rarityMultiplier = shoe.rarityTier === 'Grail' ? 1.3 : 
+                                     shoe.rarityTier === 'Hyped' ? 1.15 : 
+                                     shoe.rarityTier === 'Popular' ? 1.05 : 1.0;
+            
+            // 3. Condition (better condition = more valuable)
+            const conditionMultiplier = shoe.condition === 'Deadstock' ? 1.2 : 
+                                        shoe.condition === 'VNDS' ? 1.1 : 
+                                        shoe.condition === 'Used - Good' ? 1.0 : 0.9;
+            
+            // 4. Hot trends
+            const trendMultiplier = shoe.isHot ? 1.2 : 1.0;
+            
+            // 5. Time remaining (more aggressive near the end)
+            const timeMultiplier = auction.timeRemaining < 180 ? 1.1 : 1.0;
+            
+            // Calculate adjusted value
+            const adjustedValue = estimatedValue * rarityMultiplier * conditionMultiplier * trendMultiplier * timeMultiplier;
+            
+            // AI will bid if current price is below 80-95% of adjusted value
+            const maxWillingToPayPercent = random(80, 95) / 100;
+            const maxWillingToPay = adjustedValue * maxWillingToPayPercent;
+            
+            return {
+                worthBidding: currentBid < maxWillingToPay,
+                maxWillingToPay: maxWillingToPay,
+                adjustedValue: adjustedValue
+            };
+        }
+        
+        // Schedule AI bids throughout the auction
+        function scheduleAIBids(auction) {
+            // AI will check and potentially bid multiple times during the auction
+            const bidCheckTimes = [
+                random(30, 60),    // 30s - 1min in
+                random(120, 240),  // 2-4min in
+                random(300, 480),  // 5-8min in
+                random(600, 720),  // 10-12min in
+                random(780, 870)   // 13-14.5min in (last chance)
+            ];
+            
+            bidCheckTimes.forEach(checkTime => {
+                setTimeout(() => {
+                    // Check if auction still exists and hasn't ended
+                    const activeAuction = gameState.activeAuctions.find(a => a.id === auction.id);
+                    if (!activeAuction || activeAuction.timeRemaining <= 0) return;
+                    
+                    // AI evaluates the auction
+                    const evaluation = evaluateAuctionValue(activeAuction);
+                    
+                    // Random chance AI will bid (60% chance if it's worth it)
+                    if (evaluation.worthBidding && Math.random() < 0.6) {
+                        makeAIBid(activeAuction, evaluation);
+                    }
+                }, checkTime * 1000);
+            });
+        }
+        
+        // AI makes a bid
+        function makeAIBid(auction, evaluation) {
+            const currentBid = auction.currentBid || auction.minimumBid;
+            
+            // AI bids 5-15% more than current bid
+            const bidIncreasePercent = random(5, 15) / 100;
+            const bidAmount = Math.floor(currentBid * (1 + bidIncreasePercent));
+            
+            // Make sure AI doesn't bid more than it's willing to pay
+            const finalBidAmount = Math.min(bidAmount, Math.floor(evaluation.maxWillingToPay));
+            
+            // Don't bid if it would exceed max willing to pay
+            if (finalBidAmount <= currentBid) return;
+            
+            const aiNames = ['SneakerBot', 'FlipKing', 'KicksCollector', 'HypeHunter', 'ResellPro', 
+                           'ShoeAddict', 'GrailSeeker', 'SoleChaser', 'KickFlips', 'StreetHustle'];
+            const aiBidder = randomChoice(aiNames);
+            
+            auction.currentBid = finalBidAmount;
+            auction.currentBidder = aiBidder;
+            auction.bids.push({
+                bidder: aiBidder,
+                amount: finalBidAmount,
+                time: Date.now()
+            });
+            
+            // Only show notification if player is viewing auctions tab
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab && activeTab.dataset.tab === 'auctions') {
+                showNotification(`${aiBidder} bid ${formatCurrency(finalBidAmount)}!`, 'info');
+                renderAuctionsTab();
+            }
+        }
+        
+        // Player places a bid
+        function placeBid(auctionId) {
+            const auction = gameState.activeAuctions.find(a => a.id === auctionId);
+            if (!auction) return;
+            
+            const minimumNextBid = (auction.currentBid || auction.minimumBid) + 1;
+            
+            showModal(`
+                <h2 class="modal-title">Place Your Bid</h2>
+                <div style="color: #1a1a1a; margin: 20px 0;">
+                    <p style="margin: 10px 0;"><strong>Shoe:</strong> ${auction.shoe.brand} ${auction.shoe.model}</p>
+                    <p style="margin: 10px 0;"><strong>Current Bid:</strong> ${auction.currentBid ? formatCurrency(auction.currentBid) : 'No bids yet'}</p>
+                    <p style="margin: 10px 0;"><strong>Minimum Bid:</strong> ${formatCurrency(auction.minimumBid)}</p>
+                    <p style="margin: 10px 0;"><strong>Minimum Next Bid:</strong> ${formatCurrency(minimumNextBid)}</p>
+                    <p style="margin: 10px 0;"><strong>Your Cash:</strong> ${formatCurrency(gameState.cash)}</p>
+                    <p style="margin: 10px 0;"><strong>Estimated Value:</strong> ${formatCurrency(auction.shoe.estimatedValue)}</p>
+                </div>
+                <div style="margin: 20px 0;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1a1a1a;">Your Bid Amount:</label>
+                    <input type="number" id="bid-amount" min="${minimumNextBid}" value="${minimumNextBid}" 
+                           style="width: 100%; padding: 12px; font-size: 16px; border: 3px solid #000; font-weight: 700;">
+                </div>
+                <button class="action-btn buy-btn" onclick="confirmBid(${auctionId})" style="width: 100%; margin-top: 10px;">
+                    Place Bid
+                </button>
+            `);
+        }
+        
+        // Confirm bid
+        function confirmBid(auctionId) {
+            const auction = gameState.activeAuctions.find(a => a.id === auctionId);
+            if (!auction) return;
+            
+            const bidAmount = parseInt(document.getElementById('bid-amount').value);
+            const minimumNextBid = (auction.currentBid || auction.minimumBid);
+            
+            if (isNaN(bidAmount) || bidAmount < minimumNextBid) {
+                showNotification(`Bid must be at least ${formatCurrency(minimumNextBid)}!`, 'error');
+                return;
+            }
+            
+            if (bidAmount > gameState.cash) {
+                showNotification('Not enough cash!', 'error');
+                return;
+            }
+            
+            auction.currentBid = bidAmount;
+            auction.currentBidder = 'You';
+            auction.bids.push({
+                bidder: 'You',
+                amount: bidAmount,
+                time: Date.now()
+            });
+            
+            closeModal();
+            showNotification(`Bid placed: ${formatCurrency(bidAmount)}!`, 'success');
+            renderAuctionsTab();
+        }
+        
+        // Show list auction modal
+        function showListAuctionModal() {
+            const availableShoes = gameState.inventory.filter(s => !s.listedForSale && !isShoeInAuction(s.id));
+            
+            if (availableShoes.length === 0) {
+                showNotification('No shoes available to auction! Buy some shoes first.', 'error');
+                return;
+            }
+            
+            let html = `
+                <h2 class="modal-title">List Shoe for Auction</h2>
+                <p style="color: #1a1a1a; margin: 15px 0;">Select a shoe to auction (minimum market value: $750):</p>
+                <div style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
+            `;
+            
+            availableShoes.forEach(shoe => {
+                const meetsRequirement = shoe.estimatedValue >= 750;
+                const disabledStyle = meetsRequirement ? '' : 'opacity: 0.5; cursor: not-allowed;';
+                const disabledAttr = meetsRequirement ? '' : 'disabled';
+                
+                html += `
+                    <div style="border: 3px solid #000; padding: 15px; margin: 10px 0; ${disabledStyle}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; color: #1a1a1a;">
+                            <div>
+                                <div style="font-weight: 700; margin-bottom: 5px;">${shoe.brand} ${shoe.model}</div>
+                                <div style="font-size: 14px; color: #666;">
+                                    ${shoe.colorway} | Size ${shoe.size} | ${shoe.rarity}
+                                </div>
+                                <div style="font-size: 14px; margin-top: 5px;">
+                                    Market Value: ${formatCurrency(shoe.estimatedValue)}
+                                    ${!meetsRequirement ? '<span style="color: #e74c3c; font-weight: 600;"> (Below $750 minimum)</span>' : ''}
+                                </div>
+                            </div>
+                            <button class="action-btn buy-btn" onclick="selectShoeForAuction('${shoe.id}')" ${disabledAttr}>
+                                Select
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            showModal(html);
+        }
+        
+        // Check if shoe is already in an auction
+        function isShoeInAuction(shoeId) {
+            return gameState.activeAuctions.some(a => a.isPlayerAuction && a.shoe.id === shoeId);
+        }
+        
+        // Select shoe for auction
+        function selectShoeForAuction(shoeId) {
+            const shoe = gameState.inventory.find(s => s.id === shoeId);
+            if (!shoe) return;
+            
+            if (shoe.estimatedValue < 750) {
+                showNotification('This shoe does not meet the $750 minimum market value!', 'error');
+                return;
+            }
+            
+            showModal(`
+                <h2 class="modal-title">Set Auction Details</h2>
+                <div style="color: #1a1a1a; margin: 20px 0;">
+                    <p style="margin: 10px 0;"><strong>Shoe:</strong> ${shoe.brand} ${shoe.model}</p>
+                    <p style="margin: 10px 0;"><strong>Market Value:</strong> ${formatCurrency(shoe.estimatedValue)}</p>
+                </div>
+                <div style="margin: 20px 0;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1a1a1a;">
+                        Minimum Bid (Starting Price):
+                    </label>
+                    <input type="number" id="minimum-bid" min="1" value="${Math.floor(shoe.estimatedValue * 0.6)}" 
+                           style="width: 100%; padding: 12px; font-size: 16px; border: 3px solid #000; font-weight: 700;">
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Suggested: ${formatCurrency(Math.floor(shoe.estimatedValue * 0.5))} - ${formatCurrency(Math.floor(shoe.estimatedValue * 0.7))}
+                    </p>
+                </div>
+                <button class="action-btn buy-btn" onclick="confirmListAuction('${shoeId}')" style="width: 100%; margin-top: 10px;">
+                    List Auction
+                </button>
+            `);
+        }
+        
+        // Confirm list auction
+        function confirmListAuction(shoeId) {
+            const shoe = gameState.inventory.find(s => s.id === shoeId);
+            if (!shoe) return;
+            
+            const minimumBid = parseInt(document.getElementById('minimum-bid').value);
+            
+            if (isNaN(minimumBid) || minimumBid < 1) {
+                showNotification('Invalid minimum bid!', 'error');
+                return;
+            }
+            
+            // Remove shoe from inventory
+            const shoeIndex = gameState.inventory.findIndex(s => s.id === shoeId);
+            gameState.inventory.splice(shoeIndex, 1);
+            
+            const auction = {
+                id: gameState.auctionIdCounter++,
+                shoe: shoe,
+                seller: 'You',
+                isPlayerAuction: true,
+                minimumBid: minimumBid,
+                currentBid: 0,
+                currentBidder: null,
+                bids: [],
+                timeRemaining: 900, // 15 minutes
+                startTime: Date.now()
+            };
+            
+            gameState.activeAuctions.push(auction);
+            
+            // Schedule AI bids for player auction too
+            scheduleAIBids(auction);
+            
+            closeModal();
+            showNotification(`Auction listed: ${shoe.brand} ${shoe.model}!`, 'success');
+            updateUI();
+            renderAuctionsTab();
+        }
+        
+        // Cancel auction (only if no bids)
+        function cancelAuction(auctionId) {
+            const auction = gameState.activeAuctions.find(a => a.id === auctionId);
+            if (!auction) return;
+            
+            if (!auction.isPlayerAuction) {
+                showNotification('You can only cancel your own auctions!', 'error');
+                return;
+            }
+            
+            if (auction.bids.length > 0) {
+                showNotification('Cannot cancel auction with bids!', 'error');
+                return;
+            }
+            
+            // Return shoe to inventory
+            gameState.inventory.push(auction.shoe);
+            
+            // Remove auction
+            const auctionIndex = gameState.activeAuctions.findIndex(a => a.id === auctionId);
+            gameState.activeAuctions.splice(auctionIndex, 1);
+            
+            showNotification('Auction cancelled!', 'info');
+            updateUI();
+            renderAuctionsTab();
+        }
+        
+        // Complete auction
+        function completeAuction(auction) {
+            if (!auction.currentBidder) {
+                // No bids - return shoe to seller
+                if (auction.isPlayerAuction) {
+                    gameState.inventory.push(auction.shoe);
+                    showNotification(`Your auction ended with no bids. Shoe returned to inventory.`, 'info');
+                }
+            } else {
+                // Has winner
+                if (auction.currentBidder === 'You') {
+                    // Player won
+                    if (gameState.cash >= auction.currentBid) {
+                        gameState.cash -= auction.currentBid;
+                        auction.shoe.purchasePrice = auction.currentBid;
+                        auction.shoe.daysHeld = 0;
+                        gameState.inventory.push(auction.shoe);
+                        showNotification(`You won the auction for ${formatCurrency(auction.currentBid)}!`, 'success');
+                    } else {
+                        showNotification(`You won but don't have enough cash! Auction cancelled.`, 'error');
+                        if (auction.isPlayerAuction) {
+                            gameState.inventory.push(auction.shoe);
+                        }
+                    }
+                } else {
+                    // AI won
+                    if (auction.isPlayerAuction) {
+                        // Player gets the money
+                        gameState.cash += auction.currentBid;
+                        const profit = auction.currentBid - auction.shoe.purchasePrice;
+                        gameState.totalProfit += profit;
+                        
+                        gameState.salesHistory.push({
+                            shoe: auction.shoe,
+                            salePrice: auction.currentBid,
+                            profit: profit,
+                            time: Date.now()
+                        });
+                        
+                        showNotification(`${auction.currentBidder} won your auction for ${formatCurrency(auction.currentBid)}! Profit: ${formatCurrency(profit)}`, 'success');
+                    }
+                }
+            }
+            
+            // Remove auction
+            const auctionIndex = gameState.activeAuctions.findIndex(a => a.id === auction.id);
+            if (auctionIndex !== -1) {
+                gameState.activeAuctions.splice(auctionIndex, 1);
+            }
+            
+            updateUI();
+            renderAuctionsTab();
+        }
+        
+        // Render auctions tab
+        function renderAuctionsTab() {
+            const grid = document.getElementById('auctions-grid');
+            
+            if (gameState.activeAuctions.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔨</div>
+                        <div class="empty-state-text">No active auctions</div>
+                        <p>AI auctions appear every 15 minutes. List your own shoe to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            gameState.activeAuctions.forEach(auction => {
+                const shoe = auction.shoe;
+                const timeLeft = formatTime(auction.timeRemaining);
+                const currentBidDisplay = auction.currentBid > 0 ? formatCurrency(auction.currentBid) : 'No bids yet';
+                const minimumNextBid = (auction.currentBid || auction.minimumBid);
+                
+                const isWinning = auction.currentBidder === 'You';
+                const winningBadge = isWinning ? '<div style="background: #27ae60; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: 700; margin-top: 10px;">WINNING</div>' : '';
+                
+                html += `
+                    <div class="sneaker-card">
+                        <div class="sneaker-image">
+                            <div style="font-size: 60px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                ${getBrandInitial(shoe)}
+                            </div>
+                            ${shoe.isHot ? '<div class="hot-badge">🔥 HOT</div>' : ''}
+                            <div class="condition-indicator">${shoe.conditionEmoji} ${shoe.condition}</div>
+                        </div>
+                        <div class="sneaker-info">
+                            <div class="sneaker-name">${shoe.brand} ${shoe.model}</div>
+                            <div class="sneaker-details">
+                                ${shoe.colorway} | Size ${shoe.size}
+                            </div>
+                            <div class="sneaker-details" style="margin-top: 5px;">
+                                ${shoe.rarity} | Value: ${formatCurrency(shoe.estimatedValue)}
+                            </div>
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid rgba(0,0,0,0.1);">
+                                <div style="font-size: 12px; color: #666; font-weight: 600;">Seller: ${auction.seller}</div>
+                                <div style="font-size: 14px; font-weight: 700; margin-top: 5px;">
+                                    Current Bid: <span style="color: #27ae60;">${currentBidDisplay}</span>
+                                </div>
+                                <div style="font-size: 12px; color: #666; margin-top: 3px;">
+                                    Min Bid: ${formatCurrency(auction.minimumBid)} | Next: ${formatCurrency(minimumNextBid)}
+                                </div>
+                                <div style="font-size: 14px; font-weight: 700; color: #e74c3c; margin-top: 5px;">
+                                    ⏱️ ${timeLeft}
+                                </div>
+                                ${winningBadge}
+                            </div>
+                        </div>
+                        <div class="sneaker-actions">
+                            ${!auction.isPlayerAuction ? 
+                                `<button class="action-btn buy-btn" onclick="placeBid(${auction.id})">Place Bid</button>` : 
+                                auction.bids.length === 0 ? 
+                                `<button class="action-btn sell-btn" onclick="cancelAuction(${auction.id})">Cancel Auction</button>` :
+                                '<div style="text-align: center; color: #666; font-size: 12px; padding: 10px;">Your Auction</div>'
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+
         // ==================== GAME ACTIONS ====================
         function handleBuy(shoeId) {
             const shoe = gameState.availableShoes.find(s => s.id === shoeId);
@@ -4859,8 +5360,8 @@
                         const trendIcon = shoe.trend > 5 ? '📈' : shoe.trend < -5 ? '📉' : '➡️';
                         
                         return `
-                            <div class="bulk-shoe-card" id="bulk-shoe-${index}" onclick="toggleBulkShoe('${customerId}', ${index})">
-                                <div style="display: flex; gap: 12px;">
+                            <div class="bulk-shoe-card" id="bulk-shoe-${index}" data-customer-id="${customerId}" data-shoe-index="${index}">
+                                <div style="display: flex; gap: 12px; pointer-events: none;">
                                     <div style="width: 80px; height: 80px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; border: 2px solid #000; flex-shrink: 0;">
                                         <div style="font-size: 32px; font-weight: bold; color: rgba(255,255,255,0.9);">${getBrandInitial(shoe)}</div>
                                     </div>
@@ -4901,9 +5402,29 @@
             `;
             
             showModal(modalContent, 'bulk-deal-modal');
+            
+            // Add event listeners to shoe cards after modal is shown
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.bulk-shoe-card');
+                console.log('Found', cards.length, 'bulk shoe cards');
+                cards.forEach((card, idx) => {
+                    console.log('Adding listener to card', idx, 'with id', card.id);
+                    card.addEventListener('click', function(e) {
+                        console.log('Card clicked!', this.id);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const custId = this.getAttribute('data-customer-id');
+                        const shoeIdx = parseInt(this.getAttribute('data-shoe-index'));
+                        console.log('Extracted data:', custId, shoeIdx);
+                        toggleBulkShoe(custId, shoeIdx);
+                    });
+                });
+            }, 100);
         }
 
         function toggleBulkShoe(customerId, shoeIndex) {
+            console.log('toggleBulkShoe called:', customerId, shoeIndex);
+            
             const customer = gameState.customers.find(c => c.id === customerId);
             if (!customer) {
                 console.log('Customer not found:', customerId);
@@ -4918,13 +5439,20 @@
                 return;
             }
             
+            console.log('Before toggle - has key:', bulkDealSelectedShoes.has(shoeKey));
+            
             if (bulkDealSelectedShoes.has(shoeKey)) {
                 bulkDealSelectedShoes.delete(shoeKey);
                 card.classList.remove('selected');
+                console.log('Deselected shoe', shoeIndex);
             } else {
                 bulkDealSelectedShoes.add(shoeKey);
                 card.classList.add('selected');
+                console.log('Selected shoe', shoeIndex);
             }
+            
+            console.log('After toggle - selected count:', bulkDealSelectedShoes.size);
+            console.log('Card classes:', card.className);
             
             updateBulkSummary(customer);
         }
@@ -5991,6 +6519,9 @@
                     case 'sell':
                         renderSellTab();
                         break;
+                    case 'auctions':
+                        renderAuctionsTab();
+                        break;
                     case 'market':
                         renderMarketTab();
                         break;
@@ -6218,6 +6749,29 @@
             // Generate market sales from other sellers (every 2-5 minutes)
             if (gameState.timeElapsed % random(120, 300) === 0) {
                 generateMarketSale();
+            }
+            
+            // ==================== AUCTION SYSTEM ====================
+            // Update auction timers
+            gameState.activeAuctions.forEach(auction => {
+                auction.timeRemaining--;
+                
+                // Complete auction when time runs out
+                if (auction.timeRemaining <= 0) {
+                    completeAuction(auction);
+                }
+            });
+            
+            // Update auctions tab if active
+            if (gameState.activeAuctions.length > 0 && document.getElementById('auctions-tab').classList.contains('active')) {
+                renderAuctionsTab();
+            }
+            
+            // Generate AI auction every 15 minutes
+            gameState.nextAIAuction--;
+            if (gameState.nextAIAuction <= 0) {
+                generateAIAuction();
+                gameState.nextAIAuction = 900; // Reset to 15 minutes
             }
         }
 
