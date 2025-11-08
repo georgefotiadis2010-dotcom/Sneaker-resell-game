@@ -4167,26 +4167,91 @@
             const auction = gameState.activeAuctions.find(a => a.id === auctionId);
             if (!auction) return;
             
-            const minimumNextBid = (auction.currentBid || auction.minimumBid) + 1;
+            const shoe = auction.shoe;
+            const minimumNextBid = (auction.currentBid || auction.minimumBid);
+            const timeLeft = formatTime(auction.timeRemaining);
+            
+            // Get recent sales data for this shoe
+            const recentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity);
             
             showModal(`
                 <h2 class="modal-title">Place Your Bid</h2>
-                <div style="color: #1a1a1a; margin: 20px 0;">
-                    <p style="margin: 10px 0;"><strong>Shoe:</strong> ${auction.shoe.brand} ${auction.shoe.model}</p>
-                    <p style="margin: 10px 0;"><strong>Current Bid:</strong> ${auction.currentBid ? formatCurrency(auction.currentBid) : 'No bids yet'}</p>
-                    <p style="margin: 10px 0;"><strong>Minimum Bid:</strong> ${formatCurrency(auction.minimumBid)}</p>
-                    <p style="margin: 10px 0;"><strong>Minimum Next Bid:</strong> ${formatCurrency(minimumNextBid)}</p>
-                    <p style="margin: 10px 0;"><strong>Your Cash:</strong> ${formatCurrency(gameState.cash)}</p>
-                    <p style="margin: 10px 0;"><strong>Estimated Value:</strong> ${formatCurrency(auction.shoe.estimatedValue)}</p>
+                <div class="seller-avatar" id="seller-avatar">🔨</div>
+                <div style="text-align: center; color: #1a1a1a; margin-bottom: 20px;">
+                    <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
+                    <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
+                    <div style="margin-top: 5px;">
+                        <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                    </div>
+                    <div style="margin-top: 10px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <div>
+                            <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Est. Value</div>
+                            <div style="color: #3498db; font-weight: bold; font-size: 18px;">${formatCurrency(shoe.estimatedValue)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Current Bid</div>
+                            <div style="color: ${auction.currentBid > 0 ? '#27ae60' : '#999'}; font-weight: bold; font-size: 18px;">${auction.currentBid ? formatCurrency(auction.currentBid) : 'None'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Time Left</div>
+                            <div style="color: ${auction.timeRemaining < 300 ? '#e74c3c' : '#f39c12'}; font-weight: bold; font-size: 18px;">⏱️ ${timeLeft}</div>
+                        </div>
+                    </div>
                 </div>
-                <div style="margin: 20px 0;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1a1a1a;">Your Bid Amount:</label>
-                    <input type="number" id="bid-amount" min="${minimumNextBid}" value="${minimumNextBid}" 
-                           style="width: 100%; padding: 12px; font-size: 16px; border: 3px solid #000; font-weight: 700;">
+                
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Auction Details</div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
+                        <span style="color: #666;">Seller:</span>
+                        <span style="font-weight: bold;">${auction.seller}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
+                        <span style="color: #666;">Minimum Bid:</span>
+                        <span style="font-weight: bold;">${formatCurrency(auction.minimumBid)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
+                        <span style="color: #666;">Your Next Bid (min):</span>
+                        <span style="font-weight: bold; color: #9b59b6;">${formatCurrency(minimumNextBid)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 4px; padding-top: 8px;">
+                        <span style="color: #666;">Your Cash:</span>
+                        <span style="font-weight: bold; color: #27ae60;">${formatCurrency(gameState.cash)}</span>
+                    </div>
                 </div>
-                <button class="action-btn buy-btn" onclick="confirmBid(${auctionId})" style="width: 100%; margin-top: 10px;">
-                    Place Bid
-                </button>
+                
+                ${recentSales.length > 0 ? `
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
+                        ${recentSales.slice(0, 5).map(sale => {
+                            const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
+                            const isEstimated = sale.isEstimated;
+                            return `
+                                <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
+                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' 🔥' : ''}</span>
+                                    <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                ` : ''}
+                
+                <div class="message-box" id="bid-message">
+                    "${auction.currentBid > 0 ? `Beat the current bid of ${formatCurrency(auction.currentBid)}!` : 'Be the first to bid on this auction!'}"
+                </div>
+                
+                <input type="number" class="negotiation-input" id="bid-amount" 
+                       placeholder="Enter your bid" min="${minimumNextBid}" value="${minimumNextBid}" step="10">
+                       
+                <div class="negotiation-buttons">
+                    <button class="action-btn" onclick="confirmBid(${auctionId})" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);"><span>Place Bid</span></button>
+                    <button class="action-btn danger" onclick="closeModal()"><span>Walk Away</span></button>
+                </div>
+                
+                <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
+                    💡 Bid smart! Check recent sales and estimated value. ${auction.timeRemaining < 300 ? '⚠️ Auction ending soon!' : ''}
+                </div>
             `);
         }
         
@@ -4281,25 +4346,83 @@
                 return;
             }
             
+            // Get recent sales data for this shoe
+            const recentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity);
+            
+            const suggestedMin = Math.floor(shoe.estimatedValue * 0.5);
+            const suggestedMax = Math.floor(shoe.estimatedValue * 0.7);
+            const defaultMin = Math.floor(shoe.estimatedValue * 0.6);
+            
             showModal(`
-                <h2 class="modal-title">Set Auction Details</h2>
-                <div style="color: #1a1a1a; margin: 20px 0;">
-                    <p style="margin: 10px 0;"><strong>Shoe:</strong> ${shoe.brand} ${shoe.model}</p>
-                    <p style="margin: 10px 0;"><strong>Market Value:</strong> ${formatCurrency(shoe.estimatedValue)}</p>
+                <h2 class="modal-title">List Shoe for Auction</h2>
+                <div class="seller-avatar" id="seller-avatar">🏷️</div>
+                <div style="text-align: center; color: #1a1a1a; margin-bottom: 20px;">
+                    <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
+                    <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
+                    <div style="margin-top: 5px;">
+                        <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Estimated Market Value</div>
+                        <div style="color: #3498db; font-weight: bold; font-size: 24px;">${formatCurrency(shoe.estimatedValue)}</div>
+                    </div>
                 </div>
-                <div style="margin: 20px 0;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1a1a1a;">
-                        Minimum Bid (Starting Price):
-                    </label>
-                    <input type="number" id="minimum-bid" min="1" value="${Math.floor(shoe.estimatedValue * 0.6)}" 
-                           style="width: 100%; padding: 12px; font-size: 16px; border: 3px solid #000; font-weight: 700;">
-                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                        Suggested: ${formatCurrency(Math.floor(shoe.estimatedValue * 0.5))} - ${formatCurrency(Math.floor(shoe.estimatedValue * 0.7))}
-                    </p>
+                
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Your Investment</div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
+                        <span style="color: #666;">Purchase Price:</span>
+                        <span style="font-weight: bold; color: #e74c3c;">${formatCurrency(shoe.purchasePrice)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
+                        <span style="color: #666;">Days Held:</span>
+                        <span style="font-weight: bold;">${shoe.daysHeld} days</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 4px; padding-top: 8px;">
+                        <span style="color: #666;">Potential Profit:</span>
+                        <span style="font-weight: bold; color: #27ae60;">${formatCurrency(shoe.estimatedValue - shoe.purchasePrice)}</span>
+                    </div>
                 </div>
-                <button class="action-btn buy-btn" onclick="confirmListAuction('${shoeId}')" style="width: 100%; margin-top: 10px;">
-                    List Auction
-                </button>
+                
+                ${recentSales.length > 0 ? `
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
+                        ${recentSales.slice(0, 5).map(sale => {
+                            const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
+                            const isEstimated = sale.isEstimated;
+                            return `
+                                <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
+                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' 🔥' : ''}</span>
+                                    <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                ` : ''}
+                
+                <div class="message-box" id="auction-message">
+                    "Set your minimum starting bid. The auction runs for 15 minutes. Choose wisely!"
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <div style="font-size: 11px; color: #666; margin-bottom: 8px; text-align: center;">
+                        💡 Suggested Range: ${formatCurrency(suggestedMin)} - ${formatCurrency(suggestedMax)} (50-70% of value)
+                    </div>
+                </div>
+                
+                <input type="number" class="negotiation-input" id="minimum-bid" 
+                       placeholder="Enter minimum bid" min="1" value="${defaultMin}" step="10">
+                       
+                <div class="negotiation-buttons">
+                    <button class="action-btn" onclick="confirmListAuction('${shoeId}')" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);"><span>List Auction</span></button>
+                    <button class="action-btn danger" onclick="closeModal()"><span>Cancel</span></button>
+                </div>
+                
+                <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
+                    ⚠️ Once someone bids, you can't cancel. AI bidders will compete!
+                </div>
             `);
         }
         
