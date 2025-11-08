@@ -927,6 +927,10 @@
             position: relative;
             animation: modalSlideIn 0.3s;
         }
+
+        .modal-content.bulk-deal-modal {
+            max-width: 700px;
+        }
         
         .modal-content::before {
             content: '';
@@ -1115,34 +1119,37 @@
             position: relative;
             cursor: pointer;
             transition: all 0.2s;
+            user-select: none;
         }
 
         .bulk-shoe-card:hover {
             background: #fff;
             box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+            transform: translateY(-2px);
         }
 
         .bulk-shoe-card.selected {
             background: #e8f5e9;
             border-color: #27ae60;
+            border-width: 4px;
         }
 
-        .bulk-shoe-card.selected::before {
+        .bulk-shoe-card.selected::after {
             content: '✓';
             position: absolute;
             top: 8px;
             right: 8px;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             background: #27ae60;
             color: #fff;
-            border: 2px solid #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 3px solid #000;
             font-weight: 900;
-            font-size: 18px;
+            font-size: 20px;
             z-index: 10;
+            line-height: 26px;
+            text-align: center;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
         }
 
         .bulk-summary {
@@ -1762,6 +1769,7 @@
             <button class="tab-btn" data-tab="buy">Buy Shoes</button>
             <button class="tab-btn" data-tab="customers">Customers</button>
             <button class="tab-btn" data-tab="sell">Sell Shoes</button>
+            <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
         </div>
 
@@ -4892,15 +4900,23 @@
                 </div>
             `;
             
-            showModal(modalContent);
+            showModal(modalContent, 'bulk-deal-modal');
         }
 
         function toggleBulkShoe(customerId, shoeIndex) {
             const customer = gameState.customers.find(c => c.id === customerId);
-            if (!customer) return;
+            if (!customer) {
+                console.log('Customer not found:', customerId);
+                return;
+            }
 
             const shoeKey = `${customerId}_${shoeIndex}`;
             const card = document.getElementById(`bulk-shoe-${shoeIndex}`);
+            
+            if (!card) {
+                console.log('Card not found:', `bulk-shoe-${shoeIndex}`);
+                return;
+            }
             
             if (bulkDealSelectedShoes.has(shoeKey)) {
                 bulkDealSelectedShoes.delete(shoeKey);
@@ -4920,8 +4936,11 @@
             // Calculate selected shoes total
             let individualTotal = 0;
             bulkDealSelectedShoes.forEach(key => {
-                const index = parseInt(key.split('_')[2]);
-                individualTotal += shoes[index].price;
+                const parts = key.split('_');
+                const index = parseInt(parts[parts.length - 1]);
+                if (shoes[index]) {
+                    individualTotal += shoes[index].price;
+                }
             });
             
             // Calculate bulk discount based on number of shoes
@@ -4933,26 +4952,34 @@
             
             const bulkTotal = Math.floor(individualTotal * (1 - discountPercent / 100));
             
-            // Update UI
-            document.getElementById('selected-count').textContent = `${selectedCount} / ${shoes.length}`;
-            document.getElementById('individual-total').textContent = formatCurrency(individualTotal);
-            document.getElementById('bulk-total').textContent = formatCurrency(bulkTotal);
-            
+            // Update UI elements safely
+            const selectedCountEl = document.getElementById('selected-count');
+            const individualTotalEl = document.getElementById('individual-total');
+            const bulkTotalEl = document.getElementById('bulk-total');
             const discountBadge = document.getElementById('discount-badge');
-            if (discountPercent > 0) {
-                discountBadge.textContent = `-${discountPercent}%`;
-                discountBadge.style.display = 'inline-block';
-            } else {
-                discountBadge.style.display = 'none';
+            const makeOfferBtn = document.getElementById('bulk-make-offer-btn');
+            
+            if (selectedCountEl) selectedCountEl.textContent = `${selectedCount} / ${shoes.length}`;
+            if (individualTotalEl) individualTotalEl.textContent = formatCurrency(individualTotal);
+            if (bulkTotalEl) bulkTotalEl.textContent = formatCurrency(bulkTotal);
+            
+            if (discountBadge) {
+                if (discountPercent > 0) {
+                    discountBadge.textContent = `-${discountPercent}%`;
+                    discountBadge.style.display = 'inline-block';
+                } else {
+                    discountBadge.style.display = 'none';
+                }
             }
             
-            const makeOfferBtn = document.getElementById('bulk-make-offer-btn');
-            if (selectedCount > 0) {
-                makeOfferBtn.disabled = false;
-                makeOfferBtn.style.opacity = '1';
-            } else {
-                makeOfferBtn.disabled = true;
-                makeOfferBtn.style.opacity = '0.5';
+            if (makeOfferBtn) {
+                if (selectedCount > 0) {
+                    makeOfferBtn.disabled = false;
+                    makeOfferBtn.style.opacity = '1';
+                } else {
+                    makeOfferBtn.disabled = true;
+                    makeOfferBtn.style.opacity = '0.5';
+                }
             }
         }
 
@@ -4960,7 +4987,10 @@
             const customer = gameState.customers.find(c => c.id === customerId);
             if (!customer || bulkDealSelectedShoes.size === 0) return;
             
-            const selectedIndices = Array.from(bulkDealSelectedShoes).map(key => parseInt(key.split('_')[2]));
+            const selectedIndices = Array.from(bulkDealSelectedShoes).map(key => {
+                const parts = key.split('_');
+                return parseInt(parts[parts.length - 1]);
+            });
             const selectedShoes = selectedIndices.map(i => customer.shoes[i]);
             
             // Calculate totals
@@ -5912,13 +5942,23 @@
         }
 
         // ==================== MODAL FUNCTIONS ====================
-        function showModal(content) {
+        function showModal(content, extraClass = '') {
+            const modalContent = document.querySelector('.modal-content');
+            // Remove any previous extra classes
+            modalContent.classList.remove('bulk-deal-modal');
+            // Add new extra class if provided
+            if (extraClass) {
+                modalContent.classList.add(extraClass);
+            }
             document.getElementById('modal-body').innerHTML = content;
             document.getElementById('modal').classList.add('active');
         }
 
         function closeModal() {
             document.getElementById('modal').classList.remove('active');
+            // Clean up extra classes
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.classList.remove('bulk-deal-modal');
         }
 
         document.getElementById('modal-close').addEventListener('click', closeModal);
