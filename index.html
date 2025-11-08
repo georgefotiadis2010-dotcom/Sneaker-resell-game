@@ -4069,8 +4069,8 @@
             // Calculate adjusted value
             const adjustedValue = estimatedValue * rarityMultiplier * conditionMultiplier * trendMultiplier * timeMultiplier;
             
-            // AI will bid if current price is below 80-95% of adjusted value
-            const maxWillingToPayPercent = random(80, 95) / 100;
+            // AI will bid if current price is below 85-110% of adjusted value (more aggressive)
+            const maxWillingToPayPercent = random(85, 110) / 100;
             const maxWillingToPay = adjustedValue * maxWillingToPayPercent;
             
             return {
@@ -4080,46 +4080,33 @@
             };
         }
         
-        // Schedule AI bids throughout the auction
+        // Schedule AI bids throughout the auction - stores timeRemaining values when AI should check
         function scheduleAIBids(auction) {
-            // AI will check and potentially bid multiple times during the auction
-            const bidCheckTimes = [
-                random(30, 60),    // 30s - 1min in
-                random(120, 240),  // 2-4min in
-                random(300, 480),  // 5-8min in
-                random(600, 720),  // 10-12min in
-                random(780, 870)   // 13-14.5min in (last chance)
-            ];
+            // AI will check and potentially bid at these timeRemaining values
+            // Convert elapsed times to timeRemaining (900 - elapsed)
+            auction.aiBidCheckTimes = [
+                random(840, 870),  // 30s - 1min in
+                random(660, 780),  // 2-4min in
+                random(420, 600),  // 5-8min in
+                random(180, 300),  // 10-12min in
+                random(30, 120)    // 13-14.5min in (last chance)
+            ].sort((a, b) => b - a); // Sort descending
             
-            bidCheckTimes.forEach(checkTime => {
-                setTimeout(() => {
-                    // Check if auction still exists and hasn't ended
-                    const activeAuction = gameState.activeAuctions.find(a => a.id === auction.id);
-                    if (!activeAuction || activeAuction.timeRemaining <= 0) return;
-                    
-                    // AI evaluates the auction
-                    const evaluation = evaluateAuctionValue(activeAuction);
-                    
-                    // Random chance AI will bid (60% chance if it's worth it)
-                    if (evaluation.worthBidding && Math.random() < 0.6) {
-                        makeAIBid(activeAuction, evaluation);
-                    }
-                }, checkTime * 1000);
-            });
+            auction.lastAIBidCheck = auction.timeRemaining;
         }
         
         // AI makes a bid
         function makeAIBid(auction, evaluation) {
             const currentBid = auction.currentBid || auction.minimumBid;
             
-            // AI bids 5-15% more than current bid
-            const bidIncreasePercent = random(5, 15) / 100;
+            // AI bids between 5-20% more than current bid (increased range for more action)
+            const bidIncreasePercent = random(5, 20) / 100;
             const bidAmount = Math.floor(currentBid * (1 + bidIncreasePercent));
             
             // Make sure AI doesn't bid more than it's willing to pay
             const finalBidAmount = Math.min(bidAmount, Math.floor(evaluation.maxWillingToPay));
             
-            // Don't bid if it would exceed max willing to pay
+            // Don't bid if it would exceed max willing to pay or isn't higher than current
             if (finalBidAmount <= currentBid) return;
             
             const aiNames = ['SneakerBot', 'FlipKing', 'KicksCollector', 'HypeHunter', 'ResellPro', 
@@ -4140,6 +4127,26 @@
                 showNotification(`${aiBidder} bid ${formatCurrency(finalBidAmount)}!`, 'info');
                 renderAuctionsTab();
             }
+        }
+        
+        // Trigger multiple AI evaluations to create competition
+        function triggerAICompetition(auction) {
+            // Simulate 2-4 different AIs evaluating this auction
+            const numAIs = random(2, 4);
+            let anyBid = false;
+            
+            for (let i = 0; i < numAIs; i++) {
+                const evaluation = evaluateAuctionValue(auction);
+                // Each AI has 50-70% chance to bid if worth it
+                if (evaluation.worthBidding && Math.random() < (0.5 + Math.random() * 0.2)) {
+                    makeAIBid(auction, evaluation);
+                    anyBid = true;
+                    // Small delay between bids for realism
+                    break;
+                }
+            }
+            
+            return anyBid;
         }
         
         // Player places a bid
@@ -4264,6 +4271,18 @@
             closeModal();
             showNotification(`Bid placed: ${formatCurrency(bidAmount)}!`, 'success');
             renderAuctionsTab();
+            
+            // Trigger AI response - AIs may counter-bid after player bids
+            // Delay slightly for realism (2-8 seconds)
+            setTimeout(() => {
+                const activeAuction = gameState.activeAuctions.find(a => a.id === auctionId);
+                if (activeAuction && activeAuction.timeRemaining > 0) {
+                    // Higher chance of AI response to player bids (70%)
+                    if (Math.random() < 0.7) {
+                        triggerAICompetition(activeAuction);
+                    }
+                }
+            }, random(2000, 8000));
         }
         
         // Show list auction modal
@@ -6937,6 +6956,34 @@
             // Update auction timers
             gameState.activeAuctions.forEach(auction => {
                 auction.timeRemaining--;
+                
+                // AI bidding logic - check if it's time for AI to bid
+                if (auction.aiBidCheckTimes && auction.aiBidCheckTimes.length > 0) {
+                    // Check if we've crossed a bid check threshold
+                    const nextCheckTime = auction.aiBidCheckTimes[0];
+                    if (auction.timeRemaining <= nextCheckTime && auction.lastAIBidCheck > nextCheckTime) {
+                        // Remove this check time from the list
+                        auction.aiBidCheckTimes.shift();
+                        
+                        // AI evaluates the auction
+                        const evaluation = evaluateAuctionValue(auction);
+                        
+                        // 75% chance AI will bid if it's worth it
+                        if (evaluation.worthBidding && Math.random() < 0.75) {
+                            makeAIBid(auction, evaluation);
+                        }
+                    }
+                    auction.lastAIBidCheck = auction.timeRemaining;
+                }
+                
+                // Additional random AI activity - small chance to bid on any tick for active auctions
+                // More aggressive in final 2 minutes
+                if (auction.timeRemaining > 0 && Math.random() < (auction.timeRemaining < 120 ? 0.003 : 0.001)) {
+                    const evaluation = evaluateAuctionValue(auction);
+                    if (evaluation.worthBidding && Math.random() < 0.7) {
+                        makeAIBid(auction, evaluation);
+                    }
+                }
                 
                 // Complete auction when time runs out
                 if (auction.timeRemaining <= 0) {
