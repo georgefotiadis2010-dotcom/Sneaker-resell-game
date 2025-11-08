@@ -14,14 +14,19 @@ app.use(express.static('.'));
 // Get sneaker data by name
 app.get('/api/sneaker/:name', (req, res) => {
     const sneakerName = req.params.name;
+    let responded = false;
     
     sneaks.getProducts(sneakerName, 1, function(err, products) {
+        if (responded) return;
+        
         if (err) {
             console.error(err);
+            responded = true;
             return res.status(500).json({ error: 'Failed to fetch sneaker data' });
         }
         
-        if (products.length === 0) {
+        if (!products || products.length === 0) {
+            responded = true;
             return res.status(404).json({ error: 'No sneaker found', searchedFor: sneakerName });
         }
         
@@ -36,6 +41,7 @@ app.get('/api/sneaker/:name', (req, res) => {
             releaseDate: products[0].releaseDate || null
         };
         
+        responded = true;
         res.json(sneakerData);
     });
 });
@@ -50,10 +56,13 @@ app.post('/api/sneakers', (req, res) => {
     
     const results = [];
     let completed = 0;
+    let responded = false;
     
     sneakerNames.forEach((name, index) => {
         sneaks.getProducts(name, 1, function(err, products) {
-            if (!err && products.length > 0) {
+            if (responded) return;
+            
+            if (!err && products && products.length > 0) {
                 results.push({
                     name: products[0].shoeName,
                     imageUrl: products[0].thumbnail,
@@ -67,7 +76,8 @@ app.post('/api/sneakers', (req, res) => {
             }
             
             completed++;
-            if (completed === sneakerNames.length) {
+            if (completed === sneakerNames.length && !responded) {
+                responded = true;
                 res.json({ sneakers: results });
             }
         });
@@ -78,11 +88,20 @@ app.post('/api/sneakers', (req, res) => {
 app.get('/api/search/:query', (req, res) => {
     const query = req.params.query;
     const limit = parseInt(req.query.limit) || 10;
+    let responded = false;
     
     sneaks.getProducts(query, limit, function(err, products) {
+        if (responded) return;
+        
         if (err) {
             console.error(err);
+            responded = true;
             return res.status(500).json({ error: 'Search failed' });
+        }
+        
+        if (!products) {
+            responded = true;
+            return res.json({ results: [] });
         }
         
         const results = products.map(product => ({
@@ -95,6 +114,7 @@ app.get('/api/search/:query', (req, res) => {
             releaseDate: product.releaseDate || null
         }));
         
+        responded = true;
         res.json({ results });
     });
 });
