@@ -2368,6 +2368,12 @@
             return '$' + Math.floor(amount).toLocaleString();
         }
 
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
         function generateID() {
             return 'shoe_' + Date.now() + '_' + random(1000, 9999);
         }
@@ -6855,6 +6861,9 @@
             gameState.milestones = [5000, 10000, 15000, 20000, 25000];
             gameState.currentMilestone = 0;
             gameState.shoeTrends = {};
+            gameState.activeAuctions = [];
+            gameState.nextAIAuction = 900;
+            gameState.auctionIdCounter = 0;
             
             // Refresh the UI
             updateUI();
@@ -6863,6 +6872,7 @@
             renderCustomersTab();
             renderSellTab();
             renderMarketTab();
+            renderAuctionsTab();
             
             showNotification('Game reset successfully!', 'success');
         }
@@ -6928,6 +6938,17 @@
                 for (let i = 0; i < 2; i++) {
                     gameState.customers.push(generateCustomer());
                 }
+            }
+            
+            // Initialize auction system if not present
+            if (!gameState.activeAuctions) {
+                gameState.activeAuctions = [];
+            }
+            if (gameState.nextAIAuction === undefined) {
+                gameState.nextAIAuction = 900;
+            }
+            if (gameState.auctionIdCounter === undefined) {
+                gameState.auctionIdCounter = 0;
             }
             
             // Migrate all shoes to new rarity system
