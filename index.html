@@ -4080,19 +4080,11 @@
             };
         }
         
-        // Schedule AI bids throughout the auction - stores timeRemaining values when AI should check
+        // Initialize dynamic AI bidding state for auction
         function scheduleAIBids(auction) {
-            // AI will check and potentially bid at these timeRemaining values
-            // Convert elapsed times to timeRemaining (900 - elapsed)
-            auction.aiBidCheckTimes = [
-                random(840, 870),  // 30s - 1min in
-                random(660, 780),  // 2-4min in
-                random(420, 600),  // 5-8min in
-                random(180, 300),  // 10-12min in
-                random(30, 120)    // 13-14.5min in (last chance)
-            ].sort((a, b) => b - a); // Sort descending
-            
-            auction.lastAIBidCheck = auction.timeRemaining;
+            // Track when last bid was made for pacing
+            auction.lastAIBidTime = auction.timeRemaining;
+            auction.aiInterest = random(3, 8); // Number of AI "watchers" interested in this auction
         }
         
         // AI makes a bid
@@ -4129,24 +4121,81 @@
             }
         }
         
-        // Trigger multiple AI evaluations to create competition
-        function triggerAICompetition(auction) {
-            // Simulate 2-4 different AIs evaluating this auction
-            const numAIs = random(2, 4);
-            let anyBid = false;
+        // Dynamic AI bidding evaluation - called every game tick
+        function evaluateAIBidding(auction) {
+            // Don't bid too frequently - cooldown after last AI bid
+            const timeSinceLastBid = auction.lastAIBidTime - auction.timeRemaining;
+            if (timeSinceLastBid < 10) return; // At least 10 seconds between AI bids
             
-            for (let i = 0; i < numAIs; i++) {
-                const evaluation = evaluateAuctionValue(auction);
-                // Each AI has 50-70% chance to bid if worth it
-                if (evaluation.worthBidding && Math.random() < (0.5 + Math.random() * 0.2)) {
-                    makeAIBid(auction, evaluation);
-                    anyBid = true;
-                    // Small delay between bids for realism
-                    break;
-                }
+            // Calculate bidding probability based on multiple factors
+            let bidProbability = 0.01; // Base 1% chance per second
+            
+            // 1. More activity near the start (first 2 minutes)
+            if (auction.timeRemaining > 720) {
+                bidProbability *= 2.5; // Early interest
             }
             
-            return anyBid;
+            // 2. Ramp up significantly in final 3 minutes
+            if (auction.timeRemaining < 180) {
+                bidProbability *= 4;
+            }
+            
+            // 3. Frenzy in final 60 seconds
+            if (auction.timeRemaining < 60) {
+                bidProbability *= 3;
+            }
+            
+            // 4. Hot items get more attention
+            if (auction.shoe.isHot) {
+                bidProbability *= 2;
+            }
+            
+            // 5. Higher rarity attracts more bidders
+            if (auction.shoe.rarityTier === 'Grail') {
+                bidProbability *= 2;
+            } else if (auction.shoe.rarityTier === 'Hyped') {
+                bidProbability *= 1.5;
+            }
+            
+            // 6. If no bids yet, increase chance (auction needs kickstart)
+            if (auction.bids.length === 0 && auction.timeRemaining < 800) {
+                bidProbability *= 3;
+            }
+            
+            // 7. Recent activity attracts more bidders (momentum)
+            if (timeSinceLastBid < 60) {
+                bidProbability *= 1.5;
+            }
+            
+            // 8. AI interest factor
+            bidProbability *= (auction.aiInterest / 5); // Normalized around 1.0
+            
+            // Cap probability
+            bidProbability = Math.min(bidProbability, 0.5);
+            
+            // Roll the dice
+            if (Math.random() < bidProbability) {
+                const evaluation = evaluateAuctionValue(auction);
+                
+                if (evaluation.worthBidding) {
+                    makeAIBid(auction, evaluation);
+                    auction.lastAIBidTime = auction.timeRemaining;
+                    
+                    // Sometimes triggers a chain reaction (20% chance)
+                    if (Math.random() < 0.2 && auction.timeRemaining < 300) {
+                        setTimeout(() => {
+                            const activeAuction = gameState.activeAuctions.find(a => a.id === auction.id);
+                            if (activeAuction && activeAuction.timeRemaining > 0) {
+                                const eval2 = evaluateAuctionValue(activeAuction);
+                                if (eval2.worthBidding) {
+                                    makeAIBid(activeAuction, eval2);
+                                    activeAuction.lastAIBidTime = activeAuction.timeRemaining;
+                                }
+                            }
+                        }, random(1000, 3000));
+                    }
+                }
+            }
         }
         
         // Player places a bid
@@ -4273,16 +4322,21 @@
             renderAuctionsTab();
             
             // Trigger AI response - AIs may counter-bid after player bids
-            // Delay slightly for realism (2-8 seconds)
-            setTimeout(() => {
-                const activeAuction = gameState.activeAuctions.find(a => a.id === auctionId);
-                if (activeAuction && activeAuction.timeRemaining > 0) {
-                    // Higher chance of AI response to player bids (70%)
-                    if (Math.random() < 0.7) {
-                        triggerAICompetition(activeAuction);
+            // Multiple delayed reactions for competitive bidding
+            const numResponses = random(1, 3);
+            for (let i = 0; i < numResponses; i++) {
+                setTimeout(() => {
+                    const activeAuction = gameState.activeAuctions.find(a => a.id === auctionId);
+                    if (activeAuction && activeAuction.timeRemaining > 0) {
+                        const evaluation = evaluateAuctionValue(activeAuction);
+                        // 60-80% chance each AI responds to player bid
+                        if (evaluation.worthBidding && Math.random() < (0.6 + Math.random() * 0.2)) {
+                            makeAIBid(activeAuction, evaluation);
+                            activeAuction.lastAIBidTime = activeAuction.timeRemaining;
+                        }
                     }
-                }
-            }, random(2000, 8000));
+                }, random(2000 + (i * 2000), 8000 + (i * 2000)));
+            }
         }
         
         // Show list auction modal
@@ -6957,32 +7011,9 @@
             gameState.activeAuctions.forEach(auction => {
                 auction.timeRemaining--;
                 
-                // AI bidding logic - check if it's time for AI to bid
-                if (auction.aiBidCheckTimes && auction.aiBidCheckTimes.length > 0) {
-                    // Check if we've crossed a bid check threshold
-                    const nextCheckTime = auction.aiBidCheckTimes[0];
-                    if (auction.timeRemaining <= nextCheckTime && auction.lastAIBidCheck > nextCheckTime) {
-                        // Remove this check time from the list
-                        auction.aiBidCheckTimes.shift();
-                        
-                        // AI evaluates the auction
-                        const evaluation = evaluateAuctionValue(auction);
-                        
-                        // 75% chance AI will bid if it's worth it
-                        if (evaluation.worthBidding && Math.random() < 0.75) {
-                            makeAIBid(auction, evaluation);
-                        }
-                    }
-                    auction.lastAIBidCheck = auction.timeRemaining;
-                }
-                
-                // Additional random AI activity - small chance to bid on any tick for active auctions
-                // More aggressive in final 2 minutes
-                if (auction.timeRemaining > 0 && Math.random() < (auction.timeRemaining < 120 ? 0.003 : 0.001)) {
-                    const evaluation = evaluateAuctionValue(auction);
-                    if (evaluation.worthBidding && Math.random() < 0.7) {
-                        makeAIBid(auction, evaluation);
-                    }
+                // Dynamic AI bidding - evaluated every tick based on conditions
+                if (auction.timeRemaining > 0) {
+                    evaluateAIBidding(auction);
                 }
                 
                 // Complete auction when time runs out
@@ -7099,6 +7130,9 @@
             renderSellTab();
             renderMarketTab();
             renderAuctionsTab();
+            
+            // Start an auction immediately on reset
+            generateAIAuction();
             
             showNotification('Game reset successfully!', 'success');
         }
