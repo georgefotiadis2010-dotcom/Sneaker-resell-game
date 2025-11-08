@@ -1099,6 +1099,73 @@
             font-family: 'Permanent Marker', cursive;
         }
 
+        /* Bulk Deal Styles */
+        .bulk-deal-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .bulk-shoe-card {
+            background: #f5f5f5;
+            border: 3px solid #000;
+            padding: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bulk-shoe-card:hover {
+            background: #fff;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+        }
+
+        .bulk-shoe-card.selected {
+            background: #e8f5e9;
+            border-color: #27ae60;
+        }
+
+        .bulk-shoe-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 30px;
+            height: 30px;
+            background: #27ae60;
+            color: #fff;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+            z-index: 10;
+        }
+
+        .bulk-summary {
+            background: #fff;
+            border: 3px solid #000;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .bulk-discount-badge {
+            background: #f39c12;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
         /* Customer Cards */
         .customer-card {
             background: #fff;
@@ -2635,52 +2702,66 @@
             const personality = randomChoice(CUSTOMER_PERSONALITIES);
             
             if (isSeller) {
-                // Customer wants to SELL their shoe to player
-                const shoe = generateSneaker();
+                // 30% chance of bulk deal (multiple shoes)
+                const isBulkDeal = Math.random() < 0.3;
+                const shoes = [];
+                const numShoes = isBulkDeal ? random(2, 5) : 1;
                 
-                // Tier affects seller firmness (Grail shoes = tougher negotiation)
-                const rarityFirmness = TIER_FIRMNESS[shoe.rarityTier || shoe.tier] || 0.85;
-                
-                // Sellers ask for MORE based on trends AND rarity
-                let askingMultiplier = personality.firmness * rarityFirmness * random(95, 120) / 100;
-                
-                // If shoe is trending up, sellers ask for even more
-                if (shoe.trend > 10) {
-                    askingMultiplier *= 1.15; // 15% premium for hot trends
-                } else if (shoe.trend > 5) {
-                    askingMultiplier *= 1.08; // 8% premium for rising trends
-                } else if (shoe.trend < -10) {
-                    askingMultiplier *= 0.85; // 15% discount for tanking shoes
-                } else if (shoe.trend < -5) {
-                    askingMultiplier *= 0.92; // 8% discount for falling shoes
+                // Generate shoes for this customer
+                for (let i = 0; i < numShoes; i++) {
+                    const shoe = generateSneaker();
+                    
+                    // Tier affects seller firmness (Grail shoes = tougher negotiation)
+                    const rarityFirmness = TIER_FIRMNESS[shoe.rarityTier || shoe.tier] || 0.85;
+                    
+                    // Sellers ask for MORE based on trends AND rarity
+                    let askingMultiplier = personality.firmness * rarityFirmness * random(95, 120) / 100;
+                    
+                    // If shoe is trending up, sellers ask for even more
+                    if (shoe.trend > 10) {
+                        askingMultiplier *= 1.15; // 15% premium for hot trends
+                    } else if (shoe.trend > 5) {
+                        askingMultiplier *= 1.08; // 8% premium for rising trends
+                    } else if (shoe.trend < -10) {
+                        askingMultiplier *= 0.85; // 15% discount for tanking shoes
+                    } else if (shoe.trend < -5) {
+                        askingMultiplier *= 0.92; // 8% discount for falling shoes
+                    }
+                    
+                    const askingPrice = Math.floor(shoe.estimatedValue * askingMultiplier);
+                    shoe.price = askingPrice;
+                    
+                    // Cache recent sales data for this shoe (so it doesn't regenerate every render)
+                    shoe.cachedRecentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity).slice(0, 3);
+                    
+                    shoes.push(shoe);
                 }
                 
-                const askingPrice = Math.floor(shoe.estimatedValue * askingMultiplier);
-                shoe.price = askingPrice;
-                
-                // Cache recent sales data for this shoe (so it doesn't regenerate every render)
-                shoe.cachedRecentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity).slice(0, 3);
-                
-                // Generate contextual opening message based on shoe attributes
+                // Generate contextual opening message
                 let openingMessage;
-                if (shoe.trend > 10) {
-                    openingMessage = `"These ${shoe.brand} ${shoe.model} are trending hard right now. Price is only going up!"`;
-                } else if (shoe.isHot && (shoe.rarityTier === 'Grail' || shoe.tier === 'Grail')) {
-                    openingMessage = `"Yo I got these ${shoe.brand} ${shoe.model}. Straight grails bro, don't sleep on these."`;
-                } else if (shoe.trend > 5) {
-                    openingMessage = `"${shoe.brand} ${shoe.model}, market's heating up on these. Get em while you can."`;
-                } else if (shoe.isHot) {
-                    openingMessage = `"These ${shoe.brand} ${shoe.model} are fire right now. Market's crazy for these."`;
-                } else if (shoe.trend < -5) {
-                    openingMessage = `"Got ${shoe.brand} ${shoe.model}. Market's slow but they're still solid."`;
-                } else if (shoe.rarityTier === 'Vaulted' || shoe.rarityTier === 'Grail' || shoe.tier === 'Vaulted' || shoe.tier === 'Grail') {
-                    openingMessage = `"Got some rare ${shoe.brand} ${shoe.model}. You know what these are worth."`;
-                } else if (shoe.condition === 'Deadstock' || shoe.condition === 'OG') {
-                    openingMessage = `"Deadstock ${shoe.brand} ${shoe.model}. Tags still on, everything."`;
-                } else if (shoe.condition === 'Worn-In' || shoe.condition === 'Mint') {
-                    openingMessage = `"${shoe.brand} ${shoe.model}, lightly worn. Still got plenty of life."`;
+                if (isBulkDeal) {
+                    openingMessage = `"Yo, I got ${numShoes} pairs I'm looking to move. Bulk deal - you interested?"`;
                 } else {
-                    openingMessage = `"I got ${shoe.brand} ${shoe.model}. ${shoe.colorway}. Clean pair, no major issues."`;
+                    const shoe = shoes[0];
+                    if (shoe.trend > 10) {
+                        openingMessage = `"These ${shoe.brand} ${shoe.model} are trending hard right now. Price is only going up!"`;
+                    } else if (shoe.isHot && (shoe.rarityTier === 'Grail' || shoe.tier === 'Grail')) {
+                        openingMessage = `"Yo I got these ${shoe.brand} ${shoe.model}. Straight grails bro, don't sleep on these."`;
+                    } else if (shoe.trend > 5) {
+                        openingMessage = `"${shoe.brand} ${shoe.model}, market's heating up on these. Get em while you can."`;
+                    } else if (shoe.isHot) {
+                        openingMessage = `"These ${shoe.brand} ${shoe.model} are fire right now. Market's crazy for these."`;
+                    } else if (shoe.trend < -5) {
+                        openingMessage = `"Got ${shoe.brand} ${shoe.model}. Market's slow but they're still solid."`;
+                    } else if (shoe.rarityTier === 'Vaulted' || shoe.rarityTier === 'Grail' || shoe.tier === 'Vaulted' || shoe.tier === 'Grail') {
+                        openingMessage = `"Got some rare ${shoe.brand} ${shoe.model}. You know what these are worth."`;
+                    } else if (shoe.condition === 'Deadstock' || shoe.condition === 'OG') {
+                        openingMessage = `"Deadstock ${shoe.brand} ${shoe.model}. Tags still on, everything."`;
+                    } else if (shoe.condition === 'Worn-In' || shoe.condition === 'Mint') {
+                        openingMessage = `"${shoe.brand} ${shoe.model}, lightly worn. Still got plenty of life."`;
+                    } else {
+                        openingMessage = `"I got ${shoe.brand} ${shoe.model}. ${shoe.colorway}. Clean pair, no major issues."`;
+                    }
                 }
                 
                 return {
@@ -2689,7 +2770,9 @@
                     avatar: randomChoice(['👟', '🔥', '💰', '⚡', '✨', '💎', '🎯', '🏆']),
                     type: 'seller',
                     message: openingMessage,
-                    shoe: shoe,
+                    shoe: shoes[0], // Keep first shoe for backward compatibility
+                    shoes: shoes, // Array of all shoes
+                    isBulkDeal: isBulkDeal,
                     urgencyInSeconds: urgencyInSeconds,
                     maxUrgencyInSeconds: urgencyInSeconds,
                     flexibility: personality.firmness, // Now based on personality (75-95%)
@@ -3067,12 +3150,16 @@
                                         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
                                             <span style="font-weight: 900; font-size: 13px; color: #000; line-height: 1;">${customer.name}</span>
                                             <span style="background: #000; color: #fff; padding: 2px 6px; font-size: 8px; font-weight: 800; letter-spacing: 0.5px;">SELLING</span>
+                                            ${customer.isBulkDeal ? `<span style="background: #f39c12; color: #fff; padding: 2px 6px; font-size: 8px; font-weight: 800; letter-spacing: 0.5px;">📦 ${customer.shoes.length} PAIRS</span>` : ''}
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div style="margin-bottom: 10px;">
-                                    <div style="font-weight: 900; font-size: 15px; color: #000; margin-bottom: 4px; line-height: 1.2;">${shoe.brand} ${shoe.model}</div>
+                                    <div style="font-weight: 900; font-size: 15px; color: #000; margin-bottom: 4px; line-height: 1.2;">
+                                        ${shoe.brand} ${shoe.model}
+                                        ${customer.isBulkDeal ? `<span style="font-size: 10px; font-weight: 600; color: #f39c12; margin-left: 6px;">(1 of ${customer.shoes.length})</span>` : ''}
+                                    </div>
                                     <div style="font-size: 11px; color: #666; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; line-height: 1.2;">${shoe.colorway}</div>
                                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 11px;">
                                         <span style="font-weight: 700;">Size ${shoe.size}</span>
@@ -3121,8 +3208,8 @@
                                     </div>
                                 </div>
                                 
-                                <button class="action-btn" onclick="handleCustomerSellerOffer('${customer.id}')" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 800;">
-                                    <span>NEGOTIATE DEAL</span>
+                                <button class="action-btn" onclick="${customer.isBulkDeal ? `handleBulkDeal('${customer.id}')` : `handleCustomerSellerOffer('${customer.id}')`}" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 800;">
+                                    <span>${customer.isBulkDeal ? '📦 VIEW BULK DEAL' : 'NEGOTIATE DEAL'}</span>
                                 </button>
                             </div>
                         </div>
@@ -4711,6 +4798,327 @@
                     💡 Counter-offers are based on hype, condition, rarity, and market value
                 </div>
             `);
+        }
+
+        // ==================== BULK DEAL FUNCTIONS ====================
+        let bulkDealSelectedShoes = new Set();
+
+        function handleBulkDeal(customerId) {
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer || !customer.isBulkDeal) return;
+
+            bulkDealSelectedShoes.clear();
+            
+            const shoes = customer.shoes;
+            const totalAsking = shoes.reduce((sum, shoe) => sum + shoe.price, 0);
+            
+            let modalContent = `
+                <h2 class="modal-title">Bulk Deal - ${customer.name}</h2>
+                <div class="seller-avatar" id="seller-avatar">${customer.avatar}</div>
+                <div class="message-box" id="seller-message">
+                    "${customer.message}"
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 12px; border: 3px solid #000; margin-bottom: 15px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 6px;">💡 SELECT SHOES TO BUY</div>
+                    <div style="font-size: 13px; color: #1a1a1a;">
+                        Click on shoes to select/deselect them. A bulk discount will be applied to your total!
+                    </div>
+                </div>
+
+                <div id="bulk-summary" class="bulk-summary">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 12px; text-transform: uppercase;">Selected:</span>
+                        <span id="selected-count" style="font-weight: 900; font-size: 16px;">0 / ${shoes.length}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 12px; text-transform: uppercase;">Individual Price:</span>
+                        <span id="individual-total" style="font-weight: 900; font-size: 16px; color: #666;">$0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 2px solid #000;">
+                        <span style="font-weight: 700; font-size: 13px; text-transform: uppercase;">
+                            Bulk Price
+                            <span id="discount-badge" style="display: none;" class="bulk-discount-badge"></span>
+                        </span>
+                        <span id="bulk-total" style="font-weight: 900; font-size: 20px; color: #27ae60;">$0</span>
+                    </div>
+                </div>
+
+                <div class="bulk-deal-grid" id="bulk-shoes-grid">
+                    ${shoes.map((shoe, index) => {
+                        const brandColor = getBrandColor(shoe.brand);
+                        const trendColor = shoe.trend > 5 ? '#27ae60' : shoe.trend < -5 ? '#e74c3c' : '#f39c12';
+                        const trendIcon = shoe.trend > 5 ? '📈' : shoe.trend < -5 ? '📉' : '➡️';
+                        
+                        return `
+                            <div class="bulk-shoe-card" id="bulk-shoe-${index}" onclick="toggleBulkShoe('${customerId}', ${index})">
+                                <div style="display: flex; gap: 12px;">
+                                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; border: 2px solid #000; flex-shrink: 0;">
+                                        <div style="font-size: 32px; font-weight: bold; color: rgba(255,255,255,0.9);">${getBrandInitial(shoe)}</div>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div style="font-weight: 900; font-size: 14px; color: #000; margin-bottom: 2px;">${shoe.brand} ${shoe.model}</div>
+                                        <div style="font-size: 10px; color: #666; margin-bottom: 4px;">${shoe.colorway}</div>
+                                        <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 10px; margin-bottom: 4px;">
+                                            <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0; font-size: 8px; padding: 2px 6px;">${shoe.rarity}</span>
+                                            <span>Size ${shoe.size}</span>
+                                            <span>${shoe.conditionEmoji} ${shoe.condition}</span>
+                                            ${shoe.isHot ? '<span style="color: #e74c3c;">🔥</span>' : ''}
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div style="display: flex; align-items: center; gap: 4px;">
+                                                <span style="font-size: 12px;">${trendIcon}</span>
+                                                <span style="font-size: 12px; font-weight: 900; color: ${trendColor};">${shoe.trend > 0 ? '+' : ''}${shoe.trend}%</span>
+                                            </div>
+                                            <div style="font-size: 16px; font-weight: 900; color: #e67e22;">${formatCurrency(shoe.price)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                <div class="negotiation-buttons">
+                    <button class="action-btn" id="bulk-make-offer-btn" onclick="proceedWithBulkOffer('${customerId}')" disabled style="opacity: 0.5;">
+                        <span>MAKE OFFER</span>
+                    </button>
+                    <button class="action-btn" onclick="passBulkDeal('${customerId}')">
+                        <span>PASS</span>
+                    </button>
+                </div>
+                <div style="margin-top: 10px; color: #666; font-size: 11px; text-align: center;">
+                    💡 Select 2+ shoes for better bulk discounts!
+                </div>
+            `;
+            
+            showModal(modalContent);
+        }
+
+        function toggleBulkShoe(customerId, shoeIndex) {
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer) return;
+
+            const shoeKey = `${customerId}_${shoeIndex}`;
+            const card = document.getElementById(`bulk-shoe-${shoeIndex}`);
+            
+            if (bulkDealSelectedShoes.has(shoeKey)) {
+                bulkDealSelectedShoes.delete(shoeKey);
+                card.classList.remove('selected');
+            } else {
+                bulkDealSelectedShoes.add(shoeKey);
+                card.classList.add('selected');
+            }
+            
+            updateBulkSummary(customer);
+        }
+
+        function updateBulkSummary(customer) {
+            const selectedCount = bulkDealSelectedShoes.size;
+            const shoes = customer.shoes;
+            
+            // Calculate selected shoes total
+            let individualTotal = 0;
+            bulkDealSelectedShoes.forEach(key => {
+                const index = parseInt(key.split('_')[2]);
+                individualTotal += shoes[index].price;
+            });
+            
+            // Calculate bulk discount based on number of shoes
+            let discountPercent = 0;
+            if (selectedCount >= 5) discountPercent = 15;
+            else if (selectedCount >= 4) discountPercent = 12;
+            else if (selectedCount >= 3) discountPercent = 10;
+            else if (selectedCount >= 2) discountPercent = 7;
+            
+            const bulkTotal = Math.floor(individualTotal * (1 - discountPercent / 100));
+            
+            // Update UI
+            document.getElementById('selected-count').textContent = `${selectedCount} / ${shoes.length}`;
+            document.getElementById('individual-total').textContent = formatCurrency(individualTotal);
+            document.getElementById('bulk-total').textContent = formatCurrency(bulkTotal);
+            
+            const discountBadge = document.getElementById('discount-badge');
+            if (discountPercent > 0) {
+                discountBadge.textContent = `-${discountPercent}%`;
+                discountBadge.style.display = 'inline-block';
+            } else {
+                discountBadge.style.display = 'none';
+            }
+            
+            const makeOfferBtn = document.getElementById('bulk-make-offer-btn');
+            if (selectedCount > 0) {
+                makeOfferBtn.disabled = false;
+                makeOfferBtn.style.opacity = '1';
+            } else {
+                makeOfferBtn.disabled = true;
+                makeOfferBtn.style.opacity = '0.5';
+            }
+        }
+
+        function proceedWithBulkOffer(customerId) {
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer || bulkDealSelectedShoes.size === 0) return;
+            
+            const selectedIndices = Array.from(bulkDealSelectedShoes).map(key => parseInt(key.split('_')[2]));
+            const selectedShoes = selectedIndices.map(i => customer.shoes[i]);
+            
+            // Calculate totals
+            const individualTotal = selectedShoes.reduce((sum, shoe) => sum + shoe.price, 0);
+            
+            let discountPercent = 0;
+            if (selectedShoes.length >= 5) discountPercent = 15;
+            else if (selectedShoes.length >= 4) discountPercent = 12;
+            else if (selectedShoes.length >= 3) discountPercent = 10;
+            else if (selectedShoes.length >= 2) discountPercent = 7;
+            
+            const bulkPrice = Math.floor(individualTotal * (1 - discountPercent / 100));
+            
+            // Show negotiation modal
+            showModal(`
+                <h2 class="modal-title">Negotiate Bulk Deal</h2>
+                <div class="seller-avatar" id="seller-avatar">${customer.avatar}</div>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="font-weight: 900; font-size: 18px; color: #000; margin-bottom: 8px;">
+                        ${selectedShoes.length} Pairs Selected
+                    </div>
+                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">
+                        ${selectedShoes.map(s => `${s.brand} ${s.model}`).join(' • ')}
+                    </div>
+                    <div style="background: #f5f5f5; padding: 12px; border: 3px solid #000;">
+                        <div style="display: flex; justify-content: space-around; gap: 15px;">
+                            <div style="flex: 1; text-align: center;">
+                                <div style="font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Individual Price</div>
+                                <div style="font-size: 16px; font-weight: 900; color: #666; text-decoration: line-through;">${formatCurrency(individualTotal)}</div>
+                            </div>
+                            <div style="flex: 1; text-align: center;">
+                                <div style="font-size: 10px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                                    Bulk Price 
+                                    <span class="bulk-discount-badge" style="margin-left: 4px;">-${discountPercent}%</span>
+                                </div>
+                                <div style="font-size: 20px; font-weight: 900; color: #e67e22;">${formatCurrency(bulkPrice)}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="message-box" id="seller-message">
+                    "Alright, ${bulkPrice} for all ${selectedShoes.length}. That's already a good deal. What you got?"
+                </div>
+                <input type="number" class="negotiation-input" id="bulk-offer-input" 
+                       placeholder="Enter your offer for all ${selectedShoes.length} pairs" min="0" step="10">
+                <div class="negotiation-buttons">
+                    <button class="action-btn" onclick="submitBulkOffer('${customerId}', ${JSON.stringify(selectedIndices).replace(/"/g, '&quot;')}, ${bulkPrice})">
+                        <span>Make Offer</span>
+                    </button>
+                    <button class="action-btn danger" onclick="closeModal()">
+                        <span>Cancel</span>
+                    </button>
+                </div>
+                <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
+                    💡 Bulk deals mean tougher negotiation but better prices!
+                </div>
+            `);
+        }
+
+        function submitBulkOffer(customerId, selectedIndices, askingPrice) {
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer) return;
+            
+            const offerInput = document.getElementById('bulk-offer-input');
+            const offer = parseInt(offerInput.value);
+            
+            if (!offer || offer <= 0) {
+                showNotification('Enter a valid offer!', 'error');
+                return;
+            }
+            
+            if (offer > gameState.cash) {
+                showNotification('You don\'t have enough cash!', 'error');
+                return;
+            }
+
+            const selectedShoes = selectedIndices.map(i => customer.shoes[i]);
+            const minAcceptable = Math.floor(askingPrice * customer.flexibility);
+            const percentage = (offer / askingPrice) * 100;
+            
+            let accepted = false;
+            let reaction;
+            let message;
+            
+            if (percentage >= 100) {
+                accepted = true;
+                reaction = '😊';
+                message = `"Deal! That's ${selectedShoes.length} pairs. Solid business right there."`;
+            } else if (percentage >= 95) {
+                accepted = Math.random() > 0.4;
+                reaction = accepted ? '😊' : '🤔';
+                message = accepted ? 
+                    `"Close enough. ${selectedShoes.length} pairs, let's do it!"` : 
+                    `"Almost there but not quite. Come up a bit more."`;
+            } else if (percentage >= 90) {
+                accepted = Math.random() > 0.7;
+                reaction = accepted ? '😊' : '🤔';
+                message = accepted ? 
+                    `"Alright, you drive a hard bargain. Deal."` : 
+                    `"Nah, too low for ${selectedShoes.length} pairs. I need more."`;
+            } else if (percentage >= 85) {
+                accepted = Math.random() > 0.85;
+                reaction = accepted ? '😊' : '😐';
+                message = accepted ? 
+                    `"Man... fine. But you're getting a STEAL here."` : 
+                    `"Can't do it for that price. That's ${selectedShoes.length} quality pairs."`;
+            } else {
+                accepted = false;
+                reaction = '😤';
+                message = `"Are you serious? That's way too low for ${selectedShoes.length} pairs. I'm out."`;
+            }
+            
+            document.getElementById('seller-avatar').innerHTML = `
+                ${customer.avatar}
+                <div class="reaction-emoji">${reaction}</div>
+            `;
+            document.getElementById('seller-message').textContent = message;
+            
+            setTimeout(() => {
+                if (accepted) {
+                    completeBulkPurchase(customer, selectedShoes, offer);
+                } else {
+                    showNotification('Offer rejected! Try again or pass.', 'error');
+                }
+            }, 1500);
+        }
+
+        function completeBulkPurchase(customer, selectedShoes, price) {
+            if (selectedShoes.length > gameState.inventoryLimit - gameState.inventory.length) {
+                showNotification(`Not enough inventory space! Need ${selectedShoes.length} slots.`, 'error');
+                return;
+            }
+
+            gameState.cash -= price;
+            
+            selectedShoes.forEach(shoe => {
+                const inventoryShoe = {
+                    ...shoe,
+                    purchasePrice: Math.floor(price / selectedShoes.length), // Split the cost
+                    daysHeld: 0,
+                    listedForSale: false
+                };
+                gameState.inventory.push(inventoryShoe);
+            });
+            
+            // Remove customer
+            gameState.customers = gameState.customers.filter(c => c.id !== customer.id);
+            
+            const savings = selectedShoes.reduce((sum, s) => sum + s.price, 0) - price;
+            
+            closeModal();
+            showNotification(`Bulk deal complete! Bought ${selectedShoes.length} pairs for ${formatCurrency(price)} (saved ${formatCurrency(savings)})`, 'success');
+            updateUI();
+        }
+
+        function passBulkDeal(customerId) {
+            closeModal();
+            showNotification('Passed on the bulk deal.', 'info');
         }
 
         function acceptCounterOffer(customerId, counterPrice, customerType) {
