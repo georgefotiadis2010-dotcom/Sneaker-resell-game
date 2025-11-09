@@ -377,6 +377,64 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
         }
+        
+        /* Sub-tabs for sell section */
+        .sell-sub-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .sell-sub-tab {
+            padding: 12px 24px;
+            background: #fff;
+            border: 3px solid #000;
+            color: #000;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            position: relative;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        
+        .sell-sub-tab::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 15px;
+            width: 30px;
+            height: 4px;
+            background: #666;
+            z-index: 10;
+        }
+        
+        .sell-sub-tab:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.15);
+        }
+        
+        .sell-sub-tab.active {
+            background: #000;
+            color: #fff;
+            box-shadow: inset 3px 3px 0 rgba(255,0,0,0.3);
+        }
+        
+        .sell-sub-tab.active::before {
+            background: #27ae60;
+        }
+        
+        .sell-sub-content {
+            display: none;
+        }
+        
+        .sell-sub-content.active {
+            display: block;
+        }
 
         .sneaker-card {
             background: #fff;
@@ -1924,11 +1982,36 @@
             <div class="section-header">
                 <span>Sell Your Kicks</span>
             </div>
-            <div class="sneaker-grid" id="sell-grid">
-                <div class="empty-state">
-                    <div class="empty-state-icon">💰</div>
-                    <div class="empty-state-text">No shoes to sell</div>
-                    <p>Buy some shoes first to start flipping!</p>
+            
+            <!-- Sub-tabs for Sell section -->
+            <div class="sell-sub-tabs">
+                <div class="sell-sub-tab active" onclick="switchSellSubTab('inventory')">
+                    👟 Inventory
+                </div>
+                <div class="sell-sub-tab" onclick="switchSellSubTab('listed')">
+                    📋 Listed Shoes
+                </div>
+            </div>
+            
+            <!-- Inventory Sub-section -->
+            <div id="sell-inventory-content" class="sell-sub-content active">
+                <div class="sneaker-grid" id="sell-inventory-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👟</div>
+                        <div class="empty-state-text">No shoes in inventory</div>
+                        <p>Buy some shoes first to start flipping!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Listed Shoes Sub-section -->
+            <div id="sell-listed-content" class="sell-sub-content">
+                <div class="sneaker-grid" id="sell-listed-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">No listed shoes</div>
+                        <p>List some shoes from your inventory!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3456,8 +3539,8 @@
                         </div>
                     `}
                     
-                        <button class="action-btn ${context === 'buy' ? '' : context === 'sell' ? 'sell' : ''}" onclick="handle${context === 'buy' ? 'Buy' : context === 'sell' ? 'Sell' : 'View'}('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, ${context === 'buy' ? '#3498db 0%, #2980b9' : '#27ae60 0%, #229954'} 100%);">
-                            <span>${context === 'buy' ? 'Negotiate' : context === 'sell' ? 'List for Sale' : 'View Details'}</span>
+                        <button class="action-btn ${context === 'buy' ? '' : 'sell'}" onclick="handle${context === 'buy' ? 'Buy' : 'Sell'}('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, ${context === 'buy' ? '#3498db 0%, #2980b9' : '#27ae60 0%, #229954'} 100%);">
+                            <span>${context === 'buy' ? 'Negotiate' : 'List for Sale'}</span>
                         </button>
                     </div>
                 </div>
@@ -3740,7 +3823,207 @@
             }
         }
 
+        function renderListedShoeCard(shoe) {
+            const currentTrend = getShoeTrend(shoe.brand, shoe.model);
+            shoe.trend = currentTrend;
+            shoe.isHot = currentTrend > 10;
+            
+            const profit = shoe.listingPrice - shoe.purchasePrice;
+            const profitPercent = ((profit / shoe.purchasePrice) * 100).toFixed(0);
+            const timeListedMins = Math.floor((shoe.timeListedInSeconds || 0) / 60);
+            
+            const interestLevel = calculateBuyerInterest(shoe);
+            const interestColor = interestLevel > 70 ? '#27ae60' : interestLevel > 40 ? '#f39c12' : '#e74c3c';
+            const interestText = interestLevel > 70 ? 'High Interest' : interestLevel > 40 ? 'Medium Interest' : 'Low Interest';
+            
+            const brandColor = getBrandColor(shoe.brand);
+            const rarityGlow = getRarityGlow(shoe.rarity);
+            
+            const brandBorderColors = {
+                'Nike': '#FF6B35',
+                'Adidas': '#0066B3',
+                'New Balance': '#CC0000',
+                'Asics': '#0051BA',
+                'Converse': '#000000',
+                'Vans': '#DC0000'
+            };
+            const borderColor = brandBorderColors[shoe.brand] || '#667eea';
+            
+            const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
+            const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+            
+            // Price vs Market Value
+            const priceVsValue = (shoe.listingPrice / shoe.estimatedValue);
+            let priceStatus = '';
+            let priceColor = '';
+            if (priceVsValue <= 0.7) {
+                priceStatus = '💰 STEAL - Way below market!';
+                priceColor = '#27ae60';
+            } else if (priceVsValue <= 0.9) {
+                priceStatus = '💰 Good Deal - Below market';
+                priceColor = '#27ae60';
+            } else if (priceVsValue <= 1.1) {
+                priceStatus = '✓ Fair Price';
+                priceColor = '#f39c12';
+            } else if (priceVsValue <= 1.3) {
+                priceStatus = '⚠️ Overpriced';
+                priceColor = '#e67e22';
+            } else {
+                priceStatus = '❌ Way Overpriced!';
+                priceColor = '#e74c3c';
+            }
+            
+            // Sale Speed
+            const saleSpeed = shoe.saleSpeed || '';
+            let speedColor = '#666';
+            if (saleSpeed.includes('INSTANT') || saleSpeed.includes('seconds')) {
+                speedColor = '#27ae60';
+            } else if (saleSpeed.includes('min')) {
+                speedColor = '#27ae60';
+            } else if (saleSpeed.includes('hour')) {
+                speedColor = '#f39c12';
+            } else if (saleSpeed.includes('hard') || saleSpeed.includes('impossible')) {
+                speedColor = '#e74c3c';
+            }
+            
+            return `
+                <div class="sneaker-card" style="border: 2px solid #f39c12; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                    <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                    ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                    
+                    <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                        <div class="sneaker-initial" style="font-size: 64px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 3px 3px 6px rgba(0,0,0,0.6);">${getBrandInitial(shoe)}</div>
+                    </div>
+                    
+                    <div style="padding: 12px;">
+                        <div style="margin-bottom: 10px;">
+                            <div style="font-weight: 900; font-size: 15px; color: #000; margin-bottom: 4px; line-height: 1.2;">${shoe.brand} ${shoe.model}</div>
+                            <div style="font-size: 11px; color: #666; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; line-height: 1.2;">${shoe.colorway}</div>
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 11px;">
+                                <span style="font-weight: 700;">Size ${shoe.size}</span>
+                                <span>${shoe.conditionEmoji} ${shoe.condition}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 12px 14px; border: 3px solid #f39c12; box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2); margin-bottom: 8px;">
+                            <div style="font-size: 9px; color: #f39c12; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; line-height: 1; letter-spacing: 1px;">Listed Price</div>
+                            <div style="font-size: 26px; font-weight: 900; color: #2c3e50; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(shoe.listingPrice)}</div>
+                        </div>
+                        
+                        <div style="background: #f5f5f5; padding: 10px; border: 2px solid #000; margin-bottom: 8px;">
+                            <div style="font-size: 10px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; line-height: 1;">Est. Profit</div>
+                            <div style="display: flex; align-items: baseline; gap: 4px;">
+                                <div style="font-size: 16px; font-weight: 900; color: ${profit > 0 ? '#27ae60' : '#e74c3c'}; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(profit)}</div>
+                                <div style="font-size: 11px; font-weight: 800; color: ${profit > 0 ? '#27ae60' : '#e74c3c'}; line-height: 1;">(${profitPercent > 0 ? '+' : ''}${profitPercent}%)</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Market Trend</div>
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span style="font-size: 14px;">${trendIcon}</span>
+                                    <span style="font-size: 14px; font-weight: 900; color: ${trendColor}; font-family: 'Inter', sans-serif;">${currentTrend > 0 ? '+' : ''}${currentTrend}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: ${priceColor}15; padding: 6px 8px; border: 2px solid ${priceColor}; margin-bottom: 8px; border-radius: 4px;">
+                            <div style="font-size: 10px; color: ${priceColor}; font-weight: 800; text-align: center;">${priceStatus}</div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
+                            <div class="progress-bar" style="flex: 1; height: 20px; border: 2px solid #000; margin: 0;">
+                                <div class="progress-fill" style="width: ${Math.min(100, interestLevel)}%; background: ${interestColor}; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+                                    ${interestLevel > 25 ? interestText : ''}
+                                </div>
+                            </div>
+                            <span style="font-size: 10px; color: #000; font-weight: 600; white-space: nowrap;">👁️ ${shoe.viewCount || 0} ⏱️ ${timeListedMins}m</span>
+                        </div>
+                        
+                        ${saleSpeed ? `<div style="text-align: center; font-size: 9px; font-weight: 700; color: ${speedColor}; margin-bottom: 8px; padding: 4px; background: ${speedColor}15; border-radius: 3px;">
+                            ⏰ ${saleSpeed}
+                        </div>` : ''}
+                        
+                        <button class="action-btn danger" onclick="unlistShoe('${shoe.id}')" style="padding: 8px; font-size: 12px; width: 100%;">
+                            <span>Unlist</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function switchSellSubTab(tab) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.sell-sub-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content sections
+            const contents = document.querySelectorAll('.sell-sub-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'inventory') {
+                document.getElementById('sell-inventory-content').classList.add('active');
+            } else if (tab === 'listed') {
+                document.getElementById('sell-listed-content').classList.add('active');
+            }
+        }
+
         function renderSellTab() {
+            const inventoryGrid = document.getElementById('sell-inventory-grid');
+            const listedGrid = document.getElementById('sell-listed-grid');
+            
+            // Get shoes for each section
+            const listedShoes = gameState.listedShoes.filter(shoe => shoe.listedForSale);
+            const unlistedFromSell = gameState.listedShoes.filter(shoe => !shoe.listedForSale);
+            const unlistedInventory = gameState.inventory.filter(shoe => !shoe.listedForSale && !gameState.listedShoes.find(s => s.id === shoe.id));
+            const allInventoryShoes = [...unlistedFromSell, ...unlistedInventory];
+            
+            // Render LISTED SHOES section
+            let listedHtml = '';
+            if (listedShoes.length === 0) {
+                listedHtml = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">No listed shoes</div>
+                        <p>List some shoes from your inventory!</p>
+                    </div>
+                `;
+            } else {
+                listedHtml = listedShoes.map(shoe => renderListedShoeCard(shoe)).join('');
+            }
+            listedGrid.innerHTML = listedHtml;
+            
+            // Render INVENTORY section
+            let inventoryHtml = '';
+            if (allInventoryShoes.length === 0) {
+                inventoryHtml = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👟</div>
+                        <div class="empty-state-text">No shoes in inventory</div>
+                        <p>Buy some shoes first to start flipping!</p>
+                    </div>
+                `;
+            } else {
+                inventoryHtml = allInventoryShoes.map(shoe => renderSneakerCard(shoe, 'inventory')).join('');
+            }
+            inventoryGrid.innerHTML = inventoryHtml;
+            
+            // Load images for each grid separately to avoid ID conflicts
+            if (listedShoes.length > 0) {
+                setTimeout(() => {
+                    loadSneakerImagesInGrid(listedShoes, listedGrid);
+                }, 100);
+            }
+            if (allInventoryShoes.length > 0) {
+                setTimeout(() => {
+                    loadSneakerImagesInGrid(allInventoryShoes, inventoryGrid);
+                }, 100);
+            }
+        }
+
+        function renderSellTab_OLD() {
             const grid = document.getElementById('sell-grid');
             
             let html = '';
@@ -3886,18 +4169,6 @@
                                 return saleSpeed ? `<div style="text-align: center; font-size: 9px; font-weight: 700; color: ${speedColor}; margin-bottom: 8px; padding: 4px; background: ${speedColor}15; border-radius: 3px;">
                                     ⏰ ${saleSpeed}
                                 </div>` : '';
-                            })()}
-                            
-                            <!-- Interest Factors Tooltip -->
-                            ${(() => {
-                                const factors = shoe.interestFactors || [];
-                                if (factors.length > 0) {
-                                    return `<div style="background: #f8f8f8; padding: 6px; border: 2px solid #ddd; margin-bottom: 8px; border-radius: 4px; max-height: 60px; overflow-y: auto;">
-                                        <div style="font-size: 8px; font-weight: 700; color: #666; margin-bottom: 3px; text-transform: uppercase;">Why buyers care:</div>
-                                        ${factors.map(f => `<div style="font-size: 9px; color: #444; margin-bottom: 2px;">• ${f}</div>`).join('')}
-                                    </div>`;
-                                }
-                                return '';
                             })()}
                             
                             <button class="action-btn danger" onclick="unlistShoe('${shoe.id}')" style="padding: 8px; font-size: 12px; width: 100%;">
@@ -4162,7 +4433,6 @@
         function calculateBuyerInterest(shoe) {
             // Base interest starts at 20% (lower base to make factors more impactful)
             let interest = 20;
-            let interestFactors = []; // Track why interest is high or low
             
             // Get current trend for this shoe
             const trend = shoe.trend !== undefined ? shoe.trend : getShoeTrend(shoe.brand, shoe.model);
@@ -4177,66 +4447,47 @@
                 'Grail': 120        // Grail tier - collectors will pay premium
             }[tier] || 0;
             interest += rarityBonus;
-            if (rarityBonus >= 70) {
-                interestFactors.push(`🔥 ${tier} tier - Extremely rare!`);
-            } else if (rarityBonus >= 35) {
-                interestFactors.push(`⭐ ${tier} tier - High demand`);
-            }
             
             // HYPE FACTOR - DRAMATIC IMPACT (hot shoes sell MUCH faster)
             if (shoe.isHot) {
                 interest += 50; // Hot shoes are MASSIVELY more sought after
-                interestFactors.push('🔥 HOT ITEM - Major hype!');
             }
             
             // Market trend factor (hype/demand multiplier)
             if (trend > 10) {
                 interest += 40; // Strong uptrend - very high demand
-                interestFactors.push('📈 Strong market trend');
             } else if (trend > 5) {
                 interest += 25; // Moderate uptrend
-                interestFactors.push('📈 Positive trend');
             } else if (trend > 0) {
                 interest += 10; // Slight uptrend
             } else if (trend < -10) {
                 interest -= 40; // Strong downtrend - much lower demand
-                interestFactors.push('📉 Market declining');
             } else if (trend < -5) {
                 interest -= 25; // Moderate downtrend
-                interestFactors.push('📉 Negative trend');
             }
             
             // PRICE FACTOR - ULTRA MASSIVE IMPACT (pricing is EVERYTHING!)
             const priceVsValue = (shoe.listingPrice / shoe.estimatedValue);
             if (priceVsValue <= 0.5) {
                 interest += 150; // INSANE DEAL! Sells almost instantly
-                interestFactors.push('💰 STEAL - 50%+ below market!');
             } else if (priceVsValue <= 0.7) {
                 interest += 100; // Amazing deal! Very high interest
-                interestFactors.push('💰 Great deal - 30%+ below market');
             } else if (priceVsValue <= 0.85) {
                 interest += 60; // Great deal! High interest
-                interestFactors.push('💰 Good price - below market');
             } else if (priceVsValue <= 0.95) {
                 interest += 30; // Good deal
-                interestFactors.push('✓ Fair price');
             } else if (priceVsValue <= 1.05) {
                 interest += 5; // Fair price
             } else if (priceVsValue <= 1.15) {
                 interest -= 30; // Slightly overpriced - much harder
-                interestFactors.push('⚠️ Slightly overpriced');
             } else if (priceVsValue <= 1.3) {
                 interest -= 60; // Overpriced - very hard to sell
-                interestFactors.push('❌ Overpriced - hard to sell');
             } else if (priceVsValue <= 1.5) {
                 interest -= 90; // Way overpriced - extremely hard
-                interestFactors.push('❌ Way overpriced!');
             } else if (priceVsValue <= 2.0) {
                 interest -= 120; // Extremely overpriced - nearly impossible
-                interestFactors.push('❌ Extremely overpriced!');
             } else {
                 interest -= 150; // Ridiculously overpriced - virtually impossible
-                interestFactors.push('❌ RIDICULOUSLY overpriced!');
             }
             
             // Condition factor (better condition = easier to sell)
@@ -4245,26 +4496,19 @@
             const condition = shoe.condition;
             if (condition === 'OG') {
                 interest += 60; // OG is pristine vintage - extremely desirable!
-                interestFactors.push('👑 OG - Pristine vintage!');
             } else if (condition === 'Beat God') {
                 interest += 50; // Beat God is iconic heavily used - special appeal
-                interestFactors.push('💀 Beat God - Iconic wear!');
             } else if (condition === 'Deadstock') {
                 interest += 40; // Brand new - highly valued
-                interestFactors.push('✨ Deadstock - Brand new!');
             } else if (condition === "Collector's Pick") {
                 interest += 20; // Carefully preserved - good
-                interestFactors.push('🏆 Collector\'s Pick - Well preserved');
             } else if (condition === 'Mint') {
                 interest += 5; // Lightly used - decent
-                interestFactors.push('⭐ Mint - Lightly used');
             } else if (condition === 'Worn-In') {
                 interest -= 30; // Heavily used - less desirable
-                interestFactors.push('⚠️ Worn-In - Heavy use');
             } else {
                 // Fallback for any unrecognized conditions (or old save data)
                 console.warn(`Unknown condition: ${condition}`);
-                interestFactors.push(`⚠️ Condition: ${condition}`);
             }
             
             // Size factor (size 9-11 most popular)
@@ -4272,7 +4516,6 @@
                 interest += 20; // Popular sizes sell easier
             } else if (shoe.size < 7 || shoe.size > 13) {
                 interest -= 30; // Extreme sizes much harder to sell
-                interestFactors.push('⚠️ Uncommon size');
             }
             
             // Time listed factor (listings get stale faster!)
@@ -4280,18 +4523,12 @@
             if (hoursListed > 1) {
                 const stalePenalty = Math.floor(hoursListed) * 8; // Much faster decay
                 interest -= stalePenalty;
-                if (stalePenalty > 10) {
-                    interestFactors.push('📅 Listing getting old');
-                }
             }
             
             // Days held (affects perceived freshness)
             if (shoe.daysHeld > 5) {
                 interest -= 15; // More penalty for old inventory
             }
-            
-            // Store factors for potential display
-            shoe.interestFactors = interestFactors;
             
             return Math.max(0, Math.min(200, interest)); // Higher cap for insane deals
         }
@@ -4996,9 +5233,10 @@
                 return;
             }
             
-            // Remove shoe from inventory
+            // Remove shoe from both inventory and listedShoes
             const shoeIndex = gameState.inventory.findIndex(s => s.id === shoeId);
             gameState.inventory.splice(shoeIndex, 1);
+            gameState.listedShoes = gameState.listedShoes.filter(s => s.id !== shoeId);
             
             const auction = {
                 id: gameState.auctionIdCounter++,
@@ -5022,6 +5260,8 @@
             showNotification(`Auction listed: ${shoe.brand} ${shoe.model}!`, 'success');
             updateUI();
             renderAuctionsTab();
+            renderInventoryTab();
+            renderSellTab();
         }
         
         // Cancel auction (only if no bids)
@@ -5083,14 +5323,16 @@
                         const profit = auction.currentBid - auction.shoe.purchasePrice;
                         gameState.totalProfit += profit;
                         
-                        gameState.salesHistory.push({
-                            shoe: auction.shoe,
-                            salePrice: auction.currentBid,
-                            profit: profit,
-                            time: Date.now()
-                        });
+                        // Record sale using proper function
+                        recordSale(auction.shoe, auction.currentBid);
+                        
+                        // Remove from listedShoes if it was listed (shouldn't happen, but safety check)
+                        gameState.listedShoes = gameState.listedShoes.filter(s => s.id !== auction.shoe.id);
+                        
+                        if (profit > 0) changeReputation(1);
                         
                         showNotification(`${auction.currentBidder} won your auction for ${formatCurrency(auction.currentBid)}! Profit: ${formatCurrency(profit)}`, 'success');
+                        checkMilestones();
                     }
                 }
             }
@@ -5305,6 +5547,14 @@
             // Clear the listedForSale flag from inventory in case it's stale
             shoe.listedForSale = false;
             
+            // Calculate prices once for consistency
+            const quickSalePrice = Math.floor(shoe.estimatedValue * 0.85);
+            const bulkSalePrice = Math.floor(shoe.estimatedValue * random(70, 95) / 100);
+            
+            // Store these prices temporarily on the shoe object
+            shoe.tempQuickSalePrice = quickSalePrice;
+            shoe.tempBulkSalePrice = bulkSalePrice;
+            
             showModal(`
                 <h2 class="modal-title">List ${shoe.brand} ${shoe.model}</h2>
                 <div style="text-align: center; color: #1a1a1a; margin: 20px 0;">
@@ -5354,7 +5604,7 @@
                         <div class="sell-option-desc">Instant cash, lower price</div>
                         <div class="sell-option-fee">15% fee</div>
                         <div style="margin-top: 8px; font-size: 15px; font-weight: 900; color: #27ae60; font-family: 'Inter', sans-serif;">
-                            ${formatCurrency(shoe.estimatedValue * 0.85)}
+                            ${formatCurrency(quickSalePrice)}
                         </div>
                     </div>
                     <div class="sell-option" onclick="executeSale('${shoeId}', 'bulk')">
@@ -5362,7 +5612,7 @@
                         <div class="sell-option-desc">Reseller bot, instant</div>
                         <div class="sell-option-fee">5% fee</div>
                         <div style="margin-top: 8px; font-size: 15px; font-weight: 900; color: #f39c12; font-family: 'Inter', sans-serif;">
-                            ${formatCurrency(shoe.estimatedValue * random(70, 95) / 100)}
+                            ${formatCurrency(bulkSalePrice)}
                         </div>
                     </div>
                 </div>
@@ -5475,13 +5725,6 @@
                 <div style="font-size: 10px; font-weight: 700; color: ${interestColor}; text-align: center; margin-top: 6px;">
                     ⏰ ${saleSpeed}
                 </div>
-                
-                ${tempShoe.interestFactors && tempShoe.interestFactors.length > 0 ? `
-                    <div style="margin-top: 8px; padding-top: 8px; border-top: 2px solid #eee;">
-                        <div style="font-size: 8px; font-weight: 700; color: #666; margin-bottom: 4px;">KEY FACTORS:</div>
-                        ${tempShoe.interestFactors.slice(0, 3).map(f => `<div style="font-size: 9px; color: #444;">• ${f}</div>`).join('')}
-                    </div>
-                ` : ''}
             `;
         }
         
@@ -5556,7 +5799,11 @@
 
         function executeSale(shoeId, method) {
             const shoe = gameState.inventory.find(s => s.id === shoeId);
-            if (!shoe) return;
+            if (!shoe) {
+                console.warn(`Cannot execute sale: shoe ${shoeId} not found in inventory`);
+                closeModal();
+                return;
+            }
             
             let salePrice = 0;
             let message = '';
@@ -5567,11 +5814,13 @@
                     message = 'Listed on marketplace!';
                     break;
                 case 'quick':
-                    salePrice = Math.floor(shoe.estimatedValue * 0.85);
+                    // Use pre-calculated price if available, otherwise calculate
+                    salePrice = shoe.tempQuickSalePrice || Math.floor(shoe.estimatedValue * 0.85);
                     message = 'Quick sale completed!';
                     break;
                 case 'bulk':
-                    salePrice = Math.floor(shoe.estimatedValue * random(70, 95) / 100);
+                    // Use pre-calculated price if available, otherwise calculate
+                    salePrice = shoe.tempBulkSalePrice || Math.floor(shoe.estimatedValue * random(70, 95) / 100);
                     message = 'Sold to bulk buyer!';
                     break;
             }
@@ -5583,8 +5832,9 @@
             // Record sale in history
             recordSale(shoe, salePrice);
             
-            // Remove from inventory
+            // Remove from inventory AND listedShoes to prevent duplicates
             gameState.inventory = gameState.inventory.filter(s => s.id !== shoeId);
+            gameState.listedShoes = gameState.listedShoes.filter(s => s.id !== shoeId);
             
             // Update reputation based on profit
             if (profit > shoe.purchasePrice * 0.5) {
@@ -6456,6 +6706,15 @@
             } else {
                 // You're selling to them
                 const shoe = customer.targetShoe;
+                
+                // Verify shoe exists in inventory before processing
+                if (!gameState.inventory.find(s => s.id === shoe.id)) {
+                    console.warn(`Cannot complete counter sale: shoe ${shoe.id} not in inventory`);
+                    closeModal();
+                    showNotification('This shoe is no longer available!', 'error');
+                    return;
+                }
+                
                 const profit = counterPrice - shoe.purchasePrice;
                 
                 gameState.cash += counterPrice;
@@ -6464,7 +6723,9 @@
                 // Record sale in history
                 recordSale(shoe, counterPrice);
                 
+                // Remove from both inventory and listedShoes
                 gameState.inventory = gameState.inventory.filter(s => s.id !== shoe.id);
+                gameState.listedShoes = gameState.listedShoes.filter(s => s.id !== shoe.id);
                 gameState.customers = gameState.customers.filter(c => c.id !== customerId);
                 
                 if (profit > 0) changeReputation(1);
@@ -6759,6 +7020,15 @@
 
         function completeCustomerPurchase(customer, salePrice) {
             const shoe = customer.targetShoe;
+            
+            // Verify shoe exists in inventory before processing
+            if (!gameState.inventory.find(s => s.id === shoe.id)) {
+                console.warn(`Cannot complete sale: shoe ${shoe.id} not in inventory`);
+                closeModal();
+                showNotification('This shoe is no longer available!', 'error');
+                return;
+            }
+            
             const profit = salePrice - shoe.purchasePrice;
             
             gameState.cash += salePrice;
@@ -6767,7 +7037,9 @@
             // Record sale in history
             recordSale(shoe, salePrice);
             
+            // Remove from both inventory and listedShoes
             gameState.inventory = gameState.inventory.filter(s => s.id !== shoe.id);
+            gameState.listedShoes = gameState.listedShoes.filter(s => s.id !== shoe.id);
             gameState.customers = gameState.customers.filter(c => c.id !== customer.id);
             
             if (profit > 0) changeReputation(1);
