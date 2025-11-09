@@ -435,6 +435,62 @@
         .sell-sub-content.active {
             display: block;
         }
+        
+        /* Buy Sub-tabs */
+        .buy-sub-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .buy-sub-tab {
+            padding: 12px 24px;
+            background: #fff;
+            border: 3px solid #000;
+            color: #000;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .buy-sub-tab::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 15px;
+            width: 30px;
+            height: 4px;
+            background: #666;
+            z-index: 10;
+        }
+        
+        .buy-sub-tab:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.15);
+        }
+        
+        .buy-sub-tab.active {
+            background: #000;
+            color: #fff;
+            box-shadow: inset 3px 3px 0 rgba(0,0,255,0.3);
+        }
+        
+        .buy-sub-tab.active::before {
+            background: #3498db;
+        }
+        
+        .buy-sub-content {
+            display: none;
+        }
+        
+        .buy-sub-content.active {
+            display: block;
+        }
 
         .sneaker-card {
             background: #fff;
@@ -475,7 +531,7 @@
         }
         
         .sneaker-card.hot::after {
-            content: '🔥';
+            content: 'HOT';
             position: absolute;
             top: 10px;
             left: 10px;
@@ -1925,8 +1981,7 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="tab-btn active" data-tab="buy">Shop</button>
-            <button class="tab-btn" data-tab="customers">Customers</button>
+            <button class="tab-btn active" data-tab="buy">Buy Shoes</button>
             <button class="tab-btn" data-tab="sell">Sell Shoes</button>
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
@@ -1935,25 +1990,42 @@
         <!-- Buy Shoes Tab -->
         <div id="buy-tab" class="tab-content active">
             <div class="section-header">
-                <span>Available Shoes</span>
-                <div>
-                    <span class="timer">Next refresh: <span id="buy-timer">59:59</span></span>
-                    <button class="refresh-btn" id="refresh-shoes-btn">Refresh Now</button>
+                <span>Buy Your Kicks</span>
+            </div>
+            
+            <!-- Sub-tabs for Buy section -->
+            <div class="buy-sub-tabs">
+                <div class="buy-sub-tab active" onclick="switchBuySubTab('shop')">
+                    Shop
+                </div>
+                <div class="buy-sub-tab" onclick="switchBuySubTab('customers')">
+                    Customers
                 </div>
             </div>
-            <div class="sneaker-grid" id="buy-grid"></div>
-        </div>
-
-        <!-- Customers Tab -->
-        <div id="customers-tab" class="tab-content">
-            <div class="section-header">
-                <span>Active Customers</span>
+            
+            <!-- Shop Sub-section -->
+            <div id="buy-shop-content" class="buy-sub-content active">
+                <div class="section-header">
+                    <span>Available Shoes</span>
+                    <div>
+                        <span class="timer">Next refresh: <span id="buy-timer">59:59</span></span>
+                        <button class="refresh-btn" id="refresh-shoes-btn">Refresh Now</button>
+                    </div>
+                </div>
+                <div class="sneaker-grid" id="buy-grid"></div>
             </div>
-            <div class="sneaker-grid" id="customers-grid">
-                <div class="empty-state">
-                    <div class="empty-state-icon">👥</div>
-                    <div class="empty-state-text">No active buyers right now</div>
-                    <p>Check back soon for new opportunities!</p>
+            
+            <!-- Customers Sub-section -->
+            <div id="buy-customers-content" class="buy-sub-content">
+                <div class="section-header">
+                    <span>Active Customers</span>
+                </div>
+                <div class="sneaker-grid" id="customers-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No active buyers right now</div>
+                        <p>Check back soon for new opportunities!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1967,10 +2039,10 @@
             <!-- Sub-tabs for Sell section -->
             <div class="sell-sub-tabs">
                 <div class="sell-sub-tab active" onclick="switchSellSubTab('inventory')">
-                    👟 Inventory
+                    Inventory
                 </div>
                 <div class="sell-sub-tab" onclick="switchSellSubTab('listed')">
-                    📋 Listed Shoes
+                    Listed Shoes
                 </div>
             </div>
             
@@ -1978,7 +2050,7 @@
             <div id="sell-inventory-content" class="sell-sub-content active">
                 <div class="sneaker-grid" id="sell-inventory-grid">
                     <div class="empty-state">
-                        <div class="empty-state-icon">👟</div>
+                        <div class="empty-state-icon"></div>
                         <div class="empty-state-text">No shoes in inventory</div>
                         <p>Buy some shoes first to start flipping!</p>
                     </div>
@@ -1989,7 +2061,7 @@
             <div id="sell-listed-content" class="sell-sub-content">
                 <div class="sneaker-grid" id="sell-listed-grid">
                     <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-icon"></div>
                         <div class="empty-state-text">No listed shoes</div>
                         <p>List some shoes from your inventory!</p>
                     </div>
@@ -2637,12 +2709,12 @@
         };
 
         const CONDITION_LEVELS = [
-            { name: 'Worn-In', multiplier: 0.5, emoji: '👟', description: 'Heavily used' },
-            { name: 'Beat God', multiplier: 1.35, emoji: '💀', description: 'Iconic heavily used' },
-            { name: 'Mint', multiplier: 0.8, emoji: '⭐', description: 'Lightly used' },
-            { name: 'Collector\'s Pick', multiplier: 0.9, emoji: '🏆', description: 'Carefully preserved' },
-            { name: 'Deadstock', multiplier: 1.0, emoji: '✨', description: 'Brand new' },
-            { name: 'OG', multiplier: 1.15, emoji: '👑', description: 'Pristine vintage' }
+            { name: 'Worn-In', multiplier: 0.5, emoji: '', description: 'Heavily used' },
+            { name: 'Beat God', multiplier: 1.35, emoji: '', description: 'Iconic heavily used' },
+            { name: 'Mint', multiplier: 0.8, emoji: '', description: 'Lightly used' },
+            { name: 'Collector\'s Pick', multiplier: 0.9, emoji: '', description: 'Carefully preserved' },
+            { name: 'Deadstock', multiplier: 1.0, emoji: '', description: 'Brand new' },
+            { name: 'OG', multiplier: 1.15, emoji: '', description: 'Pristine vintage' }
         ];
 
         // Rarity combinations with exact probabilities
@@ -2850,7 +2922,7 @@
             const apiAvailable = await checkAPIStatus();
             
             if (!apiAvailable) {
-                console.log('%c💡 API Server Not Running', 'color: #f39c12; font-weight: bold; font-size: 14px;');
+                console.log('%c[INFO] API Server Not Running', 'color: #f39c12; font-weight: bold; font-size: 14px;');
                 console.log('%cTo enable real sneaker images:', 'color: #3498db; font-weight: bold;');
                 console.log('%c1. Run: npm start', 'color: #27ae60;');
                 console.log('%c2. Open: http://localhost:3000/index.html', 'color: #27ae60;');
@@ -2858,7 +2930,7 @@
                 return;
             }
             
-            console.log('%c✅ API Server Connected - Loading real sneaker images...', 'color: #27ae60; font-weight: bold;');
+            console.log('%c[SUCCESS] API Server Connected - Loading real sneaker images...', 'color: #27ae60; font-weight: bold;');
             
             const popularSneakers = [
                 'Nike Dunk Low Panda',
@@ -3455,7 +3527,7 @@
                 return {
                     id: 'customer_' + Date.now() + '_' + random(1000, 9999),
                     name: name,
-                    avatar: randomChoice(['👟', '🔥', '💰', '⚡', '✨', '💎', '🎯', '🏆']),
+                    avatar: randomChoice(['S', 'B', 'M', 'E', 'N', 'G', 'T', 'W']),
                     type: 'seller',
                     message: openingMessage,
                     shoe: shoes[0], // Keep first shoe for backward compatibility
@@ -3474,7 +3546,7 @@
                 return {
                     id: 'customer_' + Date.now() + '_' + random(1000, 9999),
                     name: name,
-                    avatar: randomChoice(['👟', '🔥', '💰', '⚡', '✨', '💎', '🎯', '🏆']),
+                    avatar: randomChoice(['S', 'B', 'M', 'E', 'N', 'G', 'T', 'W']),
                     type: 'buyer',
                     message: message,
                     interestedBrand: brand.name,
@@ -3506,6 +3578,7 @@
             const currentTrend = getShoeTrend(shoe.brand, shoe.model);
             shoe.trend = currentTrend;
             shoe.isHot = currentTrend > 10;
+            shoe.isTanking = currentTrend < -10;
             
             const profit = shoe.estimatedValue - (shoe.purchasePrice || shoe.price);
             const profitPercent = shoe.purchasePrice ? 
@@ -3531,12 +3604,27 @@
             
             // Use compact card design for all contexts
             const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
-            const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+            const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
+            
+            // Determine market trend styling - thicker colored borders
+            let cardBorderColor = '#000';
+            let cardBorderWidth = '3px';
+            
+            if (shoe.isHot) {
+                // Hot/trending - thick red border
+                cardBorderColor = '#ff4444';
+                cardBorderWidth = '5px';
+            } else if (shoe.isTanking) {
+                // Tanking - thick blue border
+                cardBorderColor = '#4488ff';
+                cardBorderWidth = '5px';
+            }
             
             return `
-                <div class="sneaker-card" style="border: 2px solid ${context === 'buy' ? '#3498db' : context === 'inventory' ? '#27ae60' : '#667eea'}; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                     <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                    ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                    ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
+                    ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                     
                     <!-- Image as centerpiece -->
                     <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -3583,7 +3671,7 @@
                                 return `
                                     <div style="font-size: 10px; color: ${match ? '#27ae60' : '#888'}; padding: 3px 0; display: flex; justify-content: space-between; ${isEstimated ? 'opacity: 0.7;' : ''}">
                                         <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 600;">
-                                            ${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Size ${sale.size}${sale.wasHot ? ' 🔥' : ''}
+                                            ${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Size ${sale.size}${sale.wasHot ? ' [HOT]' : ''}
                                         </span>
                                         <span style="font-weight: 800; margin-left: 8px; white-space: nowrap;">${formatCurrency(sale.price)}</span>
                                     </div>
@@ -3634,11 +3722,11 @@
 
         // Load sneaker images for rendered cards (searches globally by ID)
         async function loadSneakerImages(shoes) {
-            console.log(`🔍 Loading images for ${shoes.length} shoes`);
+            console.log(`[INFO] Loading images for ${shoes.length} shoes`);
             for (const shoe of shoes) {
                 const imgContainer = document.getElementById(`sneaker-img-${shoe.id}`);
                 if (!imgContainer) {
-                    console.log(`❌ Container not found for shoe ${shoe.id}: ${shoe.brand} ${shoe.model}`);
+                    console.log(`[ERROR] Container not found for shoe ${shoe.id}: ${shoe.brand} ${shoe.model}`);
                     continue;
                 }
                 
@@ -3666,7 +3754,7 @@
                     img.style.cssText = 'width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; padding: 20px; z-index: 2;';
                     
                     img.onload = () => {
-                        console.log(`✅ Image loaded successfully for ${shoe.brand} ${shoe.model}`);
+                        console.log(`[SUCCESS] Image loaded successfully for ${shoe.brand} ${shoe.model}`);
                         const initialDiv = imgContainer.querySelector('.sneaker-initial');
                         if (initialDiv) {
                             initialDiv.style.display = 'none';
@@ -3674,26 +3762,26 @@
                     };
                     
                     img.onerror = () => {
-                        console.log(`❌ Image failed to load for ${shoe.brand} ${shoe.model}`);
+                        console.log(`[ERROR] Image failed to load for ${shoe.brand} ${shoe.model}`);
                     };
                     
                     imgContainer.appendChild(img);
-                    console.log(`📌 Appended img element to ${imgContainer.id}`);
+                    console.log(`[INFO] Appended img element to ${imgContainer.id}`);
                 } else {
-                    console.log(`❌ No image URL returned for: ${shoe.brand} ${shoe.model}`);
+                    console.log(`[ERROR] No image URL returned for: ${shoe.brand} ${shoe.model}`);
                 }
             }
-            console.log(`✅ Finished processing ${shoes.length} shoes`);
+            console.log(`[SUCCESS] Finished processing ${shoes.length} shoes`);
         }
         
         // Load sneaker images within a specific grid context (avoids duplicate ID issues)
         async function loadSneakerImagesInGrid(shoes, gridElement) {
-            console.log(`🔍 Loading images for ${shoes.length} shoes in specific grid`);
+            console.log(`[INFO] Loading images for ${shoes.length} shoes in specific grid`);
             for (const shoe of shoes) {
                 // Search within the specific grid, not globally
                 const imgContainer = gridElement.querySelector(`#sneaker-img-${shoe.id}`);
                 if (!imgContainer) {
-                    console.log(`❌ Container not found in grid for shoe ${shoe.id}: ${shoe.brand} ${shoe.model}`);
+                    console.log(`[ERROR] Container not found in grid for shoe ${shoe.id}: ${shoe.brand} ${shoe.model}`);
                     continue;
                 }
                 
@@ -3708,7 +3796,7 @@
                 const imageUrl = await getSneakerImage(shoe.brand, shoe.model);
                 
                 if (imageUrl) {
-                    console.log(`✅ Image URL found: ${imageUrl.substring(0, 60)}...`);
+                    console.log(`[SUCCESS] Image URL found: ${imageUrl.substring(0, 60)}...`);
                     
                     // Remove any existing partial image
                     if (existingImg) {
@@ -3721,7 +3809,7 @@
                     img.style.cssText = 'width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; padding: 20px; z-index: 2;';
                     
                     img.onload = () => {
-                        console.log(`✅ Image loaded and displayed for ${shoe.brand} ${shoe.model}`);
+                        console.log(`[SUCCESS] Image loaded and displayed for ${shoe.brand} ${shoe.model}`);
                         const initialDiv = imgContainer.querySelector('.sneaker-initial');
                         if (initialDiv) {
                             initialDiv.style.display = 'none';
@@ -3729,16 +3817,16 @@
                     };
                     
                     img.onerror = () => {
-                        console.log(`❌ Image failed to load for ${shoe.brand} ${shoe.model}`);
+                        console.log(`[ERROR] Image failed to load for ${shoe.brand} ${shoe.model}`);
                     };
                     
                     imgContainer.appendChild(img);
-                    console.log(`📌 Appended img to container in sell grid`);
+                    console.log(`[INFO] Appended img to container in sell grid`);
                 } else {
-                    console.log(`❌ No image URL returned for: ${shoe.brand} ${shoe.model}`);
+                    console.log(`[ERROR] No image URL returned for: ${shoe.brand} ${shoe.model}`);
                 }
             }
-            console.log(`✅ Finished processing ${shoes.length} shoes in grid`);
+            console.log(`[SUCCESS] Finished processing ${shoes.length} shoes in grid`);
         }
 
         function renderBuyTab() {
@@ -3757,7 +3845,7 @@
             if (sellerCustomers.length === 0) {
                 grid.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">💰</div>
+                        <div class="empty-state-icon"></div>
                         <div class="empty-state-text">No active sellers right now</div>
                         <p>Check back soon for new opportunities!</p>
                     </div>
@@ -3771,6 +3859,7 @@
                     const currentTrend = getShoeTrend(shoe.brand, shoe.model);
                     shoe.trend = currentTrend;
                     shoe.isHot = currentTrend > 10;
+                    shoe.isTanking = currentTrend < -10;
                     
                     // Use cached recent sales data (set when customer was generated)
                     // If not cached yet, generate it once and cache it
@@ -3793,17 +3882,30 @@
                     const borderColor = brandBorderColors[shoe.brand] || '#667eea';
                     
                     const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
-                    const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+                    const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
+                    
+                    // Determine market trend styling - thicker colored borders
+                    let cardBorderColor = '#000';
+                    let cardBorderWidth = '3px';
+                    
+                    if (shoe.isHot) {
+                        cardBorderColor = '#ff4444';
+                        cardBorderWidth = '5px';
+                    } else if (shoe.isTanking) {
+                        cardBorderColor = '#4488ff';
+                        cardBorderWidth = '5px';
+                    }
                     
                     const timeColor = customer.urgencyInSeconds < 60 ? '#ff0000' : customer.urgencyInSeconds < 180 ? '#ff6600' : '#27ae60';
                     const mins = Math.floor(customer.urgencyInSeconds / 60);
                     const secs = customer.urgencyInSeconds % 60;
-                    const timeDisplay = customer.urgencyInSeconds < 60 ? `⚠️ ${secs}s` : `⏰ ${mins}:${secs.toString().padStart(2, '0')}`;
+                    const timeDisplay = customer.urgencyInSeconds < 60 ? `[!] ${secs}s` : `[TIME] ${mins}:${secs.toString().padStart(2, '0')}`;
                     
                     return `
-                        <div class="sneaker-card" style="border: 2px solid #e67e22; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                        <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                             <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
+                            ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                             
                             <!-- Shoe Image -->
                             <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -3820,7 +3922,7 @@
                                         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
                                             <span style="font-weight: 900; font-size: 13px; color: #000; line-height: 1;">${customer.name}</span>
                                             <span style="background: #000; color: #fff; padding: 2px 6px; font-size: 8px; font-weight: 800; letter-spacing: 0.5px;">SELLING</span>
-                                            ${customer.isBulkDeal ? `<span style="background: #f39c12; color: #fff; padding: 2px 6px; font-size: 8px; font-weight: 800; letter-spacing: 0.5px;">📦 ${customer.shoes.length} PAIRS</span>` : ''}
+                                            ${customer.isBulkDeal ? `<span style="background: #f39c12; color: #fff; padding: 2px 6px; font-size: 8px; font-weight: 800; letter-spacing: 0.5px;">${customer.shoes.length} PAIRS</span>` : ''}
                                         </div>
                                     </div>
                                 </div>
@@ -3852,7 +3954,7 @@
                                         return `
                                             <div style="font-size: 10px; color: ${match ? '#27ae60' : '#888'}; padding: 3px 0; display: flex; justify-content: space-between; ${isEstimated ? 'opacity: 0.7;' : ''}">
                                                 <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 600;">
-                                                    ${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Size ${sale.size}${sale.wasHot ? ' 🔥' : ''}
+                                                    ${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Size ${sale.size}${sale.wasHot ? ' [HOT]' : ''}
                                                 </span>
                                                 <span style="font-weight: 800; margin-left: 8px; white-space: nowrap;">${formatCurrency(sale.price)}</span>
                                             </div>
@@ -3879,7 +3981,7 @@
                                 </div>
                                 
                                 <button class="action-btn" onclick="${customer.isBulkDeal ? `handleBulkDeal('${customer.id}')` : `handleCustomerSellerOffer('${customer.id}')`}" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 800;">
-                                    <span>${customer.isBulkDeal ? '📦 VIEW BULK DEAL' : 'NEGOTIATE DEAL'}</span>
+                                    <span>${customer.isBulkDeal ? 'VIEW BULK DEAL' : 'NEGOTIATE DEAL'}</span>
                                 </button>
                             </div>
                         </div>
@@ -3894,6 +3996,7 @@
             const currentTrend = getShoeTrend(shoe.brand, shoe.model);
             shoe.trend = currentTrend;
             shoe.isHot = currentTrend > 10;
+            shoe.isTanking = currentTrend < -10;
             
             const profit = shoe.listingPrice - shoe.purchasePrice;
             const profitPercent = ((profit / shoe.purchasePrice) * 100).toFixed(0);
@@ -3917,26 +4020,38 @@
             const borderColor = brandBorderColors[shoe.brand] || '#667eea';
             
             const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
-            const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+            const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
+            
+            // Determine market trend styling - thicker colored borders
+            let cardBorderColor = '#000';
+            let cardBorderWidth = '3px';
+            
+            if (shoe.isHot) {
+                cardBorderColor = '#ff4444';
+                cardBorderWidth = '5px';
+            } else if (shoe.isTanking) {
+                cardBorderColor = '#4488ff';
+                cardBorderWidth = '5px';
+            }
             
             // Price vs Market Value
             const priceVsValue = (shoe.listingPrice / shoe.estimatedValue);
             let priceStatus = '';
             let priceColor = '';
             if (priceVsValue <= 0.7) {
-                priceStatus = '💰 STEAL - Way below market!';
+                priceStatus = 'STEAL - Way below market!';
                 priceColor = '#27ae60';
             } else if (priceVsValue <= 0.9) {
-                priceStatus = '💰 Good Deal - Below market';
+                priceStatus = 'Good Deal - Below market';
                 priceColor = '#27ae60';
             } else if (priceVsValue <= 1.1) {
                 priceStatus = '✓ Fair Price';
                 priceColor = '#f39c12';
             } else if (priceVsValue <= 1.3) {
-                priceStatus = '⚠️ Overpriced';
+                priceStatus = '[!] Overpriced';
                 priceColor = '#e67e22';
             } else {
-                priceStatus = '❌ Way Overpriced!';
+                priceStatus = '[X] Way Overpriced!';
                 priceColor = '#e74c3c';
             }
             
@@ -3954,9 +4069,10 @@
             }
             
             return `
-                <div class="sneaker-card" style="border: 2px solid #f39c12; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                     <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                    ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                    ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
+                    ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                     
                     <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
                         <div class="sneaker-initial" style="font-size: 64px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 3px 3px 6px rgba(0,0,0,0.6);">${getBrandInitial(shoe)}</div>
@@ -4016,11 +4132,11 @@
                                     ${interestLevel > 25 ? interestText : ''}
                                 </div>
                             </div>
-                            <span style="font-size: 10px; color: #000; font-weight: 600; white-space: nowrap;">👁️ ${shoe.viewCount || 0} ⏱️ ${timeListedMins}m</span>
+                                <span style="font-size: 10px; color: #000; font-weight: 600; white-space: nowrap;">Views: ${shoe.viewCount || 0} | ${timeListedMins}m</span>
                         </div>
                         
                         ${saleSpeed ? `<div style="text-align: center; font-size: 9px; font-weight: 700; color: ${speedColor}; margin-bottom: 8px; padding: 4px; background: ${speedColor}15; border-radius: 3px;">
-                            ⏰ ${saleSpeed}
+                            ${saleSpeed}
                         </div>` : ''}
                         
                         <button class="action-btn danger" onclick="unlistShoe('${shoe.id}')" style="padding: 8px; font-size: 12px; width: 100%;">
@@ -4047,6 +4163,25 @@
                 document.getElementById('sell-listed-content').classList.add('active');
             }
         }
+        
+        function switchBuySubTab(tab) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.buy-sub-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content sections
+            const contents = document.querySelectorAll('.buy-sub-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'shop') {
+                document.getElementById('buy-shop-content').classList.add('active');
+                renderBuyTab();
+            } else if (tab === 'customers') {
+                document.getElementById('buy-customers-content').classList.add('active');
+                renderCustomersTab();
+            }
+        }
 
         function renderSellTab() {
             const inventoryGrid = document.getElementById('sell-inventory-grid');
@@ -4063,7 +4198,7 @@
             if (listedShoes.length === 0) {
                 listedHtml = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-icon"></div>
                         <div class="empty-state-text">No listed shoes</div>
                         <p>List some shoes from your inventory!</p>
                     </div>
@@ -4078,7 +4213,7 @@
             if (allInventoryShoes.length === 0) {
                 inventoryHtml = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">👟</div>
+                        <div class="empty-state-icon"></div>
                         <div class="empty-state-text">No shoes in inventory</div>
                         <p>Buy some shoes first to start flipping!</p>
                     </div>
@@ -4112,7 +4247,7 @@
                 html += `<div style="margin-bottom: 30px;">
                     <div style="background: #fff; border: 3px solid #000; padding: 10px 16px; margin-bottom: 15px; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); position: relative;">
                         <div style="position: absolute; top: -2px; left: 15px; width: 80px; height: 4px; background: #f39c12;"></div>
-                        <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">📋 Listed <span style="color: #f39c12;">(${listedShoes.length})</span></h3>
+                        <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">Listed <span style="color: #f39c12;">(${listedShoes.length})</span></h3>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">`;
                 
@@ -4121,6 +4256,7 @@
                     const currentTrend = getShoeTrend(shoe.brand, shoe.model);
                     shoe.trend = currentTrend;
                     shoe.isHot = currentTrend > 10;
+                    shoe.isTanking = currentTrend < -10;
                     
                     const profit = shoe.listingPrice - shoe.purchasePrice;
                     const profitPercent = ((profit / shoe.purchasePrice) * 100).toFixed(0);
@@ -4144,10 +4280,23 @@
                     };
                     const borderColor = brandBorderColors[shoe.brand] || '#667eea';
                     
+                    // Determine market trend styling - thicker colored borders
+                    let cardBorderColor = '#000';
+                    let cardBorderWidth = '3px';
+                    
+                    if (shoe.isHot) {
+                        cardBorderColor = '#ff4444';
+                        cardBorderWidth = '5px';
+                    } else if (shoe.isTanking) {
+                        cardBorderColor = '#4488ff';
+                        cardBorderWidth = '5px';
+                    }
+                    
                     html += `
-                        <div class="sneaker-card" style="border: 2px solid #f39c12; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                        <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                             <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
+                            ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                             
                             <!-- Shoe Image -->
                             <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -4183,7 +4332,7 @@
                             
                             ${(() => {
                                 const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
-                                const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+                                const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
                                 return `<div style="background: #f5f5f5; padding: 8px; border: 2px solid #000; margin-bottom: 8px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Market Trend</div>
@@ -4201,19 +4350,19 @@
                                 let priceStatus = '';
                                 let priceColor = '';
                                 if (priceVsValue <= 0.7) {
-                                    priceStatus = '💰 STEAL - Way below market!';
+                                    priceStatus = 'STEAL - Way below market!';
                                     priceColor = '#27ae60';
                                 } else if (priceVsValue <= 0.9) {
-                                    priceStatus = '💰 Good Deal - Below market';
+                                    priceStatus = 'Good Deal - Below market';
                                     priceColor = '#27ae60';
                                 } else if (priceVsValue <= 1.1) {
                                     priceStatus = '✓ Fair Price';
                                     priceColor = '#f39c12';
                                 } else if (priceVsValue <= 1.3) {
-                                    priceStatus = '⚠️ Overpriced';
+                                    priceStatus = '[!] Overpriced';
                                     priceColor = '#e67e22';
                                 } else {
-                                    priceStatus = '❌ Way Overpriced!';
+                                    priceStatus = '[X] Way Overpriced!';
                                     priceColor = '#e74c3c';
                                 }
                                 return `<div style="background: ${priceColor}15; padding: 6px 8px; border: 2px solid ${priceColor}; margin-bottom: 8px; border-radius: 4px;">
@@ -4228,7 +4377,7 @@
                                         ${interestLevel > 25 ? interestText : ''}
                                     </div>
                                 </div>
-                                <span style="font-size: 10px; color: #000; font-weight: 600; white-space: nowrap;">👁️ ${shoe.viewCount} ⏱️ ${timeListedMins}m</span>
+                                <span style="font-size: 10px; color: #000; font-weight: 600; white-space: nowrap;">Views: ${shoe.viewCount} | ${timeListedMins}m</span>
                             </div>
                             
                             <!-- Sale Speed Prediction -->
@@ -4245,7 +4394,7 @@
                                     speedColor = '#e74c3c';
                                 }
                                 return saleSpeed ? `<div style="text-align: center; font-size: 9px; font-weight: 700; color: ${speedColor}; margin-bottom: 8px; padding: 4px; background: ${speedColor}15; border-radius: 3px;">
-                                    ⏰ ${saleSpeed}
+                                    ${saleSpeed}
                                 </div>` : '';
                             })()}
                             
@@ -4266,7 +4415,7 @@
                 html += `<div style="margin-bottom: 30px;">
                     <div style="background: #fff; border: 3px solid #000; padding: 10px 16px; margin-bottom: 15px; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); position: relative;">
                         <div style="position: absolute; top: -2px; left: 15px; width: 80px; height: 4px; background: #9b59b6;"></div>
-                        <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">🔄 Unlisted <span style="color: #9b59b6;">(${unlistedFromSell.length})</span></h3>
+                        <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">Unlisted <span style="color: #9b59b6;">(${unlistedFromSell.length})</span></h3>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">`;
                 
@@ -4275,6 +4424,7 @@
                     const currentTrend = getShoeTrend(shoe.brand, shoe.model);
                     shoe.trend = currentTrend;
                     shoe.isHot = currentTrend > 10;
+                    shoe.isTanking = currentTrend < -10;
                     
                     const profit = shoe.estimatedValue - shoe.purchasePrice;
                     const profitPercent = ((profit / shoe.purchasePrice) * 100).toFixed(0);
@@ -4292,10 +4442,23 @@
                     };
                     const borderColor = brandBorderColors[shoe.brand] || '#667eea';
                     
+                    // Determine market trend styling - thicker colored borders
+                    let cardBorderColor = '#000';
+                    let cardBorderWidth = '3px';
+                    
+                    if (shoe.isHot) {
+                        cardBorderColor = '#ff4444';
+                        cardBorderWidth = '5px';
+                    } else if (shoe.isTanking) {
+                        cardBorderColor = '#4488ff';
+                        cardBorderWidth = '5px';
+                    }
+                    
                     html += `
-                        <div class="sneaker-card" style="border: 2px solid #9b59b6; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                        <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                             <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
+                            ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                             
                             <!-- Shoe Image -->
                             <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -4336,7 +4499,7 @@
                                 </div>
                                 ${(() => {
                                     const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
-                                    const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+                                    const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
                                     return `<div style="background: #f5f5f5; padding: 8px; border: 2px solid #000;">
                                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                                             <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Market Trend</div>
@@ -4366,7 +4529,7 @@
                 html += `<div>
                     <div style="background: #fff; border: 3px solid #000; padding: 10px 16px; margin-bottom: 15px; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); position: relative;">
                         <div style="position: absolute; top: -2px; left: 15px; width: 80px; height: 4px; background: #27ae60;"></div>
-                        <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">👟 Inventory <span style="color: #27ae60;">(${unlistedInventory.length})</span></h3>
+                        <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">Inventory <span style="color: #27ae60;">(${unlistedInventory.length})</span></h3>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">`;
                 
@@ -4395,7 +4558,7 @@
                     html += `
                         <div class="sneaker-card" style="border: 2px solid #27ae60; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                             <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                            ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                             
                             <!-- Shoe Image -->
                             <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -4436,7 +4599,7 @@
                                 </div>
                                 ${(() => {
                                     const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
-                                    const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+                                    const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
                                     return `<div style="background: #f5f5f5; padding: 8px; border: 2px solid #000;">
                                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                                             <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Market Trend</div>
@@ -4463,7 +4626,7 @@
             if (gameState.listedShoes.length === 0 && unlistedInventory.length === 0) {
                 html = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">💰</div>
+                        <div class="empty-state-icon"></div>
                         <div class="empty-state-text">No shoes to sell</div>
                         <p>Buy some shoes first to start flipping!</p>
                     </div>
@@ -4686,7 +4849,7 @@
             if (trendedShoes.length === 0) {
                 heatmap.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #1a1a1a;">
-                        <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
+                        <div style="font-size: 40px; margin-bottom: 10px;">[STATS]</div>
                         <div>Market trends will appear as shoes are generated</div>
                     </div>
                 `;
@@ -4767,7 +4930,7 @@
                     `;
                     
                     shoes.forEach(shoe => {
-                        const trendEmoji = shoe.trend > 10 ? '🔥' : shoe.trend > 0 ? '📈' : shoe.trend < -10 ? '💀' : shoe.trend < 0 ? '📉' : '➡️';
+                        const trendEmoji = shoe.trend > 10 ? '[HOT]' : shoe.trend > 0 ? '↑' : shoe.trend < -10 ? '[DEAD]' : shoe.trend < 0 ? '↓' : '→';
                         const trendColor = shoe.trend > 10 ? '#e74c3c' : shoe.trend > 0 ? '#27ae60' : shoe.trend < -10 ? '#95a5a6' : shoe.trend < 0 ? '#e67e22' : '#95a5a6';
                         const isHot = shoe.trend > 10;
                         
@@ -5053,7 +5216,7 @@
                     <div style="margin-top: 5px;">
                         <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
-                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
                     <div style="margin-top: 10px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
                         <div>
@@ -5066,13 +5229,13 @@
                         </div>
                         <div>
                             <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Time Left</div>
-                            <div style="color: ${auction.timeRemaining < 300 ? '#e74c3c' : '#f39c12'}; font-weight: bold; font-size: 18px;">⏱️ ${timeLeft}</div>
+                            <div style="color: ${auction.timeRemaining < 300 ? '#e74c3c' : '#f39c12'}; font-weight: bold; font-size: 18px;">${timeLeft}</div>
                         </div>
                     </div>
                 </div>
                 
                 <div style="background: rgba(155, 89, 182, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Auction Details</div>
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Auction Details</div>
                     <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
                         <span style="color: #666;">Seller:</span>
                         <span style="font-weight: bold;">${auction.seller}</span>
@@ -5093,13 +5256,13 @@
                 
                 ${recentSales.length > 0 ? `
                     <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
                         ${recentSales.slice(0, 5).map(sale => {
                             const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
                             const isEstimated = sale.isEstimated;
                             return `
                                 <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' 🔥' : ''}</span>
+                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' [HOT]' : ''}</span>
                                     <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
                                 </div>
                             `;
@@ -5120,7 +5283,7 @@
                 </div>
                 
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    💡 Bid smart! Check recent sales and estimated value. ${auction.timeRemaining < 300 ? '⚠️ Auction ending soon!' : ''}
+                    Tip: Bid smart! Check recent sales and estimated value. ${auction.timeRemaining < 300 ? 'WARNING: Auction ending soon!' : ''}
                 </div>
             `);
         }
@@ -5242,14 +5405,14 @@
             
             showModal(`
                 <h2 class="modal-title">List Shoe for Auction</h2>
-                <div class="seller-avatar" id="seller-avatar">🏷️</div>
+                <div class="seller-avatar" id="seller-avatar">$</div>
                 <div style="text-align: center; color: #1a1a1a; margin-bottom: 20px;">
                     <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
                         <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
-                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
                     <div style="margin-top: 10px;">
                         <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Estimated Market Value</div>
@@ -5258,7 +5421,7 @@
                 </div>
                 
                 <div style="background: rgba(155, 89, 182, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Your Investment</div>
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Your Investment</div>
                     <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
                         <span style="color: #666;">Purchase Price:</span>
                         <span style="font-weight: bold; color: #e74c3c;">${formatCurrency(shoe.purchasePrice)}</span>
@@ -5275,13 +5438,13 @@
                 
                 ${recentSales.length > 0 ? `
                     <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
                         ${recentSales.slice(0, 5).map(sale => {
                             const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
                             const isEstimated = sale.isEstimated;
                             return `
                                 <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' 🔥' : ''}</span>
+                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' [HOT]' : ''}</span>
                                     <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
                                 </div>
                             `;
@@ -5295,7 +5458,7 @@
                 
                 <div style="margin: 15px 0;">
                     <div style="font-size: 11px; color: #666; margin-bottom: 8px; text-align: center;">
-                        💡 Suggested Range: ${formatCurrency(suggestedMin)} - ${formatCurrency(suggestedMax)} (50-70% of value)
+                        Tip: Suggested Range: ${formatCurrency(suggestedMin)} - ${formatCurrency(suggestedMax)} (50-70% of value)
                     </div>
                 </div>
                 
@@ -5308,7 +5471,7 @@
                 </div>
                 
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    ⚠️ Once someone bids, you can't cancel. AI bidders will compete!
+                    Warning: Once someone bids, you can't cancel. AI bidders will compete!
                 </div>
             `);
         }
@@ -5482,12 +5645,12 @@
                 };
                 const borderColor = brandBorderColors[shoe.brand] || '#667eea';
                 const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
-                const trendIcon = currentTrend > 5 ? '📈' : currentTrend < -5 ? '📉' : '➡️';
+                const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
                 
                 html += `
                     <div class="sneaker-card" style="border: 2px solid #9b59b6; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                         <div class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                        ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 24px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥</div>' : ''}
+                        ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                         
                         <!-- Image as centerpiece -->
                         <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -5517,11 +5680,11 @@
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid #ddd;">
                                     <span style="font-size: 10px; color: #000; font-weight: 700; text-transform: uppercase;">Time Left</span>
-                                    <span style="font-size: 16px; font-weight: 900; color: ${auction.timeRemaining < 300 ? '#e74c3c' : '#f39c12'};">⏱️ ${timeLeft}</span>
+                                    <span style="font-size: 16px; font-weight: 900; color: ${auction.timeRemaining < 300 ? '#e74c3c' : '#f39c12'};">${timeLeft}</span>
                                 </div>
                             </div>
                             
-                            ${isWinning ? '<div style="background: #27ae60; color: white; padding: 8px; text-align: center; font-size: 11px; font-weight: 700; margin-bottom: 8px; border-radius: 4px;">🏆 YOU ARE WINNING!</div>' : ''}
+                            ${isWinning ? '<div style="background: #27ae60; color: white; padding: 8px; text-align: center; font-size: 11px; font-weight: 700; margin-bottom: 8px; border-radius: 4px;">YOU ARE WINNING!</div>' : ''}
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                                 <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000;">
@@ -5540,6 +5703,13 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            ${auction.isPlayerAuction ? 
+                                `<div style="background: #f3e5f5; padding: 8px; border: 2px solid #9C27B0; margin-bottom: 10px;">
+                                    <div style="font-size: 9px; color: #9C27B0; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; line-height: 1;">Bought For</div>
+                                    <div style="font-size: 14px; font-weight: 900; color: #7B1FA2; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(shoe.purchasePrice)}</div>
+                                </div>` : ''
+                            }
                             
                             ${!auction.isPlayerAuction ? 
                                 `<button class="action-btn" onclick="placeBid(${auction.id})" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
@@ -5619,7 +5789,7 @@
                     <p><strong>Purchase Price:</strong> ${formatCurrency(shoe.purchasePrice)}</p>
                     <p><strong>Current Value:</strong> ${formatCurrency(shoe.estimatedValue)}</p>
                     <p><strong>Days Held:</strong> ${shoe.daysHeld}</p>
-                    <p><strong>Status:</strong> ${shoe.isHot ? '🔥 Hot Item!' : 'Stable'}</p>
+                    <p><strong>Status:</strong> ${shoe.isHot ? '[HOT] Hot Item!' : 'Stable'}</p>
                 </div>
             `);
         }
@@ -5692,7 +5862,7 @@
                     <div style="margin-top: 5px;">
                         <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
-                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
                     <div style="margin-top: 12px; padding: 12px; background: #f5f5f5; border: 3px solid #000;">
                         <div style="display: flex; justify-content: space-around; gap: 15px;">
@@ -5710,7 +5880,7 @@
                 <div style="color: #1a1a1a; margin: 15px 0; text-align: center;">
                     <div style="font-weight: 900; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Set Your Asking Price</div>
                     <div style="font-size: 11px; color: #000; margin-bottom: 12px; font-weight: 600;">
-                        💡 Suggested price accounts for trends, rarity & condition!
+                        Tip: Suggested price accounts for trends, rarity & condition!
                     </div>
                     <input type="number" class="negotiation-input" id="listing-price-input" 
                            placeholder="Enter asking price" min="0" step="10" value="${suggestedPrice}"
@@ -5760,13 +5930,13 @@
             
             // Determine price status
             if (priceVsValue <= 0.5) {
-                priceStatus = '💰 STEAL! Way below market';
+                priceStatus = 'STEAL! Way below market';
                 priceColor = '#27ae60';
             } else if (priceVsValue <= 0.7) {
-                priceStatus = '💰 Great Deal - Below market';
+                priceStatus = 'Great Deal - Below market';
                 priceColor = '#27ae60';
             } else if (priceVsValue <= 0.85) {
-                priceStatus = '💰 Good Price - Below market';
+                priceStatus = 'Good Price - Below market';
                 priceColor = '#27ae60';
             } else if (priceVsValue <= 0.95) {
                 priceStatus = '✓ Fair Deal';
@@ -5775,19 +5945,19 @@
                 priceStatus = '✓ Fair Price';
                 priceColor = '#f39c12';
             } else if (priceVsValue <= 1.15) {
-                priceStatus = '⚠️ Slightly Overpriced';
+                priceStatus = '[!] Slightly Overpriced';
                 priceColor = '#e67e22';
             } else if (priceVsValue <= 1.3) {
-                priceStatus = '⚠️ Overpriced';
+                priceStatus = '[!] Overpriced';
                 priceColor = '#e67e22';
             } else if (priceVsValue <= 1.5) {
-                priceStatus = '❌ Way Overpriced';
+                priceStatus = '[X] Way Overpriced';
                 priceColor = '#e74c3c';
             } else if (priceVsValue <= 2.0) {
-                priceStatus = '❌ Extremely Overpriced';
+                priceStatus = '[X] Extremely Overpriced';
                 priceColor = '#e74c3c';
             } else {
-                priceStatus = '❌ RIDICULOUSLY Overpriced';
+                priceStatus = '[X] RIDICULOUSLY Overpriced';
                 priceColor = '#e74c3c';
             }
             
@@ -5834,7 +6004,7 @@
                 </div>
                 
                 <div style="font-size: 10px; font-weight: 700; color: ${interestColor}; text-align: center; margin-top: 6px;">
-                    ⏰ ${saleSpeed}
+                    ${saleSpeed}
                 </div>
             `;
         }
@@ -6026,7 +6196,7 @@
                     <div style="margin-top: 5px;">
                         <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
-                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
                     <div style="margin-top: 15px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px;">
                         <div style="display: flex; justify-content: space-around;">
@@ -6418,9 +6588,9 @@
                             <div style="font-size: 20px; font-weight: bold; color: #f39c12;">${formatCurrency(counterOffer)}</div>
                         </div>
                     </div>
-                    ${shoe.isHot ? '<div style="text-align: center; margin-top: 10px; color: #e74c3c; font-weight: bold;">🔥 Hot Item - Strong negotiating position</div>' : ''}
-                    ${(shoe.condition === 'Deadstock' || shoe.condition === 'OG') ? '<div style="text-align: center; margin-top: 10px; color: #27ae60;">✨ Premium condition increases value</div>' : ''}
-                    ${(shoe.rarityTier === 'Grail' || shoe.rarityTier === 'Vaulted' || shoe.tier === 'Grail' || shoe.tier === 'Vaulted') ? `<div style="text-align: center; margin-top: 10px; color: #9b59b6;">⭐ ${shoe.tier || shoe.rarityTier} tier affects pricing</div>` : ''}
+                    ${shoe.isHot ? '<div style="text-align: center; margin-top: 10px; color: #e74c3c; font-weight: bold;">[HOT] Hot Item - Strong negotiating position</div>' : ''}
+                    ${(shoe.condition === 'Deadstock' || shoe.condition === 'OG') ? '<div style="text-align: center; margin-top: 10px; color: #27ae60;">Premium condition increases value</div>' : ''}
+                    ${(shoe.rarityTier === 'Grail' || shoe.rarityTier === 'Vaulted' || shoe.tier === 'Grail' || shoe.tier === 'Vaulted') ? `<div style="text-align: center; margin-top: 10px; color: #9b59b6;">${shoe.tier || shoe.rarityTier} tier affects pricing</div>` : ''}
                 </div>
                 <div class="negotiation-buttons">
                     <button class="action-btn" onclick="acceptCounterOffer('${customer.id}', ${counterOffer}, '${customerType}')">
@@ -6435,7 +6605,7 @@
                     </button>
                 </div>
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    💡 Counter-offers are based on hype, condition, rarity, and market value
+                    Tip: Counter-offers are based on hype, condition, rarity, and market value
                 </div>
             `);
         }
@@ -6460,7 +6630,7 @@
                 </div>
                 
                 <div style="background: #f5f5f5; padding: 12px; border: 3px solid #000; margin-bottom: 15px;">
-                    <div style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 6px;">💡 SELECT SHOES TO BUY</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 6px;">SELECT SHOES TO BUY</div>
                     <div style="font-size: 13px; color: #1a1a1a;">
                         Click on shoes to select/deselect them. A bulk discount will be applied to your total!
                     </div>
@@ -6488,7 +6658,7 @@
                     ${shoes.map((shoe, index) => {
                         const brandColor = getBrandColor(shoe.brand);
                         const trendColor = shoe.trend > 5 ? '#27ae60' : shoe.trend < -5 ? '#e74c3c' : '#f39c12';
-                        const trendIcon = shoe.trend > 5 ? '📈' : shoe.trend < -5 ? '📉' : '➡️';
+                        const trendIcon = shoe.trend > 5 ? '↑' : shoe.trend < -5 ? '↓' : '→';
                         
                         return `
                             <div class="bulk-shoe-card" id="bulk-shoe-${index}" data-customer-id="${customerId}" data-shoe-index="${index}">
@@ -6503,7 +6673,7 @@
                                             <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0; font-size: 8px; padding: 2px 6px;">${shoe.rarity}</span>
                                             <span>Size ${shoe.size}</span>
                                             <span>${shoe.conditionEmoji} ${shoe.condition}</span>
-                                            ${shoe.isHot ? '<span style="color: #e74c3c;">🔥</span>' : ''}
+                                            ${shoe.isHot ? '<span style="color: #e74c3c;">[HOT]</span>' : ''}
                                         </div>
                                         <div style="display: flex; justify-content: space-between; align-items: center;">
                                             <div style="display: flex; align-items: center; gap: 4px;">
@@ -6528,7 +6698,7 @@
                     </button>
                 </div>
                 <div style="margin-top: 10px; color: #666; font-size: 11px; text-align: center;">
-                    💡 Select 2+ shoes for better bulk discounts!
+                    Tip: Select 2+ shoes for better bulk discounts!
                 </div>
             `;
             
@@ -6704,7 +6874,7 @@
                     </button>
                 </div>
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    💡 Bulk deals mean tougher negotiation but better prices!
+                    Tip: Bulk deals mean tougher negotiation but better prices!
                 </div>
             `);
         }
@@ -7020,7 +7190,7 @@
                     <div style="margin-top: 5px;">
                         <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
-                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
                     <div style="margin-top: 15px; padding: 15px; background: rgba(39, 174, 96, 0.1); border-radius: 10px;">
                         <div style="display: flex; justify-content: space-around;">
@@ -7043,7 +7213,7 @@
                     "${customer.message}"
                 </div>
                 <div style="color: #666; font-size: 13px; text-align: center; margin-bottom: 15px;">
-                    💡 They're willing to pay up to ${(customer.willingness * 100).toFixed(0)}% of market value
+                    Tip: They're willing to pay up to ${(customer.willingness * 100).toFixed(0)}% of market value
                 </div>
                 <input type="number" class="negotiation-input" id="asking-price-input" 
                        placeholder="Enter your asking price" min="0" step="10" value=${theirBudget}>
@@ -7177,14 +7347,14 @@
             
             showModal(`
                 <h2 class="modal-title">Negotiate Purchase</h2>
-                <div class="seller-avatar" id="seller-avatar">💎</div>
+                <div class="seller-avatar" id="seller-avatar">$</div>
                 <div style="text-align: center; color: #1a1a1a; margin-bottom: 20px;">
                     <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
                         <span class="rarity-badge rarity-${shoe.rarity.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
-                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">🔥 HOT</span>' : ''}
+                        ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
                     <div style="margin-top: 10px;">
                         <span style="color: #e74c3c; font-weight: bold; font-size: 20px;">Asking: ${formatCurrency(shoe.price)}</span>
@@ -7192,13 +7362,13 @@
                 </div>
                 ${recentSales.length > 0 ? `
                     <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">📊 Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
                         ${recentSales.map(sale => {
                             const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
                             const isEstimated = sale.isEstimated;
                             return `
                                 <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' 🔥' : ''}</span>
+                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' [HOT]' : ''}</span>
                                     <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
                                 </div>
                             `;
@@ -7215,7 +7385,7 @@
                     <button class="action-btn danger" onclick="closeModal()"><span>Walk Away</span></button>
                 </div>
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    💡 Use recent sales to guide your offer. Sellers are tough!
+                    Tip: Use recent sales to guide your offer. Sellers are tough!
                 </div>
             `);
         }
@@ -7364,7 +7534,7 @@
             
             showModal(`
                 <h2 class="modal-title">Counter Offer!</h2>
-                <div class="seller-avatar">💎</div>
+                <div class="seller-avatar">$</div>
                 <div style="text-align: center; color: #1a1a1a; margin: 20px 0;">
                     <div style="font-size: 18px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666; margin-top: 5px;">${shoe.colorway}</div>
@@ -7384,9 +7554,9 @@
                             <div style="font-size: 20px; font-weight: bold; color: #f39c12;">${formatCurrency(counterOffer)}</div>
                         </div>
                     </div>
-                    ${shoe.isHot ? '<div style="text-align: center; margin-top: 10px; color: #e74c3c; font-weight: bold;">🔥 Hot Item - Strong negotiating position</div>' : ''}
-                    ${(shoe.condition === 'Deadstock' || shoe.condition === 'OG') ? '<div style="text-align: center; margin-top: 10px; color: #27ae60;">✨ Premium condition increases value</div>' : ''}
-                    ${(shoe.rarityTier === 'Grail' || shoe.rarityTier === 'Vaulted' || shoe.tier === 'Grail' || shoe.tier === 'Vaulted') ? `<div style="text-align: center; margin-top: 10px; color: #9b59b6;">⭐ ${shoe.tier || shoe.rarityTier} tier affects pricing</div>` : ''}
+                    ${shoe.isHot ? '<div style="text-align: center; margin-top: 10px; color: #e74c3c; font-weight: bold;">[HOT] Hot Item - Strong negotiating position</div>' : ''}
+                    ${(shoe.condition === 'Deadstock' || shoe.condition === 'OG') ? '<div style="text-align: center; margin-top: 10px; color: #27ae60;">Premium condition increases value</div>' : ''}
+                    ${(shoe.rarityTier === 'Grail' || shoe.rarityTier === 'Vaulted' || shoe.tier === 'Grail' || shoe.tier === 'Vaulted') ? `<div style="text-align: center; margin-top: 10px; color: #9b59b6;">${shoe.tier || shoe.rarityTier} tier affects pricing</div>` : ''}
                 </div>
                 <div class="negotiation-buttons">
                     <button class="action-btn" onclick="acceptMarketplaceCounter('${shoe.id}', ${counterOffer})">
@@ -7401,7 +7571,7 @@
                     </button>
                 </div>
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    💡 Counter-offers are based on hype, condition, rarity, and market value
+                    Tip: Counter-offers are based on hype, condition, rarity, and market value
                 </div>
             `);
         }
@@ -7424,7 +7594,7 @@
             
             showModal(`
                 <h2 class="modal-title">Continue Negotiating</h2>
-                <div class="seller-avatar">💎</div>
+                <div class="seller-avatar">$</div>
                 <div style="text-align: center; color: #1a1a1a; margin: 20px 0;">
                     <div style="font-size: 18px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666; margin-top: 5px;">${shoe.colorway}</div>
@@ -7512,7 +7682,7 @@
             
             showModal(`
                 <h2 class="modal-title">Final Counter Offer</h2>
-                <div class="seller-avatar">💎</div>
+                <div class="seller-avatar">$</div>
                 <div style="text-align: center; color: #1a1a1a; margin: 20px 0;">
                     <div style="font-size: 18px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666; margin-top: 5px;">${shoe.colorway}</div>
@@ -7662,8 +7832,6 @@
                 switch(tab) {
                     case 'buy':
                         renderBuyTab();
-                        break;
-                    case 'customers':
                         renderCustomersTab();
                         break;
                     case 'sell':
@@ -7843,7 +8011,7 @@
             updateCustomers();
             
             // Update customers tab display every second (since we show real-time countdown)
-            if (gameState.customers.length > 0 && document.getElementById('customers-tab').classList.contains('active')) {
+            if (gameState.customers.length > 0 && document.getElementById('buy-customers-content').classList.contains('active')) {
                 renderCustomersTab();
             }
             
@@ -7901,7 +8069,7 @@
                     
                     const [brand, ...modelParts] = randomKey.split('_');
                     const model = modelParts.join(' ');
-                    showNotification(`🔥 ${brand} ${model} is trending up!`, 'info');
+                    showNotification(`[HOT] ${brand} ${model} is trending up!`, 'info');
                 }
                 
                 // Sync hot status with trends for all shoes
@@ -8279,7 +8447,7 @@
             // Preload popular sneaker images
             preloadPopularSneakers();
             
-            console.log('🔥 Sneaker Hustle initialized! Let\'s get this bread!');
+            console.log('[GAME READY] Sneaker Hustle initialized! Let\'s get this bread!');
         }
 
         // Start the game
