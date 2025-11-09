@@ -134,8 +134,8 @@ app.get('/api/search/:query', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Sneaker API Server running on http://localhost:${PORT}`);
-    console.log(`Frontend available at http://localhost:${PORT}/index.html`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Sneaker API Server running on port ${PORT}`);
+    console.log(`Ready to accept connections`);
 });
 
