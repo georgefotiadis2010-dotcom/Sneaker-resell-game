@@ -2580,6 +2580,11 @@
         // Cache for sneaker images to avoid repeated API calls
         const sneakerImageCache = {};
         
+        // Hardcoded image overrides for sneakers with incorrect API data
+        const imageOverrides = {
+            'Nike Air Jordan 11 Space Jam': 'https://images.stockx.com/images/Air-Jordan-11-Retro-Space-Jam-2016.jpg?fit=fill&bg=FFFFFF&w=700&h=500&fm=webp&auto=compress&q=90&dpr=2&trim=color&updated_at=1606325099',
+        };
+        
         // Fetch sneaker data from backend
         async function fetchSneakerData(sneakerName) {
             try {
@@ -2605,7 +2610,13 @@
         async function getSneakerImage(brand, model) {
             const fullName = `${brand} ${model}`;
             
-            // Check cache first
+            // Check hardcoded overrides first
+            if (imageOverrides[fullName]) {
+                sneakerImageCache[fullName] = imageOverrides[fullName];
+                return imageOverrides[fullName];
+            }
+            
+            // Check cache
             if (sneakerImageCache[fullName]) {
                 return sneakerImageCache[fullName];
             }
