@@ -114,6 +114,110 @@
             box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
         }
 
+        .odds-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: 3px solid #000;
+            border-radius: 0;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+
+        .odds-btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+        }
+
+        .odds-btn:active {
+            transform: translateY(0);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .odds-modal-content {
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .odds-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .odds-table th,
+        .odds-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #000;
+        }
+
+        .odds-table th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: #fff;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .odds-table tr:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .tier-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: #fff;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .tier-standard { background: rgba(149, 165, 166, 0.2); }
+        .tier-limited { background: rgba(46, 204, 113, 0.2); }
+        .tier-vaulted { background: rgba(155, 89, 182, 0.2); }
+        .tier-grail { background: rgba(231, 76, 60, 0.2); }
+
+        .odds-rare {
+            color: #e74c3c;
+            font-weight: 800;
+        }
+
+        .odds-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .odds-summary-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border: 3px solid #000;
+            text-align: center;
+        }
+
+        .odds-summary-tier {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .odds-summary-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #2c3e50;
+        }
+
         .stat {
             display: flex;
             flex-direction: column;
@@ -1739,6 +1843,7 @@
                     <div class="stat-label">Inventory</div>
                     <div class="stat-value" id="inventory-count">0/10</div>
                 </div>
+                <button class="odds-btn" onclick="showDropRates()">Drop Rates</button>
                 <button class="reset-btn" onclick="confirmReset()">Reset Game</button>
             </div>
         </div>
@@ -2582,7 +2687,7 @@
         
         // Hardcoded image overrides for sneakers with incorrect API data
         const imageOverrides = {
-            'Nike Air Jordan 11 Space Jam': 'https://images.stockx.com/images/Air-Jordan-11-Retro-Space-Jam-2016.jpg?fit=fill&bg=FFFFFF&w=700&h=500&fm=webp&auto=compress&q=90&dpr=2&trim=color&updated_at=1606325099',
+            'Nike Air Jordan 11 Space Jam': 'https://images.stockx.com/360/Air-Jordan-11-Retro-Space-Jam-2016/Images/Air-Jordan-11-Retro-Space-Jam-2016/Lv2/img01.jpg',
         };
         
         // Fetch sneaker data from backend
@@ -2610,8 +2715,9 @@
         async function getSneakerImage(brand, model) {
             const fullName = `${brand} ${model}`;
             
-            // Check hardcoded overrides first
+            // Check hardcoded overrides first (these take priority over cache)
             if (imageOverrides[fullName]) {
+                console.log(`Using image override for ${fullName}`);
                 sneakerImageCache[fullName] = imageOverrides[fullName];
                 return imageOverrides[fullName];
             }
@@ -5351,11 +5457,15 @@
         }
         
         function listShoeForSale(shoeId, method) {
-            // Check both inventory and listedShoes for the shoe
+            // CRITICAL: Only allow listing if shoe exists in inventory
+            // This prevents re-listing shoes that have already been sold
             let shoe = gameState.inventory.find(s => s.id === shoeId);
-            let listedShoe = gameState.listedShoes.find(s => s.id === shoeId);
             
-            if (!shoe && !listedShoe) return;
+            if (!shoe) {
+                showNotification('This shoe is no longer in your inventory!', 'error');
+                closeModal();
+                return;
+            }
             
             const listingPrice = parseInt(document.getElementById('listing-price-input').value);
             
@@ -5365,7 +5475,7 @@
             }
             
             // Calculate interest and sale speed for the listing
-            const tempShoe = {...(listedShoe || shoe), listingPrice: listingPrice, timeListedInSeconds: 0};
+            const tempShoe = {...shoe, listingPrice: listingPrice, timeListedInSeconds: 0};
             const interest = calculateBuyerInterest(tempShoe);
             
             // Determine sale speed based on interest level
@@ -5394,34 +5504,22 @@
                 saleSpeed = 'Won\'t sell';
             }
             
-            // If shoe exists in listedShoes, update that reference
-            if (listedShoe) {
-                listedShoe.listedForSale = true;
-                listedShoe.listingPrice = listingPrice;
-                listedShoe.timeListedInSeconds = 0;
-                listedShoe.viewCount = 0;
-                listedShoe.saleSpeed = saleSpeed;
-                listedShoe.interestFactors = tempShoe.interestFactors;
-            }
+            // Update the shoe in inventory
+            shoe.listedForSale = true;
+            shoe.listingPrice = listingPrice;
+            shoe.timeListedInSeconds = 0;
+            shoe.viewCount = 0;
+            shoe.saleSpeed = saleSpeed;
+            shoe.interestFactors = tempShoe.interestFactors;
             
-            // Also update inventory reference if it exists
-            if (shoe) {
-                shoe.listedForSale = true;
-                shoe.listingPrice = listingPrice;
-                shoe.timeListedInSeconds = 0;
-                shoe.viewCount = 0;
-                shoe.saleSpeed = saleSpeed;
-                shoe.interestFactors = tempShoe.interestFactors;
-                
-                // Add to listed shoes only if not already there
-                if (!listedShoe) {
-                    gameState.listedShoes.push(shoe);
-                }
+            // Check if already in listedShoes array (prevent duplicates)
+            const alreadyListed = gameState.listedShoes.find(s => s.id === shoeId);
+            if (!alreadyListed) {
+                gameState.listedShoes.push(shoe);
             }
             
             closeModal();
-            const shoeToDisplay = listedShoe || shoe;
-            showNotification(`Listed ${shoeToDisplay.brand} ${shoeToDisplay.model} for ${formatCurrency(listingPrice)}!`, 'success');
+            showNotification(`Listed ${shoe.brand} ${shoe.model} for ${formatCurrency(listingPrice)}!`, 'success');
             updateUI();
             renderInventoryTab();
             renderSellTab();
@@ -7280,6 +7378,16 @@
         }
 
         function executeListingSale(shoe) {
+            // CRITICAL: Verify the shoe still exists in inventory before processing sale
+            // This prevents duplicate sales and negative profit bugs
+            const inventoryShoe = gameState.inventory.find(s => s.id === shoe.id);
+            if (!inventoryShoe) {
+                console.warn(`Attempted to sell shoe ${shoe.id} that is not in inventory - preventing duplicate sale`);
+                // Remove from listedShoes if somehow still there
+                gameState.listedShoes = gameState.listedShoes.filter(s => s.id !== shoe.id);
+                return;
+            }
+            
             const profit = shoe.listingPrice - shoe.purchasePrice;
             
             gameState.cash += shoe.listingPrice;
@@ -7476,6 +7584,75 @@
                 renderInventoryTab();
                 showNotification('Game loaded!', 'info');
             }
+        }
+
+        function showDropRates() {
+            // Calculate totals for each tier
+            const tierTotals = {
+                'Standard': 0,
+                'Limited': 0,
+                'Vaulted': 0,
+                'Grail': 0
+            };
+            
+            RARITY_COMBINATIONS.forEach(combo => {
+                tierTotals[combo.tier] += combo.probability;
+            });
+            
+            const content = `
+                <h2 class="modal-title">Drop Rates</h2>
+                <div class="odds-summary">
+                    <div class="odds-summary-item tier-standard">
+                        <div class="odds-summary-tier">Standard Tier</div>
+                        <div class="odds-summary-value">${tierTotals['Standard'].toFixed(1)}%</div>
+                    </div>
+                    <div class="odds-summary-item tier-limited">
+                        <div class="odds-summary-tier">Limited Tier</div>
+                        <div class="odds-summary-value">${tierTotals['Limited'].toFixed(1)}%</div>
+                    </div>
+                    <div class="odds-summary-item tier-vaulted">
+                        <div class="odds-summary-tier">Vaulted Tier</div>
+                        <div class="odds-summary-value">${tierTotals['Vaulted'].toFixed(2)}%</div>
+                    </div>
+                    <div class="odds-summary-item tier-grail">
+                        <div class="odds-summary-tier">Grail Tier</div>
+                        <div class="odds-summary-value">${tierTotals['Grail'].toFixed(2)}%</div>
+                    </div>
+                </div>
+                
+                <table class="odds-table">
+                    <thead>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Condition</th>
+                            <th>Drop Rate</th>
+                            <th>Rarity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${RARITY_COMBINATIONS.map(combo => {
+                            const rarity = combo.probability < 0.01 ? '1 in ' + Math.round(100 / combo.probability) :
+                                          combo.probability < 0.1 ? '1 in ' + Math.round(100 / combo.probability) :
+                                          combo.probability < 1 ? '~1 in ' + Math.round(10 / combo.probability * 10) : '';
+                            const isRare = combo.probability < 0.1;
+                            return `
+                                <tr class="tier-${combo.tier.toLowerCase()}">
+                                    <td><strong>${combo.tier}</strong></td>
+                                    <td>${combo.condition}</td>
+                                    <td ${isRare ? 'class="odds-rare"' : ''}>${combo.probability}%</td>
+                                    <td>${rarity}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
+                    <p>Rarest drop: Grail OG (0.003%) - approximately 1 in 33,333 drops!</p>
+                </div>
+                <button class="action-btn" onclick="closeModal()" style="margin-top: 20px; width: 100%;">Close</button>
+            `;
+            
+            showModal(content, 'odds-modal-content');
         }
 
         function confirmReset() {
