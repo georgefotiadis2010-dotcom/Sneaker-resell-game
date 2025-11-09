@@ -7631,9 +7631,17 @@
                     </thead>
                     <tbody>
                         ${RARITY_COMBINATIONS.map(combo => {
-                            const rarity = combo.probability < 0.01 ? '1 in ' + Math.round(100 / combo.probability) :
-                                          combo.probability < 0.1 ? '1 in ' + Math.round(100 / combo.probability) :
-                                          combo.probability < 1 ? '~1 in ' + Math.round(10 / combo.probability * 10) : '';
+                            const oneInX = 100 / combo.probability;
+                            let rarity;
+                            if (oneInX >= 1000) {
+                                rarity = '1 in ' + Math.round(oneInX).toLocaleString();
+                            } else if (oneInX >= 100) {
+                                rarity = '1 in ' + Math.round(oneInX);
+                            } else if (oneInX >= 10) {
+                                rarity = '1 in ' + Math.round(oneInX);
+                            } else {
+                                rarity = '~1 in ' + Math.round(oneInX);
+                            }
                             const isRare = combo.probability < 0.1;
                             return `
                                 <tr class="tier-${combo.tier.toLowerCase()}">
