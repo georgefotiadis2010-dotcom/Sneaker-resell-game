@@ -1785,7 +1785,7 @@
         /* Selling Options */
         .sell-options {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr;
             gap: 12px;
             margin-top: 15px;
         }
@@ -1875,9 +1875,10 @@
             height: 28px;
             background: #f5f5f5;
             border-radius: 0;
-            overflow: hidden;
+            overflow: visible;
             margin-top: 12px;
             border: 3px solid #000;
+            position: relative;
         }
 
         .progress-fill {
@@ -1924,35 +1925,15 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="tab-btn active" data-tab="inventory">Inventory</button>
-            <button class="tab-btn" data-tab="buy">Buy Shoes</button>
+            <button class="tab-btn active" data-tab="buy">Shop</button>
             <button class="tab-btn" data-tab="customers">Customers</button>
             <button class="tab-btn" data-tab="sell">Sell Shoes</button>
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
         </div>
 
-        <!-- Inventory Tab -->
-        <div id="inventory-tab" class="tab-content active">
-            <div class="section-header">
-                <span>Your Inventory</span>
-                <div class="inventory-filters" id="inventory-filters">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="hot">Hot Items</button>
-                    <button class="filter-btn" data-filter="profit">High Profit</button>
-                </div>
-            </div>
-            <div class="sneaker-grid" id="inventory-grid">
-                <div class="empty-state">
-                    <div class="empty-state-icon">👟</div>
-                    <div class="empty-state-text">Your inventory is empty</div>
-                    <p>Head to the Buy Shoes tab to start hustling!</p>
-                </div>
-            </div>
-        </div>
-
         <!-- Buy Shoes Tab -->
-        <div id="buy-tab" class="tab-content">
+        <div id="buy-tab" class="tab-content active">
             <div class="section-header">
                 <span>Available Shoes</span>
                 <div>
@@ -3083,11 +3064,19 @@
                     Math.random() > 0.7 ? size : // 30% chance of same size
                     random(8, 12) + (Math.random() > 0.5 ? 0.5 : 0); // Popular sizes
                 
-                // Calculate realistic market price with variance
-                const tierMultiplier = RARITY_TIERS[tier].tierMultiplier;
-                const basePrice = shoeModel.basePrice * tierMultiplier * fakeCondition.multiplier;
-                const trendMultiplier = 1 + (trend / 100);
-                const marketValue = basePrice * trendMultiplier;
+                // Generate colorway for this sale
+                const fakeColorway = randomChoice(COLORWAYS);
+                
+                // Calculate comprehensive market value
+                const marketValue = calculateMarketValue({
+                    brand: brand,
+                    model: model,
+                    tier: tier,
+                    condition: fakeCondition.name,
+                    size: fakeSize,
+                    colorway: fakeColorway,
+                    trend: trend
+                });
                 
                 // Sales have realistic variance (80-120% of market)
                 // Some sellers overprice, some underprice
@@ -3097,7 +3086,7 @@
                 estimatedSales.push({
                     brand: brand,
                     model: model,
-                    colorway: randomChoice(COLORWAYS),
+                    colorway: fakeColorway,
                     size: fakeSize,
                     condition: fakeCondition.name,
                     rarity: `${tier} ${fakeCondition.name}`,
@@ -3153,13 +3142,16 @@
                 shoe.trend = trend; // Update trend value
                 shoe.isHot = trend > 10; // Update hot status
                 
-                // Also update estimated value based on new trend
-                const trendMultiplier = 1 + (trend / 100);
-                if (shoe.purchasePrice) {
-                    // For owned shoes, recalculate value based on original purchase
-                    const baseValue = shoe.purchasePrice / (1 + (shoe.trend || 0) / 100);
-                    shoe.estimatedValue = Math.floor(baseValue * trendMultiplier * 1.2); // 20% markup
-                }
+                // Recalculate comprehensive market value based on ALL shoe attributes
+                shoe.estimatedValue = calculateMarketValue({
+                    brand: shoe.brand,
+                    model: shoe.model,
+                    tier: shoe.tier || shoe.rarityTier,
+                    condition: shoe.condition,
+                    size: shoe.size,
+                    colorway: shoe.colorway,
+                    trend: trend
+                });
             };
             
             // Update all inventory shoes
@@ -3208,6 +3200,89 @@
         }
 
         // ==================== SNEAKER GENERATION ====================
+        
+        // Calculate comprehensive market value based on ALL shoe attributes
+        function calculateMarketValue(shoeData) {
+            const { brand, model, tier, condition, size, colorway, trend } = shoeData;
+            
+            // Get base price from model
+            const shoeModel = SNEAKER_MODELS.find(s => s.brand === brand && s.model === model);
+            if (!shoeModel) return 0;
+            
+            // 1. BASE PRICE (from sneaker model database)
+            let value = shoeModel.basePrice;
+            
+            // 2. TIER MULTIPLIER (rarity tier - huge impact)
+            const tierMultiplier = RARITY_TIERS[tier]?.tierMultiplier || 1.0;
+            value *= tierMultiplier;
+            
+            // 3. CONDITION MULTIPLIER (condition of the shoe)
+            const conditionData = CONDITION_LEVELS.find(c => c.name === condition);
+            const conditionMultiplier = conditionData?.multiplier || 1.0;
+            value *= conditionMultiplier;
+            
+            // 4. SIZE MULTIPLIER (popular sizes are more valuable)
+            // Sizes 9-11 are most popular and command premium
+            // Extreme sizes (< 8 or > 12) are less desirable
+            let sizeMultiplier = 1.0;
+            if (size >= 9 && size <= 11) {
+                sizeMultiplier = 1.15; // 15% premium for popular sizes
+            } else if (size >= 8.5 && size < 9) {
+                sizeMultiplier = 1.08; // 8% premium
+            } else if (size > 11 && size <= 11.5) {
+                sizeMultiplier = 1.08; // 8% premium
+            } else if (size >= 8 && size < 8.5) {
+                sizeMultiplier = 1.0; // Neutral
+            } else if (size > 11.5 && size <= 12) {
+                sizeMultiplier = 1.0; // Neutral
+            } else if (size >= 7.5 && size < 8) {
+                sizeMultiplier = 0.92; // 8% discount for less common
+            } else if (size > 12 && size <= 12.5) {
+                sizeMultiplier = 0.92; // 8% discount
+            } else {
+                sizeMultiplier = 0.80; // 20% discount for rare sizes
+            }
+            value *= sizeMultiplier;
+            
+            // 5. COLORWAY MULTIPLIER (certain colorways are more valuable)
+            let colorwayMultiplier = 1.0;
+            const lowerColorway = colorway.toLowerCase();
+            if (lowerColorway.includes('og') || lowerColorway === 'original') {
+                colorwayMultiplier = 1.25; // 25% premium for OG colorways
+            } else if (lowerColorway.includes('retro')) {
+                colorwayMultiplier = 1.15; // 15% premium for retro
+            } else if (lowerColorway.includes('triple black') || lowerColorway.includes('triple white')) {
+                colorwayMultiplier = 1.10; // 10% premium for classic monochromes
+            } else if (lowerColorway.includes('black/white') || lowerColorway.includes('black white')) {
+                colorwayMultiplier = 1.05; // 5% premium for classic two-tone
+            }
+            value *= colorwayMultiplier;
+            
+            // 6. BRAND PRESTIGE (some brands command higher resale)
+            let brandMultiplier = 1.0;
+            if (brand === 'Nike' || brand === 'Adidas') {
+                brandMultiplier = 1.12; // 12% premium for top brands
+            } else if (brand === 'New Balance') {
+                brandMultiplier = 1.08; // 8% premium - rising brand
+            } else if (brand === 'Jordan') {
+                brandMultiplier = 1.15; // 15% premium - Jordan brand dominates
+            } else if (brand === 'Yeezy') {
+                brandMultiplier = 1.20; // 20% premium - Yeezy hype
+            }
+            value *= brandMultiplier;
+            
+            // 7. MARKET TREND MULTIPLIER (current demand)
+            const trendMultiplier = 1 + (trend / 100);
+            value *= trendMultiplier;
+            
+            // 8. MARKET VARIANCE (realistic market fluctuation)
+            // Market value has some natural variance 10-35% above floor
+            const varianceMultiplier = random(110, 135) / 100;
+            value *= varianceMultiplier;
+            
+            return Math.floor(value);
+        }
+        
         function generateSneaker() {
             // First, select tier+condition combination based on probabilities
             const totalProb = RARITY_COMBINATIONS.reduce((sum, c) => sum + c.probability, 0);
@@ -3248,11 +3323,21 @@
             // Get trend for this shoe model
             const trend = getShoeTrend(selectedModel.brand, selectedModel.model);
             
-            // Calculate price: base * tier * condition * trend
+            // Calculate COMPREHENSIVE market value based on ALL attributes
+            const estimatedValue = calculateMarketValue({
+                brand: selectedModel.brand,
+                model: selectedModel.model,
+                tier: selectedCombo.tier,
+                condition: selectedCombo.condition,
+                size: size,
+                colorway: colorway,
+                trend: trend
+            });
+            
+            // Calculate base asking price (without all the detailed factors)
             const tierMultiplier = RARITY_TIERS[selectedCombo.tier].tierMultiplier;
             const basePrice = selectedModel.basePrice * tierMultiplier * conditionData.multiplier;
             const trendMultiplier = 1 + (trend / 100);
-            const estimatedValue = basePrice * random(110, 135) / 100 * trendMultiplier;
             
             // Hot status based on trend
             const isHot = trend > 10;
@@ -3273,7 +3358,7 @@
                 rarity: rarityDisplay,
                 rarityTier: selectedCombo.tier, // For logic checks
                 price: Math.floor(basePrice * trendMultiplier),
-                estimatedValue: Math.floor(estimatedValue),
+                estimatedValue: estimatedValue, // Already floored in calculateMarketValue
                 purchasePrice: 0,
                 isHot: isHot,
                 trend: trend,
@@ -3300,7 +3385,7 @@
         function generateCustomer() {
             const name = randomChoice(BUYER_NAMES);
             const brand = randomChoice(SNEAKER_BRANDS);
-            const urgencyInSeconds = random(180, 900); // 3-15 minutes in real time
+            const urgencyInSeconds = 300; // 5 minutes in real time
             const isSeller = Math.random() > 0.5; // 50% chance of being a seller
             const personality = randomChoice(CUSTOMER_PERSONALITIES);
             
@@ -3656,24 +3741,6 @@
             console.log(`✅ Finished processing ${shoes.length} shoes in grid`);
         }
 
-        function renderInventoryTab() {
-            const grid = document.getElementById('inventory-grid');
-            
-            if (gameState.inventory.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👟</div>
-                        <div class="empty-state-text">Your inventory is empty</div>
-                        <p>Head to the Buy Shoes tab to start hustling!</p>
-                    </div>
-                `;
-            } else {
-                grid.innerHTML = gameState.inventory.map(shoe => renderSneakerCard(shoe, 'inventory')).join('');
-                // Load real sneaker images
-                loadSneakerImages(gameState.inventory);
-            }
-        }
-
         function renderBuyTab() {
             const grid = document.getElementById('buy-grid');
             grid.innerHTML = gameState.availableShoes.map(shoe => renderSneakerCard(shoe, 'buy')).join('');
@@ -3908,6 +3975,17 @@
                         <div style="background: #fff; padding: 12px 14px; border: 3px solid #f39c12; box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2); margin-bottom: 8px;">
                             <div style="font-size: 9px; color: #f39c12; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; line-height: 1; letter-spacing: 1px;">Listed Price</div>
                             <div style="font-size: 26px; font-weight: 900; color: #2c3e50; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(shoe.listingPrice)}</div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div style="background: #e3f2fd; padding: 8px; border: 2px solid #2196F3;">
+                                <div style="font-size: 9px; color: #2196F3; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; line-height: 1;">Market Value</div>
+                                <div style="font-size: 14px; font-weight: 900; color: #1976D2; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(shoe.estimatedValue)}</div>
+                            </div>
+                            <div style="background: #f3e5f5; padding: 8px; border: 2px solid #9C27B0;">
+                                <div style="font-size: 9px; color: #9C27B0; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; line-height: 1;">Bought For</div>
+                                <div style="font-size: 14px; font-weight: 900; color: #7B1FA2; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(shoe.purchasePrice)}</div>
+                            </div>
                         </div>
                         
                         <div style="background: #f5f5f5; padding: 10px; border: 2px solid #000; margin-bottom: 8px;">
@@ -4426,7 +4504,6 @@
             
             showNotification(`Unlisted ${shoe.brand} ${shoe.model}`, 'info');
             updateUI();
-            renderInventoryTab();
             renderSellTab();
         }
 
@@ -4467,6 +4544,7 @@
             }
             
             // PRICE FACTOR - ULTRA MASSIVE IMPACT (pricing is EVERYTHING!)
+            // Compare listing price to COMPREHENSIVE market value (includes brand, model, tier, condition, size, colorway, trend)
             const priceVsValue = (shoe.listingPrice / shoe.estimatedValue);
             if (priceVsValue <= 0.5) {
                 interest += 150; // INSANE DEAL! Sells almost instantly
@@ -4516,6 +4594,20 @@
                 interest += 20; // Popular sizes sell easier
             } else if (shoe.size < 7 || shoe.size > 13) {
                 interest -= 30; // Extreme sizes much harder to sell
+            }
+            
+            // Colorway factor (premium colorways generate more interest)
+            if (shoe.colorway) {
+                const lowerColorway = shoe.colorway.toLowerCase();
+                if (lowerColorway.includes('og') || lowerColorway === 'original') {
+                    interest += 25; // OG colorways highly sought after
+                } else if (lowerColorway.includes('retro')) {
+                    interest += 15; // Retro colorways popular
+                } else if (lowerColorway.includes('triple black') || lowerColorway.includes('triple white')) {
+                    interest += 12; // Classic monochromes always in demand
+                } else if (lowerColorway.includes('black/white') || lowerColorway.includes('black white')) {
+                    interest += 8; // Classic two-tone solid
+                }
             }
             
             // Time listed factor (listings get stale faster!)
@@ -5260,7 +5352,6 @@
             showNotification(`Auction listed: ${shoe.brand} ${shoe.model}!`, 'success');
             updateUI();
             renderAuctionsTab();
-            renderInventoryTab();
             renderSellTab();
         }
         
@@ -5547,13 +5638,51 @@
             // Clear the listedForSale flag from inventory in case it's stale
             shoe.listedForSale = false;
             
-            // Calculate prices once for consistency
-            const quickSalePrice = Math.floor(shoe.estimatedValue * 0.85);
-            const bulkSalePrice = Math.floor(shoe.estimatedValue * random(70, 95) / 100);
+            // Calculate intelligent default asking price based on market factors
+            let priceMultiplier = 1.05; // Start with 5% above market (conservative default)
             
-            // Store these prices temporarily on the shoe object
-            shoe.tempQuickSalePrice = quickSalePrice;
-            shoe.tempBulkSalePrice = bulkSalePrice;
+            // Factor 1: Market Trend - Hot shoes can command premium, cold shoes need competitive pricing
+            const trend = shoe.trend !== undefined ? shoe.trend : getShoeTrend(shoe.brand, shoe.model);
+            if (trend > 10) {
+                priceMultiplier += 0.15; // Strong uptrend: +15% (can price aggressively)
+            } else if (trend > 5) {
+                priceMultiplier += 0.10; // Moderate uptrend: +10%
+            } else if (trend > 0) {
+                priceMultiplier += 0.05; // Slight uptrend: +5%
+            } else if (trend < -10) {
+                priceMultiplier -= 0.10; // Strong downtrend: -10% (price to move)
+            } else if (trend < -5) {
+                priceMultiplier -= 0.05; // Moderate downtrend: -5%
+            }
+            
+            // Factor 2: Rarity - Rare shoes have more pricing power
+            const tier = shoe.tier || shoe.rarityTier || 'Standard';
+            if (tier === 'Grail') {
+                priceMultiplier += 0.10; // Grails can command 10% premium
+            } else if (tier === 'Vaulted') {
+                priceMultiplier += 0.07; // Vaulted can command 7% premium
+            } else if (tier === 'Limited') {
+                priceMultiplier += 0.03; // Limited can command 3% premium
+            }
+            
+            // Factor 3: Condition - Better condition justifies higher ask
+            if (shoe.condition === 'OG' || shoe.condition === 'Deadstock') {
+                priceMultiplier += 0.05; // Pristine condition: +5%
+            } else if (shoe.condition === 'Beat God') {
+                priceMultiplier += 0.03; // Beat God has special appeal: +3%
+            } else if (shoe.condition === 'Worn-In') {
+                priceMultiplier -= 0.05; // Worn condition: -5% (be competitive)
+            }
+            
+            // Factor 4: Hot status bonus
+            if (shoe.isHot) {
+                priceMultiplier += 0.05; // Hot items: +5% (buyers expect to pay more)
+            }
+            
+            // Cap the multiplier between 0.90 (10% below market) and 1.30 (30% above market)
+            priceMultiplier = Math.max(0.90, Math.min(1.30, priceMultiplier));
+            
+            const suggestedPrice = Math.floor(shoe.estimatedValue * priceMultiplier);
             
             showModal(`
                 <h2 class="modal-title">List ${shoe.brand} ${shoe.model}</h2>
@@ -5581,10 +5710,10 @@
                 <div style="color: #1a1a1a; margin: 15px 0; text-align: center;">
                     <div style="font-weight: 900; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Set Your Asking Price</div>
                     <div style="font-size: 11px; color: #000; margin-bottom: 12px; font-weight: 600;">
-                        💡 Price DRAMATICALLY affects buyer interest and sale speed!
+                        💡 Suggested price accounts for trends, rarity & condition!
                     </div>
                     <input type="number" class="negotiation-input" id="listing-price-input" 
-                           placeholder="Enter asking price" min="0" step="10" value="${Math.floor(shoe.estimatedValue * 1.1)}"
+                           placeholder="Enter asking price" min="0" step="10" value="${suggestedPrice}"
                            oninput="updateListingPriceFeedback('${shoeId}')">
                     
                     <!-- Dynamic Price Feedback -->
@@ -5593,28 +5722,10 @@
                         <div id="price-feedback-content"></div>
                     </div>
                 </div>
-                <div class="sell-options">
-                    <div class="sell-option" onclick="listShoeForSale('${shoeId}', 'listing')">
-                        <div class="sell-option-title">📋 List for Sale</div>
-                        <div class="sell-option-desc">Price matters! Hot items & rare shoes sell faster</div>
-                        <div class="sell-option-fee">Wait for buyers</div>
-                    </div>
-                    <div class="sell-option" onclick="executeSale('${shoeId}', 'quick')">
-                        <div class="sell-option-title">⚡ Quick Sale</div>
-                        <div class="sell-option-desc">Instant cash, lower price</div>
-                        <div class="sell-option-fee">15% fee</div>
-                        <div style="margin-top: 8px; font-size: 15px; font-weight: 900; color: #27ae60; font-family: 'Inter', sans-serif;">
-                            ${formatCurrency(quickSalePrice)}
-                        </div>
-                    </div>
-                    <div class="sell-option" onclick="executeSale('${shoeId}', 'bulk')">
-                        <div class="sell-option-title">🤖 Bulk Deal</div>
-                        <div class="sell-option-desc">Reseller bot, instant</div>
-                        <div class="sell-option-fee">5% fee</div>
-                        <div style="margin-top: 8px; font-size: 15px; font-weight: 900; color: #f39c12; font-family: 'Inter', sans-serif;">
-                            ${formatCurrency(bulkSalePrice)}
-                        </div>
-                    </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="action-btn sell" onclick="listShoeForSale('${shoeId}', 'listing')" style="width: 100%; max-width: 300px; padding: 18px 32px; font-size: 15px;">
+                        <span>List for Sale</span>
+                    </button>
                 </div>
             `);
             
@@ -5776,7 +5887,7 @@
                 saleSpeed = 'Won\'t sell';
             }
             
-            // Update the shoe in inventory
+            // Update the shoe properties
             shoe.listedForSale = true;
             shoe.listingPrice = listingPrice;
             shoe.timeListedInSeconds = 0;
@@ -5784,16 +5895,26 @@
             shoe.saleSpeed = saleSpeed;
             shoe.interestFactors = tempShoe.interestFactors;
             
-            // Check if already in listedShoes array (prevent duplicates)
+            // Check if already in listedShoes array
             const alreadyListed = gameState.listedShoes.find(s => s.id === shoeId);
-            if (!alreadyListed) {
+            if (alreadyListed) {
+                // Update the existing entry in listedShoes with the new listing data
+                Object.assign(alreadyListed, {
+                    listedForSale: true,
+                    listingPrice: listingPrice,
+                    timeListedInSeconds: 0,
+                    viewCount: 0,
+                    saleSpeed: saleSpeed,
+                    interestFactors: tempShoe.interestFactors
+                });
+            } else {
+                // Add to listedShoes if not already there
                 gameState.listedShoes.push(shoe);
             }
             
             closeModal();
             showNotification(`Listed ${shoe.brand} ${shoe.model} for ${formatCurrency(listingPrice)}!`, 'success');
             updateUI();
-            renderInventoryTab();
             renderSellTab();
         }
 
@@ -5844,7 +5965,6 @@
             closeModal();
             showNotification(`Sold for ${formatCurrency(salePrice)}! Profit: ${formatCurrency(profit)}`, profit > 0 ? 'success' : 'error');
             updateUI();
-            renderInventoryTab();
             renderSellTab();
             checkMilestones();
         }
@@ -6683,7 +6803,6 @@
             closeModal();
             showNotification(`Bulk deal complete! Bought ${selectedShoes.length} pairs for ${formatCurrency(price)} (saved ${formatCurrency(savings)})`, 'success');
             updateUI();
-            renderInventoryTab();
             renderCustomersTab();
         }
 
@@ -6733,7 +6852,6 @@
                 closeModal();
                 showNotification(`${customer.name} bought it for ${formatCurrency(counterPrice)}! Profit: ${formatCurrency(profit)}`, 'success');
                 updateUI();
-                renderInventoryTab();
                 renderSellTab();
                 renderCustomersTab();
                 checkMilestones();
@@ -7542,9 +7660,6 @@
                 
                 // Render appropriate content
                 switch(tab) {
-                    case 'inventory':
-                        renderInventoryTab();
-                        break;
                     case 'buy':
                         renderBuyTab();
                         break;
@@ -7566,17 +7681,6 @@
             });
         });
 
-        // ==================== FILTERS ====================
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                // TODO: Implement actual filtering
-                renderInventoryTab();
-            });
-        });
-
         // ==================== REFRESH BUTTON ====================
         document.getElementById('refresh-shoes-btn').addEventListener('click', () => {
             if (gameState.cash >= 50) {
@@ -7591,6 +7695,9 @@
         // ==================== LISTING BUYER SYSTEM ====================
         function checkListingsForPurchase() {
             gameState.listedShoes.forEach(shoe => {
+                // Skip shoes that are not currently listed for sale
+                if (!shoe.listedForSale) return;
+                
                 // Increment time and views
                 shoe.timeListedInSeconds++;
                 
@@ -7710,7 +7817,6 @@
             showNotification(`${buyerName} bought your ${shoe.brand} ${shoe.model} for ${formatCurrency(shoe.listingPrice)}! Profit: ${formatCurrency(profit)}`, 'success');
             updateUI();
             renderSellTab();
-            renderInventoryTab();
             checkMilestones();
             
             // Play a subtle success sound if exists
@@ -7748,13 +7854,28 @@
             if (gameState.timeElapsed % 60 === 0) {
                 gameState.inventory.forEach(shoe => {
                     shoe.daysHeld++;
-                    shoe.estimatedValue = Math.max(50, shoe.estimatedValue * 0.98); // Slight depreciation
+                    // Depreciation based on market trends and rarity
+                    // Hot items (positive trend) appreciate, cold items depreciate
+                    const trend = getShoeTrend(shoe.brand, shoe.model);
+                    if (trend <= 0) {
+                        // Only apply depreciation to items that aren't trending
+                        // Rarer items depreciate slower
+                        const tierMultiplier = RARITY_TIERS[shoe.tier || shoe.rarityTier]?.tierMultiplier || 1.0;
+                        const depreciationRate = Math.max(0.97, 1.0 - (0.01 / tierMultiplier)); // Grails depreciate less
+                        shoe.estimatedValue = Math.max(50, shoe.estimatedValue * depreciationRate);
+                    }
                 });
                 
                 // Age listed shoes too
                 gameState.listedShoes.forEach(shoe => {
                     shoe.daysHeld++;
-                    shoe.estimatedValue = Math.max(50, shoe.estimatedValue * 0.98);
+                    // Same depreciation logic for listed shoes
+                    const trend = getShoeTrend(shoe.brand, shoe.model);
+                    if (trend <= 0) {
+                        const tierMultiplier = RARITY_TIERS[shoe.tier || shoe.rarityTier]?.tierMultiplier || 1.0;
+                        const depreciationRate = Math.max(0.97, 1.0 - (0.01 / tierMultiplier));
+                        shoe.estimatedValue = Math.max(50, shoe.estimatedValue * depreciationRate);
+                    }
                 });
             }
             
@@ -7850,10 +7971,17 @@
             
             // Get trend to calculate realistic market value
             const trend = getShoeTrend(shoeModel.brand, shoeModel.model);
-            const tierMultiplier = RARITY_TIERS[shoeModel.tier].tierMultiplier;
-            const basePrice = shoeModel.basePrice * tierMultiplier * condition.multiplier;
-            const trendMultiplier = 1 + (trend / 100);
-            const estimatedValue = basePrice * random(110, 135) / 100 * trendMultiplier;
+            
+            // Calculate comprehensive market value
+            const estimatedValue = calculateMarketValue({
+                brand: shoeModel.brand,
+                model: shoeModel.model,
+                tier: shoeModel.tier,
+                condition: condition.name,
+                size: size,
+                colorway: colorway,
+                trend: trend
+            });
             
             // Sales happen at 85-110% of estimated value (realistic market range)
             const salePrice = Math.floor(estimatedValue * random(85, 110) / 100);
@@ -7918,7 +8046,6 @@
                 }
                 
                 updateUI();
-                renderInventoryTab();
                 showNotification('Game loaded!', 'info');
             }
         }
@@ -8033,7 +8160,6 @@
             
             // Refresh the UI
             updateUI();
-            renderInventoryTab();
             renderBuyTab();
             renderCustomersTab();
             renderSellTab();
@@ -8079,13 +8205,19 @@
                     const shoeModel = randomChoice(SNEAKER_MODELS);
                     const fakeCondition = randomChoice(CONDITION_LEVELS);
                     const fakeSize = random(7, 13) + (Math.random() > 0.5 ? 0.5 : 0);
+                    const fakeColorway = randomChoice(COLORWAYS);
                     
-                    // Calculate realistic price based on market value
+                    // Calculate realistic price based on comprehensive market value
                     const trend = getShoeTrend(shoeModel.brand, shoeModel.model);
-                    const tierMultiplier = RARITY_TIERS[shoeModel.tier].tierMultiplier;
-                    const basePrice = shoeModel.basePrice * tierMultiplier * fakeCondition.multiplier;
-                    const trendMultiplier = 1 + (trend / 100);
-                    const estimatedValue = basePrice * random(110, 135) / 100 * trendMultiplier;
+                    const estimatedValue = calculateMarketValue({
+                        brand: shoeModel.brand,
+                        model: shoeModel.model,
+                        tier: shoeModel.tier,
+                        condition: fakeCondition.name,
+                        size: fakeSize,
+                        colorway: fakeColorway,
+                        trend: trend
+                    });
                     
                     // Historical sales at 85-110% of market value
                     const salePrice = Math.floor(estimatedValue * random(85, 110) / 100);
@@ -8094,7 +8226,7 @@
                     gameState.salesHistory.push({
                         brand: shoeModel.brand,
                         model: shoeModel.model,
-                        colorway: randomChoice(COLORWAYS),
+                        colorway: fakeColorway,
                         size: fakeSize,
                         condition: fakeCondition.name,
                         rarity: `${shoeModel.tier} ${fakeCondition.name}`,
@@ -8140,7 +8272,6 @@
             setInterval(gameLoop, 1000);
             
             updateUI();
-            renderInventoryTab();
             renderMarketTab();
             updateMarketTrendTimer();
             updateNextAuctionTimer();
