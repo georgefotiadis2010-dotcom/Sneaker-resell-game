@@ -16,16 +16,30 @@ app.get('/api/sneaker/:name', (req, res) => {
     const sneakerName = req.params.name;
     let responded = false;
     
+    console.log(`[API] Fetching sneaker: ${sneakerName}`);
+    
+    // Set a timeout to prevent hanging requests
+    const timeout = setTimeout(() => {
+        if (!responded) {
+            console.error(`[API] Timeout fetching: ${sneakerName}`);
+            responded = true;
+            res.status(504).json({ error: 'Request timeout', searchedFor: sneakerName });
+        }
+    }, 10000); // 10 second timeout
+    
     sneaks.getProducts(sneakerName, 1, function(err, products) {
         if (responded) return;
         
+        clearTimeout(timeout);
+        
         if (err) {
-            console.error(err);
+            console.error(`[API] Error fetching ${sneakerName}:`, err);
             responded = true;
-            return res.status(500).json({ error: 'Failed to fetch sneaker data' });
+            return res.status(500).json({ error: 'Failed to fetch sneaker data', details: err.message });
         }
         
         if (!products || products.length === 0) {
+            console.log(`[API] No products found for: ${sneakerName}`);
             responded = true;
             return res.status(404).json({ error: 'No sneaker found', searchedFor: sneakerName });
         }
@@ -41,6 +55,7 @@ app.get('/api/sneaker/:name', (req, res) => {
             releaseDate: products[0].releaseDate || null
         };
         
+        console.log(`[API] Successfully fetched: ${products[0].shoeName}`);
         responded = true;
         res.json(sneakerData);
     });

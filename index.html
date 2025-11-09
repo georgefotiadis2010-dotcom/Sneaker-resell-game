@@ -13,6 +13,11 @@
             box-sizing: border-box;
         }
 
+        html {
+            overflow: hidden;
+            height: 100%;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #f8f8f8;
@@ -20,8 +25,9 @@
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
                 repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
             color: #1a1a1a;
-            overflow-x: hidden;
+            overflow: hidden;
             position: relative;
+            height: 100%;
         }
         
         body::before {
@@ -40,13 +46,17 @@
             margin: 0 auto;
             padding: 20px;
             padding-top: 30px;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
         .game-header {
             background: #fff;
-            padding: 25px 30px;
-            margin-bottom: 25px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -57,6 +67,7 @@
                 inset -2px -2px 0 rgba(0,0,0,0.1),
                 inset 2px 2px 0 rgba(255,255,255,0.8);
             position: relative;
+            flex-shrink: 0;
         }
         
         .game-header::before {
@@ -82,7 +93,7 @@
 
         .player-stats {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             font-size: 16px;
             align-items: center;
         }
@@ -265,7 +276,8 @@
         .nav-tabs {
             display: flex;
             gap: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
         }
 
         .tab-btn {
@@ -325,16 +337,17 @@
         .tab-content {
             display: none;
             background: #fff;
-            padding: 30px;
+            padding: 20px;
             border-radius: 0;
             border: 4px solid #000;
             box-shadow: 8px 8px 0 rgba(0,0,0,0.1);
-            min-height: 600px;
             width: 100%;
             box-sizing: border-box;
             overflow-y: auto;
-            max-height: calc(100vh - 250px);
+            overflow-x: hidden;
             position: relative;
+            flex: 1;
+            min-height: 0;
         }
         
         .tab-content::before {
@@ -348,7 +361,8 @@
         }
 
         .tab-content.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
             animation: fadeIn 0.3s;
         }
 
@@ -360,7 +374,7 @@
         /* Sneaker Cards */
         .sneaker-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
         }
 
@@ -1351,10 +1365,11 @@
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
             border-radius: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 100%;
             box-sizing: border-box;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .trend-chart canvas {
@@ -1614,13 +1629,12 @@
             padding: 10px 20px;
             border-radius: 8px;
             display: inline-block;
-            margin-bottom: 20px;
         }
 
         .section-header {
             font-size: 26px;
             font-weight: 900;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1628,6 +1642,7 @@
             gap: 15px;
             width: 100%;
             box-sizing: border-box;
+            flex-shrink: 0;
             color: #000;
             text-transform: uppercase;
             letter-spacing: -0.5px;
@@ -1678,7 +1693,7 @@
         .inventory-filters {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 0;
             flex-wrap: wrap;
         }
 
@@ -1773,15 +1788,16 @@
         /* Progress Tracker */
         .progress-tracker {
             background: #fff;
-            padding: 25px;
+            padding: 20px;
             border-radius: 0;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 100%;
             box-sizing: border-box;
             border: 4px solid #000;
             box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
             position: relative;
             color: #000;
+            flex-shrink: 0;
             font-weight: 700;
         }
         
@@ -1939,6 +1955,7 @@
         <div id="market-tab" class="tab-content">
             <div class="section-header">
                 <span>Market Trends</span>
+                <span class="timer">Next Update: <span id="market-trend-timer">--:--</span></span>
             </div>
             <div class="progress-tracker">
                 <div>Next Milestone: $<span id="next-milestone">5,000</span> Total Profit</div>
@@ -3736,7 +3753,7 @@
                         <div style="position: absolute; top: -2px; left: 15px; width: 80px; height: 4px; background: #f39c12;"></div>
                         <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">📋 Listed <span style="color: #f39c12;">(${listedShoes.length})</span></h3>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 15px;">`;
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">`;
                 
                 listedShoes.forEach(shoe => {
                     // Sync trend and hot status
@@ -3902,7 +3919,7 @@
                         <div style="position: absolute; top: -2px; left: 15px; width: 80px; height: 4px; background: #9b59b6;"></div>
                         <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">🔄 Unlisted <span style="color: #9b59b6;">(${unlistedFromSell.length})</span></h3>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 15px;">`;
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">`;
                 
                 unlistedFromSell.forEach(shoe => {
                     // Sync trend and hot status
@@ -4002,7 +4019,7 @@
                         <div style="position: absolute; top: -2px; left: 15px; width: 80px; height: 4px; background: #27ae60;"></div>
                         <h3 style="color: #000; margin: 0; font-size: 16px; font-weight: 900; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">👟 Inventory <span style="color: #27ae60;">(${unlistedInventory.length})</span></h3>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 15px;">`;
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">`;
                 
                 unlistedInventory.forEach(shoe => {
                     // Sync trend and hot status
@@ -5219,6 +5236,18 @@
             if (!timerElement) return;
             
             const timeLeft = gameState.nextAIAuction;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update market trend timer display
+        function updateMarketTrendTimer() {
+            const timerElement = document.getElementById('market-trend-timer');
+            if (!timerElement) return;
+            
+            const timeLeft = gameState.nextMarketTrend;
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
             
@@ -7259,6 +7288,7 @@
                         break;
                     case 'market':
                         renderMarketTab();
+                        updateMarketTrendTimer();
                         break;
                 }
             });
@@ -7459,8 +7489,9 @@
             // Don't auto-refresh sell tab - it wipes out loaded images
             // The tab will refresh when user interacts with it (list/unlist shoes)
             
-            // Update shoe trends
-            if (gameState.timeElapsed % 300 === 0) { // Every 5 minutes
+            // Update shoe trends every 5 minutes
+            gameState.nextMarketTrend--;
+            if (gameState.nextMarketTrend <= 0) {
                 // Update existing trends
                 Object.keys(gameState.shoeTrends).forEach(key => {
                     // Trends change gradually
@@ -7484,7 +7515,13 @@
                 syncShoeHotStatus();
                 
                 renderMarketTab();
+                
+                // Reset timer to 5 minutes
+                gameState.nextMarketTrend = 300;
             }
+            
+            // Update market trend timer display
+            updateMarketTrendTimer();
             
             // Random customer generation
             if (gameState.timeElapsed % 120 === 0 && gameState.customers.length < 3) {
@@ -7580,6 +7617,34 @@
             if (saved) {
                 Object.assign(gameState, JSON.parse(saved));
                 syncShoeHotStatus(); // Migrate old shoes to new rarity system
+                
+                // FIX: Migrate shoes with missing or invalid purchasePrice
+                if (gameState.inventory) {
+                    gameState.inventory.forEach(shoe => {
+                        if (typeof shoe.purchasePrice !== 'number' || isNaN(shoe.purchasePrice) || shoe.purchasePrice === undefined) {
+                            console.warn(`Fixing shoe ${shoe.id} with invalid purchasePrice: ${shoe.purchasePrice}`);
+                            // Default to the shoe's price or estimated value
+                            shoe.purchasePrice = shoe.price || shoe.estimatedValue || 0;
+                        }
+                    });
+                }
+                
+                // Also fix listed shoes
+                if (gameState.listedShoes) {
+                    gameState.listedShoes.forEach(shoe => {
+                        if (typeof shoe.purchasePrice !== 'number' || isNaN(shoe.purchasePrice) || shoe.purchasePrice === undefined) {
+                            console.warn(`Fixing listed shoe ${shoe.id} with invalid purchasePrice: ${shoe.purchasePrice}`);
+                            shoe.purchasePrice = shoe.price || shoe.estimatedValue || 0;
+                        }
+                    });
+                }
+                
+                // Fix totalProfit if it's NaN
+                if (typeof gameState.totalProfit !== 'number' || isNaN(gameState.totalProfit)) {
+                    console.warn(`Fixing totalProfit from ${gameState.totalProfit} to 0`);
+                    gameState.totalProfit = 0;
+                }
+                
                 updateUI();
                 renderInventoryTab();
                 showNotification('Game loaded!', 'info');
@@ -7689,6 +7754,7 @@
             gameState.milestones = [5000, 10000, 15000, 20000, 25000];
             gameState.currentMilestone = 0;
             gameState.shoeTrends = {};
+            gameState.nextMarketTrend = 300;
             gameState.activeAuctions = [];
             gameState.nextAIAuction = 900;
             gameState.auctionIdCounter = 0;
@@ -7790,6 +7856,11 @@
                 gameState.auctionIdCounter = 0;
             }
             
+            // Initialize market trend timer if not present
+            if (gameState.nextMarketTrend === undefined) {
+                gameState.nextMarketTrend = 300;
+            }
+            
             // Migrate all shoes to new rarity system
             syncShoeHotStatus();
             
@@ -7799,6 +7870,8 @@
             updateUI();
             renderInventoryTab();
             renderMarketTab();
+            updateMarketTrendTimer();
+            updateNextAuctionTimer();
             
             // Preload popular sneaker images
             preloadPopularSneakers();
