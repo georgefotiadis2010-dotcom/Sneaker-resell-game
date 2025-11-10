@@ -9,6 +9,17 @@ const PORT = process.env.PORT || 3000;
 // Enable CORS for frontend
 app.use(cors());
 app.use(express.json());
+
+// Disable caching for HTML files to ensure updates are always served
+app.use((req, res, next) => {
+    if (req.url.endsWith('.html') || req.url === '/' || req.url === '') {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
+
 app.use(express.static('.'));
 
 // Get sneaker data by name
