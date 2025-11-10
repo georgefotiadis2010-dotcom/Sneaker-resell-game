@@ -6,6 +6,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Prevent caching of HTML to ensure users get updates -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>Sneaker Hustle - Resell Game</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Covered+By+Your+Grace&family=Rock+Salt&family=Inter:wght@400;600;800;900&display=swap');
@@ -2757,6 +2763,84 @@
     </div>
 
     <script>
+        // ==================== AUTO-UPDATE SYSTEM ====================
+        // Version number - increment this with each update to force reload
+        const GAME_VERSION = '1.2.0'; // Update this number when you deploy changes
+        
+        // Check if there's a new version available
+        function checkForUpdates() {
+            const storedVersion = localStorage.getItem('gameVersion');
+            
+            if (storedVersion && storedVersion !== GAME_VERSION) {
+                console.log(`New version detected: ${GAME_VERSION} (was ${storedVersion})`);
+                // Show update notification
+                const updateNotice = document.createElement('div');
+                updateNotice.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #3498db, #2980b9);
+                    color: white;
+                    padding: 30px;
+                    border: 4px solid #000;
+                    border-radius: 0;
+                    box-shadow: 8px 8px 0 rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    font-family: 'Inter', sans-serif;
+                    font-weight: 800;
+                    text-align: center;
+                    max-width: 400px;
+                `;
+                updateNotice.innerHTML = `
+                    <div style="font-size: 24px; margin-bottom: 15px;">🎉 UPDATE AVAILABLE! 🎉</div>
+                    <div style="font-size: 14px; margin-bottom: 20px;">New features and improvements are ready!</div>
+                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 20px;">Your progress will be saved.</div>
+                    <button onclick="location.reload(true)" style="
+                        padding: 12px 30px;
+                        background: #2ecc71;
+                        border: 3px solid #000;
+                        color: white;
+                        font-weight: 800;
+                        font-size: 14px;
+                        cursor: pointer;
+                        text-transform: uppercase;
+                        box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+                    ">Update Now</button>
+                `;
+                document.body.appendChild(updateNotice);
+            }
+            
+            // Store current version
+            localStorage.setItem('gameVersion', GAME_VERSION);
+        }
+        
+        // Check for updates when page loads
+        window.addEventListener('load', checkForUpdates);
+        
+        // Periodically check for updates (every 5 minutes)
+        setInterval(() => {
+            // Fetch the current page to check if version changed
+            fetch(window.location.href, { 
+                method: 'HEAD',
+                cache: 'no-cache' 
+            }).then(() => {
+                // Force a version check by reloading if user has been idle
+                const lastActivity = localStorage.getItem('lastActivity');
+                const now = Date.now();
+                if (lastActivity && (now - parseInt(lastActivity)) > 300000) { // 5 minutes
+                    location.reload(true);
+                }
+            }).catch(err => console.log('Update check failed:', err));
+        }, 300000); // Check every 5 minutes
+        
+        // Track user activity
+        ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+            document.addEventListener(event, () => {
+                localStorage.setItem('lastActivity', Date.now().toString());
+            }, { passive: true });
+        });
+        
         // ==================== GAME DATA ====================
         const SNEAKER_MODELS = [
             // GRAIL TIER - Ultra rare exclusives (1-500 pairs) - Most exclusive shoes in existence
