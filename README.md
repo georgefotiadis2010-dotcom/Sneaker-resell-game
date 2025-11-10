@@ -580,9 +580,48 @@ The game now includes real sneaker data integration:
 ## Technical Details
 - **Platform:** Browser-based (HTML/CSS/JavaScript)
 - **No Dependencies:** Runs entirely client-side
-- **Responsive Design:** Works on desktop and tablet
+- **Responsive Design:** Fully optimized for mobile, tablet, and desktop
 - **Performance:** Optimized for smooth 60 FPS animations
 - **Storage:** Uses localStorage API for game saves
+
+## Mobile Optimization
+
+The game now features comprehensive mobile optimization that automatically detects your device and provides the best experience:
+
+### Automatic Device Detection
+- **Mobile Devices** (phones): Single-column layout, touch-optimized controls
+- **Tablets** (iPad, etc.): 2-column layout with medium sizing
+- **Laptops/Desktops**: Full original optimized layout (unchanged)
+
+### Mobile Features
+- **Touch-Optimized Controls**: Large tap targets, no tap delay
+- **Responsive Layout**: Adapts to portrait and landscape orientations
+- **Mobile-Friendly UI**: Adjusted font sizes, spacing, and button sizes
+- **Smooth Scrolling**: Momentum scrolling on iOS and Android
+- **Optimized Performance**: Lighter visual elements for better battery life
+- **PWA Support**: Can be added to home screen on mobile devices
+
+### How to Play on Mobile
+1. Open the game URL in your mobile browser
+2. The game automatically detects mobile and switches to mobile layout
+3. All features work identically - just optimized for touch
+4. Save system works across devices (same localStorage)
+
+### Mobile-Specific Adjustments
+- **Header**: Stacks vertically with wrapped stats
+- **Navigation**: 2x2 grid instead of single row
+- **Sneaker Cards**: Full-width for easy reading
+- **Buttons**: Full-width for easy tapping
+- **Modals**: 95% screen width for mobile
+- **Font Sizes**: Optimized for mobile readability
+
+### Device Breakpoints
+- Extra Small Mobile: ≤480px width
+- Mobile: 481-768px width
+- Tablet: 769-1024px width
+- Desktop/Laptop: >1024px width
+
+For complete mobile optimization details, see `MOBILE_OPTIMIZATION_GUIDE.md`.
 
 ## Controls
 - **Mouse:** Click to navigate, negotiate, buy, and sell

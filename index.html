@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Sneaker Hustle - Resell Game</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Covered+By+Your+Grace&family=Rock+Salt&family=Inter:wght@400;600;800;900&display=swap');
@@ -1950,6 +1953,644 @@
             color: #fff;
             letter-spacing: 0.5px;
         }
+
+        /* ==================== MOBILE OPTIMIZATION ==================== */
+        /* Responsive design that automatically adapts to mobile devices */
+        
+        @media (max-width: 768px) {
+            /* General mobile adjustments */
+            html {
+                overflow-y: auto;
+            }
+
+            body {
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            body::before {
+                height: 4px;
+            }
+
+            .game-container {
+                max-width: 100%;
+                padding: 10px;
+                padding-top: 15px;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
+            /* Mobile Header */
+            .game-header {
+                flex-direction: column;
+                padding: 12px;
+                margin-bottom: 10px;
+                gap: 12px;
+                border-width: 3px;
+                box-shadow: 4px 4px 0 rgba(0,0,0,0.1), inset -1px -1px 0 rgba(0,0,0,0.1), inset 1px 1px 0 rgba(255,255,255,0.8);
+            }
+
+            .game-header::before {
+                top: -6px;
+                right: 15px;
+                width: 50px;
+                height: 3px;
+            }
+
+            .game-title {
+                font-size: 28px;
+                text-shadow: 2px 2px 0 #ff0000, 3px 3px 0 rgba(0,0,0,0.2);
+            }
+
+            .player-stats {
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+                width: 100%;
+                font-size: 14px;
+            }
+
+            .stat {
+                flex: 1 1 45%;
+                min-width: 120px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .stat-value {
+                font-size: 14px;
+            }
+
+            .reputation-stars {
+                font-size: 16px;
+            }
+
+            .reset-btn, .odds-btn {
+                flex: 1 1 45%;
+                min-width: 120px;
+                padding: 10px 15px;
+                font-size: 11px;
+                box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+                border-width: 2px;
+            }
+
+            .reset-btn:hover, .odds-btn:hover {
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+            }
+
+            .reset-btn:active, .odds-btn:active {
+                box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+            }
+
+            /* Mobile Navigation Tabs */
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 10px;
+                border-width: 2px;
+                padding: 6px;
+            }
+
+            .tab-btn {
+                flex: 1 1 calc(50% - 3px);
+                min-width: 0;
+                padding: 10px 8px;
+                font-size: 11px;
+                border-width: 2px;
+                white-space: nowrap;
+            }
+
+            /* Mobile Tab Content */
+            .tab-content {
+                padding: 10px;
+                border-width: 2px;
+                overflow-y: auto;
+                max-height: none;
+            }
+
+            .content-wrapper {
+                max-height: none;
+                overflow-y: visible;
+            }
+
+            /* Mobile Section Headers */
+            .section-header {
+                padding: 12px;
+                font-size: 12px;
+                border-width: 2px;
+                flex-wrap: wrap;
+                gap: 8px;
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            }
+
+            .section-header span {
+                font-size: 14px;
+            }
+
+            .timer {
+                font-size: 11px;
+            }
+
+            /* Mobile Sneaker Grid */
+            .sneaker-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            /* Mobile Sneaker Card */
+            .sneaker-card {
+                padding: 12px;
+                border-width: 2px;
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            }
+
+            .sneaker-card:hover {
+                box-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+            }
+
+            .sneaker-card::before {
+                top: -4px;
+                left: 10px;
+                width: 25px;
+                height: 2px;
+            }
+
+            .sneaker-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .sneaker-brand {
+                font-size: 12px;
+                padding: 4px 10px;
+            }
+
+            .sneaker-name {
+                font-size: 13px;
+            }
+
+            .sneaker-colorway {
+                font-size: 11px;
+            }
+
+            .sneaker-details {
+                flex-direction: column;
+                gap: 6px;
+                margin: 8px 0;
+            }
+
+            .sneaker-detail-item {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+
+            .sneaker-price {
+                font-size: 18px;
+                margin: 8px 0;
+            }
+
+            .sneaker-market-value {
+                font-size: 10px;
+            }
+
+            .sneaker-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .sneaker-btn {
+                width: 100%;
+                padding: 12px 16px;
+                font-size: 12px;
+                border-width: 2px;
+                box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+            }
+
+            .sneaker-btn:hover {
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+            }
+
+            .sneaker-btn:active {
+                box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+            }
+
+            /* Mobile Sub-tabs */
+            .buy-sub-tabs, .sell-sub-tabs {
+                gap: 6px;
+                margin-bottom: 10px;
+                border-width: 2px;
+                padding: 6px;
+            }
+
+            .buy-sub-tab, .sell-sub-tab {
+                flex: 1;
+                padding: 8px 12px;
+                font-size: 11px;
+                border-width: 2px;
+            }
+
+            /* Mobile Buttons */
+            .refresh-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+                border-width: 2px;
+                box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+                white-space: nowrap;
+            }
+
+            .refresh-btn:hover {
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+            }
+
+            .refresh-btn:active {
+                box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+            }
+
+            /* Mobile Empty State */
+            .empty-state {
+                padding: 30px 15px;
+            }
+
+            .empty-state-icon {
+                font-size: 40px;
+                margin-bottom: 12px;
+            }
+
+            .empty-state-text {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+
+            .empty-state p {
+                font-size: 12px;
+            }
+
+            /* Mobile Modal */
+            .modal-content {
+                width: 95%;
+                max-width: 95%;
+                margin: 10px;
+                padding: 15px;
+                max-height: 90vh;
+                overflow-y: auto;
+                border-width: 2px;
+            }
+
+            .modal-close {
+                font-size: 24px;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+            }
+
+            .modal h2 {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+
+            .modal h3 {
+                font-size: 14px;
+                margin: 15px 0 8px;
+            }
+
+            .modal-body {
+                font-size: 12px;
+            }
+
+            /* Mobile Sell Options */
+            .sell-options-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sell-option {
+                padding: 10px;
+                border-width: 2px;
+                box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            }
+
+            .sell-option:hover {
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+            }
+
+            .sell-option::before {
+                width: 25px;
+                height: 2px;
+            }
+
+            .sell-option-title {
+                font-size: 12px;
+            }
+
+            .sell-option-desc {
+                font-size: 10px;
+            }
+
+            .sell-option-fee {
+                font-size: 10px;
+            }
+
+            /* Mobile Progress Tracker */
+            .progress-tracker {
+                padding: 15px;
+                margin-bottom: 10px;
+                border-width: 2px;
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+                font-size: 12px;
+            }
+
+            .progress-tracker::before {
+                width: 50px;
+                height: 3px;
+            }
+
+            .progress-bar {
+                height: 24px;
+                border-width: 2px;
+                margin-top: 10px;
+            }
+
+            .progress-fill {
+                font-size: 10px;
+                padding-right: 8px;
+            }
+
+            /* Mobile Trend Chart */
+            .trend-chart {
+                padding: 15px;
+                border-width: 2px;
+            }
+
+            .trend-chart h3 {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .brand-trend-item {
+                padding: 10px;
+                border-width: 2px;
+                box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            }
+
+            .brand-trend-item::before {
+                width: 20px;
+                height: 2px;
+            }
+
+            .brand-name {
+                font-size: 12px;
+            }
+
+            .model-trend {
+                font-size: 10px;
+                padding: 4px 8px;
+            }
+
+            /* Mobile Customer Card */
+            .customer-card {
+                padding: 12px;
+                border-width: 2px;
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            }
+
+            .customer-card::before {
+                width: 25px;
+                height: 2px;
+            }
+
+            .customer-name {
+                font-size: 13px;
+            }
+
+            .customer-budget {
+                font-size: 14px;
+            }
+
+            .customer-wants {
+                font-size: 11px;
+            }
+
+            /* Mobile Auction Card */
+            .auction-card {
+                padding: 12px;
+                border-width: 2px;
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            }
+
+            .auction-card::before {
+                width: 25px;
+                height: 2px;
+            }
+
+            .auction-timer {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+
+            .current-bid {
+                font-size: 16px;
+            }
+
+            .bid-input-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .bid-input {
+                padding: 10px;
+                font-size: 14px;
+                border-width: 2px;
+            }
+
+            /* Mobile Notification */
+            .notification {
+                width: calc(100% - 20px);
+                left: 10px;
+                right: 10px;
+                top: 50px;
+                padding: 12px 15px;
+                font-size: 12px;
+                border-width: 2px;
+                box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+            }
+
+            .notification::before {
+                width: 20px;
+                height: 2px;
+            }
+
+            /* Mobile Odds Table */
+            .odds-table {
+                font-size: 11px;
+            }
+
+            .odds-table th,
+            .odds-table td {
+                padding: 8px 6px;
+                font-size: 10px;
+            }
+
+            .odds-table th {
+                font-size: 10px;
+            }
+
+            .tier-header {
+                font-size: 11px;
+            }
+
+            /* Mobile Input Fields */
+            input[type="number"] {
+                padding: 10px;
+                font-size: 14px;
+                border-width: 2px;
+            }
+
+            /* Mobile Select Dropdowns */
+            select {
+                padding: 10px;
+                font-size: 12px;
+                border-width: 2px;
+            }
+
+            /* Mobile Quick Bid Buttons */
+            .quick-bid-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+                border-width: 2px;
+                box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+            }
+
+            /* Touch-friendly tap highlights */
+            .sneaker-btn,
+            .tab-btn,
+            .refresh-btn,
+            .reset-btn,
+            .odds-btn,
+            .buy-sub-tab,
+            .sell-sub-tab,
+            button {
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+                touch-action: manipulation;
+            }
+
+            /* Improve scrolling on mobile */
+            .tab-content,
+            .modal-content,
+            .sneaker-grid {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 22px;
+            }
+
+            .player-stats {
+                gap: 6px;
+            }
+
+            .stat {
+                flex: 1 1 45%;
+                min-width: 100px;
+            }
+
+            .stat-label {
+                font-size: 9px;
+            }
+
+            .stat-value {
+                font-size: 12px;
+            }
+
+            .tab-btn {
+                font-size: 10px;
+                padding: 8px 6px;
+            }
+
+            .sneaker-card {
+                padding: 10px;
+            }
+
+            .sneaker-name {
+                font-size: 12px;
+            }
+
+            .sneaker-price {
+                font-size: 16px;
+            }
+
+            .reset-btn, .odds-btn {
+                font-size: 10px;
+                padding: 8px 12px;
+            }
+
+            .modal-content {
+                width: 98%;
+                padding: 12px;
+            }
+
+            .notification {
+                font-size: 11px;
+                padding: 10px 12px;
+            }
+        }
+
+        /* Landscape mobile optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .game-container {
+                padding-top: 10px;
+            }
+
+            .game-header {
+                padding: 10px;
+            }
+
+            .game-title {
+                font-size: 24px;
+            }
+
+            .player-stats {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .stat {
+                flex: 0 1 auto;
+            }
+
+            .sneaker-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Tablet optimization (between mobile and desktop) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .game-container {
+                max-width: 100%;
+                padding: 15px;
+            }
+
+            .game-title {
+                font-size: 36px;
+            }
+
+            .sneaker-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .tab-btn {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2777,6 +3418,200 @@
             { type: 'flipper', firmness: 0.80, name: 'The Flipper' }
         ];
 
+        // AI DIALOGUE LINES - Contextual responses based on shoe attributes
+        const AI_DIALOGUE = {
+            // Opening messages by tier
+            opening: {
+                standard: [
+                    "I just want to clear these out, what can you offer me in cash?",
+                    "Not looking for much, happy to take your best offer.",
+                    "These are pretty standard, so I'm fine with a quick deal.",
+                    "Can we do cash today for these? Not expecting anything crazy.",
+                    "I know these aren't rare, but they're in good condition.",
+                    "I see stores have a lot of these, but maybe you need stock?",
+                    "Just trying to get some money back, what can you do?",
+                    "Not interested in holding onto these, what's your proposal?",
+                    "Got cash offers for these before, can you match them?",
+                    "Can you at least beat what the pawn shop offered me?"
+                ],
+                limited: [
+                    "This is a limited release—can you pay what it's worth?",
+                    "Don't see this every day, I'm looking for top cash.",
+                    "Other places just want store credit, I want real money.",
+                    "If you pay what these are worth, I'll let them go.",
+                    "I know these flip for a lot. How much can you really pay?",
+                    "This shoe's hype, but I want a buyer who pays up.",
+                    "I've held onto these for a while, finally selling—make it count.",
+                    "You pay for heat? This one's fire; let's make a deal.",
+                    "It's limited and pristine—hit me with your real cash number."
+                ],
+                vaulted: [
+                    "They don't make these anymore, so your offer better show respect.",
+                    "Vaulted pairs like this get rarer with every year—what's your cash deal?",
+                    "If you want true old-school, you won't find this anywhere else.",
+                    "This colorway's never coming back. Make it count.",
+                    "No restocks, no re-releases—this is your only shot for a real vault piece.",
+                    "People always ask about this when they see it. How much do you want it?",
+                    "The factory closed the book on these—tell me you see the value.",
+                    "You can't pick this up at retail ever again; show me serious cash.",
+                    "Old release, legendary status—what's the cash offer for history?",
+                    "Other stores just offer pennies for discontinued shoes. I need better.",
+                    "Super rare, zero chance of restock—prove you're a real collector's shop."
+                ],
+                grail: [
+                    "This is a once-in-a-generation grail—show me you mean business.",
+                    "You know this pair runs the whole market. Ready to make a statement offer?",
+                    "Collectors would kill for these, so I'm expecting top cash.",
+                    "If you want your store talked about, you need this grail pair.",
+                    "Don't even start lowballing; you only get one shot at a legend.",
+                    "Everyone dreams about owning these—what's your most competitive cash offer?",
+                    "This is the kind of sneaker that built empires. Match its legacy with your bid.",
+                    "I waited and camped for these, so I won't settle for less.",
+                    "People fly across continents to chase this grail. What's your number?",
+                    "You get bragging rights if you buy them from me—make it worth my while."
+                ]
+            },
+            
+            // Condition-specific lines
+            condition: {
+                deadstock: [
+                    "Deadstock, never worn. I'm hoping for a strong offer.",
+                    "Still deadstock, box and tag—what's your best cash offer?",
+                    "No factory smell but still barely used. Ready to sell."
+                ],
+                vnds: [
+                    "They're lightly used, but super clean. Can you pay fair?",
+                    "Box and tags still here—should boost your offer, right?",
+                    "Just want some money back on these after a few wears.",
+                    "If you want collector condition, mine's close."
+                ],
+                used: [
+                    "Some creases but otherwise solid—what can you do?",
+                    "They've got some heel wear, so I know the price drops.",
+                    "I cleaned them up; I'm not trying to pass off beaters.",
+                    "Not perfect but still nice—give me something reasonable."
+                ]
+            },
+            
+            // Market trend commentary
+            trends: {
+                hot: [
+                    "Market's gone up—I want a better price than last season.",
+                    "Saw these trending online, sure you want to buy?",
+                    "Resale sites are slow; you pay cash fast?",
+                    "StockX says higher—match it and I'll sell."
+                ],
+                cold: [
+                    "If prices are down, I'll wait unless you have a good offer.",
+                    "Hype's fading, so I'm selling before the dip.",
+                    "Want to trade hype for cash, not store credit.",
+                    "If the next drop changes the game, I want to cash out now.",
+                    "Letting these go before demand goes cold, what's your number?"
+                ],
+                neutral: [
+                    "I'm not here for a quick flip, but a fair deal based on market."
+                ]
+            },
+            
+            // Brand-specific lines
+            brands: {
+                nike: [
+                    "Everyone wants Jordans—tell me your cash rate.",
+                    "Nike always moves, you pay best, right?",
+                    "Classic retros for sale—give me the collector price."
+                ],
+                adidas: [
+                    "Got some heat from Adidas, what's your standing offer?",
+                    "Yeezys are still hot, but I don't want to lowball myself."
+                ],
+                other: [
+                    "Puma doesn't get hype but this is a rare collab.",
+                    "I know it's not hyped, but make me a cash offer anyway.",
+                    "Got a New Balance pair; market's up lately, thoughts?",
+                    "This isn't hype anymore, but it's still in demand."
+                ]
+            },
+            
+            // Counter-offer responses by personality and situation
+            counter: {
+                tough_grail: [
+                    "These are GRAIL status. PRICE or I'm out.",
+                    "Don't even start lowballing; you only get one shot at a legend.",
+                    "Collectors would kill for these, so I'm expecting top cash."
+                ],
+                tough_vaulted: [
+                    "Vaulted kicks don't go for cheap. PRICE is my floor.",
+                    "They don't make these anymore, so your offer better show respect.",
+                    "The factory closed the book on these—tell me you see the value."
+                ],
+                tough_hot: [
+                    "These are trending up. PRICE and that's being generous.",
+                    "Market's gone up—I want a better price than last season."
+                ],
+                tough_standard: [
+                    "Nah, PRICE or I'm keeping them.",
+                    "I know what I got. PRICE, take it or leave it.",
+                    "You're not hearing me - PRICE is the number.",
+                    "PRICE is as low as I'll go, period."
+                ],
+                
+                collector_grail: [
+                    "Grails like these don't come around. PRICE is fair.",
+                    "This is the kind of sneaker that built empires. PRICE matches its legacy."
+                ],
+                collector_vaulted: [
+                    "Vaulted pairs are special to me. PRICE is the number.",
+                    "If you want true old-school, you won't find this anywhere else. PRICE."
+                ],
+                collector_standard: [
+                    "These mean something to me, but PRICE works.",
+                    "I don't usually let these go, but I'll do PRICE.",
+                    "For the right price I'll part with them - PRICE.",
+                    "PRICE and they're yours."
+                ],
+                
+                eager_standard: [
+                    "Aight look, meet me at PRICE and we done.",
+                    "I need to move these - PRICE works for me.",
+                    "Let's make it happen, PRICE?",
+                    "How about PRICE? That's fair for both of us.",
+                    "I just want to clear these out, PRICE in cash?",
+                    "Can we do cash today for these? PRICE?"
+                ],
+                
+                fair_deadstock: [
+                    "Deadstock at PRICE is already a deal.",
+                    "Deadstock, never worn. PRICE is strong and fair."
+                ],
+                fair_standard: [
+                    "I'll come down to PRICE.",
+                    "Meet me in the middle - PRICE?",
+                    "PRICE is the lowest I can do.",
+                    "PRICE and we got a deal."
+                ]
+            },
+            
+            // Attitude responses to player offers
+            attitude: {
+                respectful: [
+                    "Respect your business, but I need a fair offer to sell.",
+                    "If you treat me right, I'll keep bringing pairs.",
+                    "Let's make this painless, I just want a fair cash deal.",
+                    "Show me you value repeat sellers."
+                ],
+                frustrated: [
+                    "Just need money, not interested in haggling for ages.",
+                    "I can sell anywhere, I'm here for your rep and speed.",
+                    "Fast deals suit me; don't overthink it.",
+                    "Moving my collection, want quick cash offers only."
+                ],
+                confident: [
+                    "Got cash buyers in line; convince me to sell to you.",
+                    "Loyal seller—any chance at a better rate today?"
+                ]
+            }
+        };
+
         const SELLER_REACTIONS = {
             accepted: { 
                 emoji: '😍', 
@@ -3441,7 +4276,7 @@
         }
 
         function refreshAvailableShoes() {
-            const count = random(5, 12);
+            const count = 12; // Always 12 shoes
             gameState.availableShoes = [];
             
             for (let i = 0; i < count; i++) {
@@ -3497,31 +4332,53 @@
                     shoes.push(shoe);
                 }
                 
-                // Generate contextual opening message
+                // Generate contextual opening message using AI_DIALOGUE
                 let openingMessage;
                 if (isBulkDeal) {
                     openingMessage = `"Yo, I got ${numShoes} pairs I'm looking to move. Bulk deal - you interested?"`;
                 } else {
                     const shoe = shoes[0];
-                if (shoe.trend > 10) {
-                    openingMessage = `"These ${shoe.brand} ${shoe.model} are trending hard right now. Price is only going up!"`;
-                } else if (shoe.isHot && (shoe.rarityTier === 'Grail' || shoe.tier === 'Grail')) {
-                    openingMessage = `"Yo I got these ${shoe.brand} ${shoe.model}. Straight grails bro, don't sleep on these."`;
-                } else if (shoe.trend > 5) {
-                    openingMessage = `"${shoe.brand} ${shoe.model}, market's heating up on these. Get em while you can."`;
-                } else if (shoe.isHot) {
-                    openingMessage = `"These ${shoe.brand} ${shoe.model} are fire right now. Market's crazy for these."`;
-                } else if (shoe.trend < -5) {
-                    openingMessage = `"Got ${shoe.brand} ${shoe.model}. Market's slow but they're still solid."`;
-                } else if (shoe.rarityTier === 'Vaulted' || shoe.rarityTier === 'Grail' || shoe.tier === 'Vaulted' || shoe.tier === 'Grail') {
-                    openingMessage = `"Got some rare ${shoe.brand} ${shoe.model}. You know what these are worth."`;
-                    } else if (shoe.condition === 'Deadstock' || shoe.condition === 'OG') {
-                    openingMessage = `"Deadstock ${shoe.brand} ${shoe.model}. Tags still on, everything."`;
-                    } else if (shoe.condition === 'Worn-In' || shoe.condition === 'Mint') {
-                    openingMessage = `"${shoe.brand} ${shoe.model}, lightly worn. Still got plenty of life."`;
-                } else {
-                    openingMessage = `"I got ${shoe.brand} ${shoe.model}. ${shoe.colorway}. Clean pair, no major issues."`;
+                    const tier = shoe.rarityTier || shoe.tier || 'Standard';
+                    const messages = [];
+                    
+                    // Priority 1: Tier-specific opening (Grail > Vaulted > Limited > Standard)
+                    if (tier === 'Grail') {
+                        messages.push(...AI_DIALOGUE.opening.grail);
+                    } else if (tier === 'Vaulted') {
+                        messages.push(...AI_DIALOGUE.opening.vaulted);
+                    } else if (tier === 'Limited' || shoe.rarity === 'Epic' || shoe.rarity === 'Legendary') {
+                        messages.push(...AI_DIALOGUE.opening.limited);
+                    } else {
+                        messages.push(...AI_DIALOGUE.opening.standard);
                     }
+                    
+                    // Priority 2: Add condition-specific lines
+                    if (shoe.condition === 'Deadstock' || shoe.condition === 'OG' || shoe.condition === 'Beat God') {
+                        messages.push(...AI_DIALOGUE.condition.deadstock);
+                    } else if (shoe.condition === 'Mint' || shoe.condition === "Collector's Pick") {
+                        messages.push(...AI_DIALOGUE.condition.vnds);
+                    } else if (shoe.condition === 'Worn-In') {
+                        messages.push(...AI_DIALOGUE.condition.used);
+                    }
+                    
+                    // Priority 3: Add trend-specific lines
+                    if (shoe.trend > 5 || shoe.isHot) {
+                        messages.push(...AI_DIALOGUE.trends.hot);
+                    } else if (shoe.trend < -5 || shoe.isTanking) {
+                        messages.push(...AI_DIALOGUE.trends.cold);
+                    }
+                    
+                    // Priority 4: Add brand-specific lines
+                    if (shoe.brand === 'Nike' || shoe.model.includes('Jordan')) {
+                        messages.push(...AI_DIALOGUE.brands.nike);
+                    } else if (shoe.brand === 'Adidas' || shoe.model.includes('Yeezy')) {
+                        messages.push(...AI_DIALOGUE.brands.adidas);
+                    } else {
+                        messages.push(...AI_DIALOGUE.brands.other);
+                    }
+                    
+                    // Select random message from compiled pool
+                    openingMessage = `"${randomChoice(messages)}"`;
                 }
                 
                 return {
@@ -3559,17 +4416,21 @@
         }
 
         function updateCustomers() {
-            // Add new customers randomly
-            if (Math.random() > 0.7 && gameState.customers.length < 5) {
-                gameState.customers.push(generateCustomer());
-                renderCustomersTab();
-            }
-            
             // Decrease urgency in real time (1 second per loop)
             gameState.customers = gameState.customers.filter(customer => {
                 customer.urgencyInSeconds -= 1;
                 return customer.urgencyInSeconds > 0;
             });
+            
+            // Always maintain exactly 3 customers
+            while (gameState.customers.length < 3) {
+                gameState.customers.push(generateCustomer());
+            }
+            while (gameState.customers.length > 3) {
+                gameState.customers.pop();
+            }
+            
+            renderCustomersTab();
         }
 
         // ==================== RENDERING ====================
@@ -4994,21 +5855,25 @@
         
         // Generate AI auction
         function generateAIAuction() {
-            // Generate a shoe for auction
+            // Generate a shoe for auction - try to find one worth at least $1,500
             let shoe = generateSneaker();
+            let bestShoe = shoe;
             
-            // Check if shoe meets minimum market value requirement ($750)
+            // Try to find a shoe worth at least $1,500 (lower threshold for more reliable generation)
             let attempts = 0;
-            while (shoe.estimatedValue < 750 && attempts < 50) {
+            while (shoe.estimatedValue < 1500 && attempts < 100) {
                 shoe = generateSneaker();
+                // Keep track of the best shoe found
+                if (shoe.estimatedValue > bestShoe.estimatedValue) {
+                    bestShoe = shoe;
+                }
                 attempts++;
             }
             
-            // If we couldn't find a suitable shoe after 50 attempts, skip this auction
-            if (shoe.estimatedValue < 750) {
-                console.log('No suitable shoes for AI auction (all below $750 market value)');
-                return false; // Return false to indicate failure
-            }
+            // Use the best shoe we found (guaranteed to have at least one shoe)
+            shoe = (shoe.estimatedValue >= 1500) ? shoe : bestShoe;
+            
+            console.log(`AI Auction generated: ${shoe.brand} ${shoe.model} - Market Value: $${shoe.estimatedValue.toLocaleString()}`);
             
             // AI sets a minimum bid (usually 50-70% of estimated value)
             const minBidPercent = random(50, 70) / 100;
@@ -5347,12 +6212,12 @@
             
             let html = `
                 <h2 class="modal-title">List Shoe for Auction</h2>
-                <p style="color: #1a1a1a; margin: 15px 0;">Select a shoe to auction (minimum market value: $750):</p>
+                <p style="color: #1a1a1a; margin: 15px 0;">Select a shoe to auction (minimum market value: $3,000):</p>
                 <div style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
             `;
             
             availableShoes.forEach(shoe => {
-                const meetsRequirement = shoe.estimatedValue >= 750;
+                const meetsRequirement = shoe.estimatedValue >= 3000;
                 const disabledStyle = meetsRequirement ? '' : 'opacity: 0.5; cursor: not-allowed;';
                 const disabledAttr = meetsRequirement ? '' : 'disabled';
                 
@@ -5366,7 +6231,7 @@
                                 </div>
                                 <div style="font-size: 14px; margin-top: 5px;">
                                     Market Value: ${formatCurrency(shoe.estimatedValue)}
-                                    ${!meetsRequirement ? '<span style="color: #e74c3c; font-weight: 600;"> (Below $750 minimum)</span>' : ''}
+                                    ${!meetsRequirement ? '<span style="color: #e74c3c; font-weight: 600;"> (Below $3,000 minimum)</span>' : ''}
                                 </div>
                             </div>
                             <button class="action-btn buy-btn" onclick="selectShoeForAuction('${shoe.id}')" ${disabledAttr}>
@@ -5391,8 +6256,8 @@
             const shoe = gameState.inventory.find(s => s.id === shoeId);
             if (!shoe) return;
             
-            if (shoe.estimatedValue < 750) {
-                showNotification('This shoe does not meet the $750 minimum market value!', 'error');
+            if (shoe.estimatedValue < 3000) {
+                showNotification('This shoe does not meet the $3,000 minimum market value!', 'error');
                 return;
             }
             
@@ -6904,32 +7769,78 @@
             let reaction;
             let message;
             
+            // Check if any shoe in the bulk is high tier
+            const hasGrail = selectedShoes.some(s => (s.rarityTier === 'Grail' || s.tier === 'Grail'));
+            const hasVaulted = selectedShoes.some(s => (s.rarityTier === 'Vaulted' || s.tier === 'Vaulted'));
+            const hasHot = selectedShoes.some(s => s.isHot);
+            
             if (percentage >= 100) {
                 accepted = true;
                 reaction = '😊';
-                message = `"Deal! That's ${selectedShoes.length} pairs. Solid business right there."`;
+                const acceptedMessages = [
+                    `"Deal! That's ${selectedShoes.length} pairs. Solid business right there."`,
+                    `"Respect your business, that's fair for ${selectedShoes.length} pairs."`,
+                    `"Let's make this painless, ${selectedShoes.length} pairs sold!"`,
+                    `"You treat me right, I'll keep bringing pairs. Deal!"`
+                ];
+                message = randomChoice(acceptedMessages);
             } else if (percentage >= 95) {
                 accepted = Math.random() > 0.4;
                 reaction = accepted ? '😊' : '🤔';
                 message = accepted ? 
-                    `"Close enough. ${selectedShoes.length} pairs, let's do it!"` : 
-                    `"Almost there but not quite. Come up a bit more."`;
+                    randomChoice([
+                        `"Close enough. ${selectedShoes.length} pairs, let's do it!"`,
+                        `"Fair price for ${selectedShoes.length} pairs. Let's do this."`,
+                        `"I can work with that for a bulk deal."`
+                    ]) : 
+                    randomChoice([
+                        `"Almost there but not quite. Come up a bit more."`,
+                        `"That's borderline for ${selectedShoes.length} pairs. Little more?"`,
+                        `"I'm on the fence about this one, bump it up slightly."`
+                    ]);
             } else if (percentage >= 90) {
                 accepted = Math.random() > 0.7;
                 reaction = accepted ? '😊' : '🤔';
                 message = accepted ? 
-                    `"Alright, you drive a hard bargain. Deal."` : 
-                    `"Nah, too low for ${selectedShoes.length} pairs. I need more."`;
+                    randomChoice([
+                        `"Alright, you drive a hard bargain. Deal."`,
+                        `"Man... fine. But you're getting a STEAL here."`,
+                        `"Okay, ${selectedShoes.length} pairs for that. Don't expect this every time."`
+                    ]) : 
+                    randomChoice([
+                        `"Nah, too low for ${selectedShoes.length} pairs. I need more."`,
+                        hasGrail ? `"I got grails in here—that's not enough."` : `"Can't do it for that price."`,
+                        `"You're short for ${selectedShoes.length} quality pairs."`
+                    ]);
             } else if (percentage >= 85) {
                 accepted = Math.random() > 0.85;
                 reaction = accepted ? '😊' : '😐';
                 message = accepted ? 
-                    `"Man... fine. But you're getting a STEAL here."` : 
-                    `"Can't do it for that price. That's ${selectedShoes.length} quality pairs."`;
+                    randomChoice([
+                        `"Man... barely worth it but alright."`,
+                        `"You're lucky I need cash today. Deal."`,
+                        `"Fine, but only because I want to move these fast."`
+                    ]) : 
+                    randomChoice([
+                        `"Can't do it for that price. That's ${selectedShoes.length} quality pairs."`,
+                        hasVaulted ? `"These are vaulted pairs—you need to respect that."` : `"That's too low."`,
+                        `"I know what I got. That ain't it for ${selectedShoes.length} pairs."`
+                    ]);
             } else {
                 accepted = false;
                 reaction = '😤';
-                message = `"Are you serious? That's way too low for ${selectedShoes.length} pairs. I'm out."`;
+                const rejectedMessages = [
+                    `"Are you serious? That's way too low for ${selectedShoes.length} pairs. I'm out."`,
+                    `"Bro you're really trying to lowball me on a bulk deal? Nah."`,
+                    `"Just need money, but not interested in being disrespected. Pass."`
+                ];
+                if (hasGrail) {
+                    rejectedMessages.push(`"I got GRAILS in here and you offer that? We're done."`);
+                }
+                if (hasHot) {
+                    rejectedMessages.push(`"These are trending up and you lowball? Get outta here."`);
+                }
+                message = randomChoice(rejectedMessages);
             }
             
             document.getElementById('seller-avatar').innerHTML = `
@@ -7525,12 +8436,30 @@
             
             const counterOffer = Math.floor(Math.max(minAcceptable, Math.min(counterBase, askingPrice)));
             
-            const messages = [
-                `"Nah, ${formatCurrency(counterOffer)} or I'm keeping them."`,
-                `"I'll come down to ${formatCurrency(counterOffer)}."`,
-                `"Meet me in the middle - ${formatCurrency(counterOffer)}?"`,
-                shoe.isHot ? `"These are trending up. ${formatCurrency(counterOffer)} and that's being generous."` : `"${formatCurrency(counterOffer)} is as low as I'll go."`
-            ];
+            // Use contextual AI dialogue for marketplace sellers
+            const tier = shoe.rarityTier || shoe.tier || 'Standard';
+            let messages = [];
+            
+            // Select dialogue based on tier and shoe attributes
+            if (tier === 'Grail') {
+                messages.push(...AI_DIALOGUE.counter.tough_grail);
+            } else if (tier === 'Vaulted') {
+                messages.push(...AI_DIALOGUE.counter.tough_vaulted);
+            } else if (shoe.isHot || shoe.trend > 5) {
+                messages.push(...AI_DIALOGUE.counter.tough_hot);
+                messages.push(...AI_DIALOGUE.counter.tough_standard);
+            } else {
+                messages.push(...AI_DIALOGUE.counter.fair_standard);
+                messages.push(...AI_DIALOGUE.counter.tough_standard);
+            }
+            
+            // Add condition-specific lines
+            if (shoe.condition === 'Deadstock' || shoe.condition === 'OG' || shoe.condition === 'Beat God') {
+                messages.push(...AI_DIALOGUE.counter.fair_deadstock);
+            }
+            
+            // Replace PRICE placeholder with actual counter offer
+            messages = messages.map(msg => msg.replace('PRICE', formatCurrency(counterOffer)));
             
             showModal(`
                 <h2 class="modal-title">Counter Offer!</h2>
@@ -8084,10 +9013,7 @@
             // Update market trend timer display
             updateMarketTrendTimer();
             
-            // Random customer generation
-            if (gameState.timeElapsed % 120 === 0 && gameState.customers.length < 3) {
-                gameState.customers.push(generateCustomer());
-            }
+            // Customer generation is now handled by updateCustomers() to maintain exactly 3
             
             // Generate market sales from other sellers (every 2-5 minutes)
             if (gameState.timeElapsed % random(120, 300) === 0) {
@@ -8215,7 +9141,9 @@
                 
                 updateUI();
                 showNotification('Game loaded!', 'info');
+                return true; // Save data was loaded
             }
+            return false; // No save data found
         }
 
         function showDropRates() {
@@ -8326,6 +9254,15 @@
             gameState.nextAIAuction = 900;
             gameState.auctionIdCounter = 0;
             
+            // Re-initialize shoe trends (needed for auction generation)
+            SNEAKER_MODELS.forEach(shoeModel => {
+                const key = getShoeKey(shoeModel.brand, shoeModel.model);
+                gameState.shoeTrends[key] = random(-10, 15);
+            });
+            
+            // Start an auction immediately on reset (before rendering)
+            generateAIAuction();
+            
             // Refresh the UI
             updateUI();
             renderBuyTab();
@@ -8333,9 +9270,6 @@
             renderSellTab();
             renderMarketTab();
             renderAuctionsTab();
-            
-            // Start an auction immediately on reset
-            generateAIAuction();
             
             showNotification('Game reset successfully!', 'success');
         }
@@ -8346,7 +9280,7 @@
         // ==================== INITIALIZATION ====================
         function initGame() {
             // Try to load saved game
-            loadGame();
+            const savedGameLoaded = loadGame();
             
             // Clear old brandTrends if it exists (from previous version)
             if (gameState.brandTrends) {
@@ -8410,9 +9344,9 @@
                 refreshAvailableShoes();
             }
             
-            // Generate initial customers
+            // Generate initial customers (always 3)
             if (gameState.customers.length === 0) {
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < 3; i++) {
                     gameState.customers.push(generateCustomer());
                 }
             }
@@ -8426,6 +9360,19 @@
             }
             if (gameState.auctionIdCounter === undefined) {
                 gameState.auctionIdCounter = 0;
+            }
+            
+            // ONLY generate an auction for brand new games (no save data loaded)
+            // Don't generate on refresh - let the timer handle it naturally
+            if (!savedGameLoaded && gameState.activeAuctions.length === 0) {
+                generateAIAuction();
+            }
+            
+            // FIX: When loading a saved game, ensure auction timer is reasonable
+            // This prevents new auctions from appearing immediately after page refresh
+            if (savedGameLoaded && gameState.nextAIAuction < 300) {
+                gameState.nextAIAuction = random(300, 600); // Reset to 5-10 minutes
+                console.log('[AUCTION] Reset auction timer on load to prevent immediate auction');
             }
             
             // Initialize market trend timer if not present
@@ -8450,8 +9397,158 @@
             console.log('[GAME READY] Sneaker Hustle initialized! Let\'s get this bread!');
         }
 
+        // ==================== MOBILE DEVICE DETECTION & OPTIMIZATION ====================
+        // Detect if user is on mobile device
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                || window.innerWidth <= 768;
+        }
+
+        function isTabletDevice() {
+            return (/iPad|Android/i.test(navigator.userAgent) && window.innerWidth <= 1024 && window.innerWidth > 768)
+                || (window.innerWidth <= 1024 && window.innerWidth > 768);
+        }
+
+        // Apply mobile-specific optimizations
+        function applyMobileOptimizations() {
+            if (isMobileDevice()) {
+                console.log('[MOBILE] Mobile device detected - optimizations active');
+                
+                // Add mobile class to body for potential additional styling
+                document.body.classList.add('mobile-device');
+                
+                // Prevent double-tap zoom on buttons
+                const buttons = document.querySelectorAll('button, .sneaker-btn, .tab-btn');
+                buttons.forEach(button => {
+                    button.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        this.click();
+                    }, { passive: false });
+                });
+                
+                // Optimize scroll behavior for mobile
+                const scrollContainers = document.querySelectorAll('.tab-content, .modal-content, .sneaker-grid');
+                scrollContainers.forEach(container => {
+                    container.style.webkitOverflowScrolling = 'touch';
+                });
+                
+                // Add haptic feedback simulation on button press (visual only)
+                document.addEventListener('touchstart', function(e) {
+                    if (e.target.tagName === 'BUTTON' || e.target.classList.contains('sneaker-btn') || e.target.classList.contains('tab-btn')) {
+                        e.target.style.opacity = '0.7';
+                    }
+                }, { passive: true });
+                
+                document.addEventListener('touchend', function(e) {
+                    if (e.target.tagName === 'BUTTON' || e.target.classList.contains('sneaker-btn') || e.target.classList.contains('tab-btn')) {
+                        setTimeout(() => {
+                            e.target.style.opacity = '1';
+                        }, 100);
+                    }
+                }, { passive: true });
+                
+            } else if (isTabletDevice()) {
+                console.log('[TABLET] Tablet device detected - tablet optimizations active');
+                document.body.classList.add('tablet-device');
+            } else {
+                console.log('[DESKTOP] Desktop device detected - laptop optimizations active');
+                document.body.classList.add('desktop-device');
+            }
+        }
+
+        // Handle orientation changes on mobile
+        function handleOrientationChange() {
+            if (isMobileDevice()) {
+                const isLandscape = window.innerWidth > window.innerHeight;
+                
+                if (isLandscape) {
+                    console.log('[MOBILE] Landscape orientation detected');
+                    document.body.classList.add('landscape-mode');
+                    document.body.classList.remove('portrait-mode');
+                } else {
+                    console.log('[MOBILE] Portrait orientation detected');
+                    document.body.classList.add('portrait-mode');
+                    document.body.classList.remove('landscape-mode');
+                }
+                
+                // Update UI on orientation change
+                updateUI();
+            }
+        }
+
+        // Listen for orientation changes
+        window.addEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('resize', handleOrientationChange);
+
+        // Prevent pinch zoom on mobile (optional - can be removed if zoom is desired)
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Improve tap responsiveness by preventing 300ms delay
+        document.addEventListener('touchstart', function(){}, { passive: true });
+
+        // Add swipe detection for potential future mobile gestures
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchEndX - touchStartX;
+            
+            if (Math.abs(diff) > swipeThreshold && isMobileDevice()) {
+                // Swipe left - could navigate to next tab
+                if (diff < 0) {
+                    console.log('[MOBILE] Swipe left detected');
+                }
+                // Swipe right - could navigate to previous tab
+                else {
+                    console.log('[MOBILE] Swipe right detected');
+                }
+            }
+        }
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        // Optimize viewport for mobile on page load
+        function optimizeViewport() {
+            if (isMobileDevice()) {
+                // Ensure viewport meta tag is properly set
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+                }
+                
+                // Prevent iOS Safari bouncing
+                document.body.style.overscrollBehavior = 'none';
+            }
+        }
+
+        // Initialize mobile optimizations
+        function initMobileOptimizations() {
+            applyMobileOptimizations();
+            handleOrientationChange();
+            optimizeViewport();
+            
+            // Log device info for debugging
+            console.log(`[DEVICE] Screen: ${window.innerWidth}x${window.innerHeight}`);
+            console.log(`[DEVICE] User Agent: ${navigator.userAgent}`);
+        }
+
         // Start the game
         initGame();
+        
+        // Apply mobile optimizations after game initializes
+        initMobileOptimizations();
     </script>
 </body>
 </html>

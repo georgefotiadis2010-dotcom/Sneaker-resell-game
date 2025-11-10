@@ -33,9 +33,10 @@ app.get('/api/sneaker/:name', (req, res) => {
         clearTimeout(timeout);
         
         if (err) {
-            console.error(`[API] Error fetching ${sneakerName}:`, err);
+            console.log(`[API] Could not fetch ${sneakerName} (API issue, will use fallback)`);
             responded = true;
-            return res.status(500).json({ error: 'Failed to fetch sneaker data', details: err.message });
+            // Return 404 instead of 500 - this is not a server error, just data not found
+            return res.status(404).json({ error: 'Sneaker not found in database', searchedFor: sneakerName });
         }
         
         if (!products || products.length === 0) {
