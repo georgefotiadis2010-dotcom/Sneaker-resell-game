@@ -2764,80 +2764,117 @@
 
     <script>
         // ==================== AUTO-UPDATE SYSTEM ====================
-        // Version number - increment this with each update to force reload
-        const GAME_VERSION = '1.2.0'; // Update this number when you deploy changes
+        // Client version - this is checked against server version
+        const CLIENT_VERSION = '1.2.0';
         
-        // Check if there's a new version available
-        function checkForUpdates() {
+        // Show update notification popup
+        function showUpdateNotification(serverVersion) {
+            // Prevent duplicate popups
+            if (document.getElementById('update-notice')) return;
+            
+            console.log(`New version available: ${serverVersion} (current: ${CLIENT_VERSION})`);
+            
+            const updateNotice = document.createElement('div');
+            updateNotice.id = 'update-notice';
+            updateNotice.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #3498db, #2980b9);
+                color: white;
+                padding: 30px;
+                border: 4px solid #000;
+                border-radius: 0;
+                box-shadow: 8px 8px 0 rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-family: 'Inter', sans-serif;
+                font-weight: 800;
+                text-align: center;
+                max-width: 400px;
+            `;
+            updateNotice.innerHTML = `
+                <div style="font-size: 24px; margin-bottom: 15px;">🎉 UPDATE AVAILABLE! 🎉</div>
+                <div style="font-size: 14px; margin-bottom: 20px;">New features and improvements are ready!</div>
+                <div style="font-size: 11px; opacity: 0.8; margin-bottom: 5px;">Current: v${CLIENT_VERSION}</div>
+                <div style="font-size: 11px; opacity: 0.8; margin-bottom: 15px;">New: v${serverVersion}</div>
+                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 20px;">Your progress will be saved.</div>
+                <button onclick="location.reload(true)" style="
+                    padding: 12px 30px;
+                    background: #2ecc71;
+                    border: 3px solid #000;
+                    color: white;
+                    font-weight: 800;
+                    font-size: 14px;
+                    cursor: pointer;
+                    text-transform: uppercase;
+                    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+                ">Update Now</button>
+            `;
+            document.body.appendChild(updateNotice);
+        }
+        
+        // Check server for version updates
+        async function checkServerVersion() {
+            try {
+                const response = await fetch('/api/version', {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const serverVersion = data.version;
+                    
+                    // Check if server version is different from client version
+                    if (serverVersion !== CLIENT_VERSION) {
+                        showUpdateNotification(serverVersion);
+                        return true;
+                    }
+                }
+            } catch (err) {
+                console.log('Version check failed:', err);
+            }
+            return false;
+        }
+        
+        // Legacy local version check (fallback for older deployments)
+        function checkLocalVersion() {
             const storedVersion = localStorage.getItem('gameVersion');
             
-            if (storedVersion && storedVersion !== GAME_VERSION) {
-                console.log(`New version detected: ${GAME_VERSION} (was ${storedVersion})`);
-                // Show update notification
-                const updateNotice = document.createElement('div');
-                updateNotice.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: linear-gradient(135deg, #3498db, #2980b9);
-                    color: white;
-                    padding: 30px;
-                    border: 4px solid #000;
-                    border-radius: 0;
-                    box-shadow: 8px 8px 0 rgba(0,0,0,0.3);
-                    z-index: 10000;
-                    font-family: 'Inter', sans-serif;
-                    font-weight: 800;
-                    text-align: center;
-                    max-width: 400px;
-                `;
-                updateNotice.innerHTML = `
-                    <div style="font-size: 24px; margin-bottom: 15px;">🎉 UPDATE AVAILABLE! 🎉</div>
-                    <div style="font-size: 14px; margin-bottom: 20px;">New features and improvements are ready!</div>
-                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 20px;">Your progress will be saved.</div>
-                    <button onclick="location.reload(true)" style="
-                        padding: 12px 30px;
-                        background: #2ecc71;
-                        border: 3px solid #000;
-                        color: white;
-                        font-weight: 800;
-                        font-size: 14px;
-                        cursor: pointer;
-                        text-transform: uppercase;
-                        box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
-                    ">Update Now</button>
-                `;
-                document.body.appendChild(updateNotice);
+            if (storedVersion && storedVersion !== CLIENT_VERSION) {
+                console.log(`Local version change detected: ${CLIENT_VERSION} (was ${storedVersion})`);
+                showUpdateNotification(CLIENT_VERSION);
             }
             
             // Store current version
-            localStorage.setItem('gameVersion', GAME_VERSION);
+            localStorage.setItem('gameVersion', CLIENT_VERSION);
         }
         
         // Check for updates when page loads
-        window.addEventListener('load', checkForUpdates);
+        window.addEventListener('load', async () => {
+            // First check server version (works for Render deployments)
+            const serverUpdateFound = await checkServerVersion();
+            
+            // If no server update, check local version (fallback)
+            if (!serverUpdateFound) {
+                checkLocalVersion();
+            }
+        });
         
-        // Periodically check for updates (every 5 minutes)
-        setInterval(() => {
-            // Fetch the current page to check if version changed
-            fetch(window.location.href, { 
-                method: 'HEAD',
-                cache: 'no-cache' 
-            }).then(() => {
-                // Force a version check by reloading if user has been idle
-                const lastActivity = localStorage.getItem('lastActivity');
-                const now = Date.now();
-                if (lastActivity && (now - parseInt(lastActivity)) > 300000) { // 5 minutes
-                    location.reload(true);
-                }
-            }).catch(err => console.log('Update check failed:', err));
-        }, 300000); // Check every 5 minutes
+        // Periodically check for updates from server (every 3 minutes)
+        setInterval(async () => {
+            await checkServerVersion();
+        }, 180000); // Check every 3 minutes
         
-        // Track user activity
+        // Track user activity (for potential idle reload)
+        let lastActivity = Date.now();
         ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
             document.addEventListener(event, () => {
-                localStorage.setItem('lastActivity', Date.now().toString());
+                lastActivity = Date.now();
             }, { passive: true });
         });
         

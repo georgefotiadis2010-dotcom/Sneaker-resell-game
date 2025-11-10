@@ -1,10 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const SneaksAPI = require('sneaks-api');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const sneaks = new SneaksAPI();
 const PORT = process.env.PORT || 3000;
+
+// Game version - UPDATE THIS WITH EACH DEPLOYMENT
+const GAME_VERSION = '1.2.0';
 
 // Enable CORS for frontend
 app.use(cors());
@@ -18,6 +23,24 @@ app.use((req, res, next) => {
         res.setHeader('Expires', '0');
     }
     next();
+});
+
+// Version endpoint - allows clients to check for updates
+app.get('/api/version', (req, res) => {
+    res.json({ 
+        version: GAME_VERSION,
+        timestamp: Date.now()
+    });
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'ok',
+        version: GAME_VERSION,
+        uptime: process.uptime(),
+        timestamp: Date.now()
+    });
 });
 
 app.use(express.static('.'));
