@@ -4589,6 +4589,7 @@
         // ==================== SNEAKER GENERATION ====================
         
         // Calculate comprehensive market value based on ALL shoe attributes
+        // This function provides realistic pricing by considering EVERY factor that affects sneaker resale value
         function calculateMarketValue(shoeData) {
             const { brand, model, tier, condition, size, colorway, trend } = shoeData;
             
@@ -4596,77 +4597,137 @@
             const shoeModel = SNEAKER_MODELS.find(s => s.brand === brand && s.model === model);
             if (!shoeModel) return 0;
             
+            // ============================================
+            // PHASE 1: CORE VALUE (Base × Rarity × Condition)
+            // ============================================
+            
             // 1. BASE PRICE (from sneaker model database)
+            // This is the retail or historical base value for this specific model
             let value = shoeModel.basePrice;
             
-            // 2. TIER MULTIPLIER (rarity tier - huge impact)
+            // 2. TIER MULTIPLIER (rarity/scarcity - BIGGEST impact on value)
+            // Standard: 1.0x (general release, widely available)
+            // Limited: 2.5x (limited quantities, regional exclusives)
+            // Premium: 4.0x (special collabs, 1000-5000 pairs)
+            // Vaulted: 6.0x (no longer produced, vintage appeal)
+            // Exclusive: 9.0x (F&F, ultra-exclusive, 200-1000 pairs)
+            // Grail: 15.0x (museum pieces, under 200 pairs)
+            // Unreleased: 25.0x (samples, prototypes, never released)
             const tierMultiplier = RARITY_TIERS[tier]?.tierMultiplier || 1.0;
             value *= tierMultiplier;
             
-            // 3. CONDITION MULTIPLIER (condition of the shoe)
+            // 3. CONDITION MULTIPLIER (physical state of the shoe)
+            // Condition has HUGE impact on value - can make or break a sale
+            // Scuffed: 0.5x (heavily worn, creasing, stains - budget option)
+            // Used: 0.8x (lightly worn, some signs of use)
+            // VNDS: 0.9x (very near deadstock, tried on/worn once)
+            // Deadstock: 1.0x (brand new, unworn - the baseline)
+            // OG: 1.15x (vintage deadstock with original box/tags - premium)
+            // Celeb Worn: 1.35x (celebrity provenance adds value despite wear)
             const conditionData = CONDITION_LEVELS.find(c => c.name === condition);
             const conditionMultiplier = conditionData?.multiplier || 1.0;
             value *= conditionMultiplier;
             
-            // 4. SIZE MULTIPLIER (popular sizes are more valuable)
-            // Sizes 9-11 are most popular and command premium
-            // Extreme sizes (< 8 or > 12) are less desirable
+            // ============================================
+            // PHASE 2: SIZE ADJUSTMENT (Market Demand by Size)
+            // ============================================
+            
+            // 4. SIZE MULTIPLIER (popular sizes command premium prices)
+            // Sizes 9-11 are most common/desired and have highest demand
+            // Very small (<7.5) or very large (>12.5) sizes are harder to sell
             let sizeMultiplier = 1.0;
             if (size >= 9 && size <= 11) {
-                sizeMultiplier = 1.15; // 15% premium for popular sizes
+                sizeMultiplier = 1.15; // 15% premium for sweet spot sizes
             } else if (size >= 8.5 && size < 9) {
-                sizeMultiplier = 1.08; // 8% premium
+                sizeMultiplier = 1.08; // 8% premium - still popular
             } else if (size > 11 && size <= 11.5) {
-                sizeMultiplier = 1.08; // 8% premium
+                sizeMultiplier = 1.08; // 8% premium - still popular
             } else if (size >= 8 && size < 8.5) {
-                sizeMultiplier = 1.0; // Neutral
+                sizeMultiplier = 1.0; // Neutral - acceptable demand
             } else if (size > 11.5 && size <= 12) {
-                sizeMultiplier = 1.0; // Neutral
+                sizeMultiplier = 1.0; // Neutral - acceptable demand
             } else if (size >= 7.5 && size < 8) {
-                sizeMultiplier = 0.92; // 8% discount for less common
+                sizeMultiplier = 0.92; // 8% discount - less common size
             } else if (size > 12 && size <= 12.5) {
-                sizeMultiplier = 0.92; // 8% discount
+                sizeMultiplier = 0.92; // 8% discount - less common size
             } else {
-                sizeMultiplier = 0.80; // 20% discount for rare sizes
+                sizeMultiplier = 0.80; // 20% discount - extreme sizes, limited buyers
             }
             value *= sizeMultiplier;
             
-            // 5. COLORWAY MULTIPLIER (certain colorways are more valuable)
+            // ============================================
+            // PHASE 3: AESTHETIC & CULTURAL VALUE
+            // ============================================
+            
+            // 5. COLORWAY MULTIPLIER (certain colorways are iconic and more sought after)
+            // OG and classic colorways hold value better and command premiums
             let colorwayMultiplier = 1.0;
             const lowerColorway = colorway.toLowerCase();
             if (lowerColorway.includes('og') || lowerColorway === 'original') {
-                colorwayMultiplier = 1.25; // 25% premium for OG colorways
+                colorwayMultiplier = 1.25; // 25% premium - original releases are grails
             } else if (lowerColorway.includes('retro')) {
-                colorwayMultiplier = 1.15; // 15% premium for retro
+                colorwayMultiplier = 1.15; // 15% premium - retro colorways have nostalgia
             } else if (lowerColorway.includes('triple black') || lowerColorway.includes('triple white')) {
-                colorwayMultiplier = 1.10; // 10% premium for classic monochromes
+                colorwayMultiplier = 1.10; // 10% premium - versatile, always in demand
             } else if (lowerColorway.includes('black/white') || lowerColorway.includes('black white')) {
-                colorwayMultiplier = 1.05; // 5% premium for classic two-tone
+                colorwayMultiplier = 1.05; // 5% premium - classic combo, easy to wear
             }
             value *= colorwayMultiplier;
             
-            // 6. BRAND PRESTIGE (some brands command higher resale)
+            // 6. BRAND PRESTIGE & COLLABORATION BONUS (brand equity affects resale value)
+            // Some brands have stronger resale markets and collector bases
+            // Special collaborations add significant premiums
             let brandMultiplier = 1.0;
-            if (brand === 'Nike' || brand === 'Adidas') {
-                brandMultiplier = 1.12; // 12% premium for top brands
-            } else if (brand === 'New Balance') {
-                brandMultiplier = 1.08; // 8% premium - rising brand
+            
+            // Check for ultra-hyped collaborations first (model name contains collab)
+            if (model.includes('Off-White') || model.includes('Travis Scott')) {
+                brandMultiplier = 1.22; // 22% premium - ultra-hyped collabs (Virgil Abloh/Travis)
+            } else if (model.includes('Yeezy')) {
+                brandMultiplier = 1.16; // 16% premium - Yeezy brand (Kanye influence, massive hype)
             } else if (brand === 'Jordan') {
-                brandMultiplier = 1.15; // 15% premium - Jordan brand dominates
-            } else if (brand === 'Yeezy') {
-                brandMultiplier = 1.20; // 20% premium - Yeezy hype
+                brandMultiplier = 1.18; // 18% premium - Jordan brand dominates resale market (MJ legacy)
+            } else if (brand === 'Nike' || brand === 'Adidas') {
+                brandMultiplier = 1.10; // 10% premium - dominant market players
+            } else if (brand === 'New Balance') {
+                brandMultiplier = 1.08; // 8% premium - rising popularity, strong collab culture
+            } else if (brand === 'Asics' || brand === 'Reebok') {
+                brandMultiplier = 1.05; // 5% premium - niche brands with loyal following
             }
             value *= brandMultiplier;
             
-            // 7. MARKET TREND MULTIPLIER (current demand)
+            // ============================================
+            // PHASE 4: MARKET DYNAMICS (Real-time factors)
+            // ============================================
+            
+            // 7. MARKET TREND MULTIPLIER (current market sentiment and demand)
+            // Trends range from -20 (cold market) to +20 (hot market)
+            // This reflects current hype, social media buzz, celebrity sightings, etc.
+            // Positive trends significantly boost value, negative trends hurt it
             const trendMultiplier = 1 + (trend / 100);
             value *= trendMultiplier;
             
-            // 8. MARKET VARIANCE (realistic market fluctuation)
-            // Market value has some natural variance 10-35% above floor
-            const varianceMultiplier = random(110, 135) / 100;
+            // 8. RARITY × CONDITION INTERACTION BONUS
+            // Higher tier shoes in better condition get exponential value boost
+            // This reflects the collector premium for pristine rare pieces
+            if ((tier === 'Grail' || tier === 'Unreleased' || tier === 'Exclusive') && 
+                (condition === 'Deadstock' || condition === 'OG')) {
+                value *= 1.12; // 12% bonus for grail-tier pristine pieces
+            } else if ((tier === 'Premium' || tier === 'Vaulted') && 
+                       (condition === 'Deadstock' || condition === 'OG')) {
+                value *= 1.08; // 8% bonus for premium pristine pieces
+            }
+            
+            // 9. MARKET VARIANCE (realistic market fluctuation and listing variation)
+            // Reduced variance for more consistent and predictable pricing
+            // Different sellers list at different prices based on urgency, knowledge, etc.
+            // Range: -2% to +8% to account for market spread
+            const varianceMultiplier = random(98, 108) / 100;
             value *= varianceMultiplier;
             
+            // ============================================
+            // FINAL VALUE
+            // ============================================
+            // Return final market value rounded down to nearest dollar
             return Math.floor(value);
         }
         
@@ -9628,33 +9689,21 @@
             // Check listings for purchases
             checkListingsForPurchase();
             
-            // Age inventory
+            // Age inventory and update market values
             if (gameState.timeElapsed % 60 === 0) {
+                // Increment days held for inventory shoes
                 gameState.inventory.forEach(shoe => {
                     shoe.daysHeld++;
-                    // Depreciation based on market trends and rarity
-                    // Hot items (positive trend) appreciate, cold items depreciate
-                    const trend = getShoeTrend(shoe.brand, shoe.model);
-                    if (trend <= 0) {
-                        // Only apply depreciation to items that aren't trending
-                        // Rarer items depreciate slower
-                        const tierMultiplier = RARITY_TIERS[shoe.tier || shoe.rarityTier]?.tierMultiplier || 1.0;
-                        const depreciationRate = Math.max(0.97, 1.0 - (0.01 / tierMultiplier)); // Grails depreciate less
-                        shoe.estimatedValue = Math.max(50, shoe.estimatedValue * depreciationRate);
-                    }
                 });
                 
-                // Age listed shoes too
+                // Increment days held for listed shoes
                 gameState.listedShoes.forEach(shoe => {
                     shoe.daysHeld++;
-                    // Same depreciation logic for listed shoes
-                    const trend = getShoeTrend(shoe.brand, shoe.model);
-                    if (trend <= 0) {
-                        const tierMultiplier = RARITY_TIERS[shoe.tier || shoe.rarityTier]?.tierMultiplier || 1.0;
-                        const depreciationRate = Math.max(0.97, 1.0 - (0.01 / tierMultiplier));
-                        shoe.estimatedValue = Math.max(50, shoe.estimatedValue * depreciationRate);
-                    }
                 });
+                
+                // Note: Market values are recalculated every 5 minutes by syncShoeHotStatus()
+                // based on current market trends, condition, rarity, and all other factors.
+                // This ensures values properly reflect real-time market conditions.
             }
             
             // Don't auto-refresh sell tab - it wipes out loaded images
