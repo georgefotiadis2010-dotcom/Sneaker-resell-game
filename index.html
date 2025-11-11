@@ -4484,7 +4484,7 @@
 
         // ==================== GAME STATE ====================
         const gameState = {
-            cash: 1000,
+            cash: 2000,
             totalProfit: 0,
             reputation: 3,
             inventory: [],
@@ -5449,6 +5449,33 @@
                 }
             }
             console.log(`[SUCCESS] Finished processing ${shoes.length} shoes`);
+        }
+        
+        // Load a single sneaker image for crate opening modal
+        async function loadSneakerImageForCrate(shoe, imgContainer) {
+            console.log(`Loading image for crate reward: ${shoe.brand} ${shoe.model}`);
+            
+            const imageUrl = await getSneakerImage(shoe.brand, shoe.model);
+            
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `${shoe.brand} ${shoe.model}`;
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; padding: 20px; z-index: 2;';
+                
+                img.onload = () => {
+                    const initialDiv = imgContainer.querySelector('.sneaker-initial');
+                    if (initialDiv) {
+                        initialDiv.style.display = 'none';
+                    }
+                };
+                
+                img.onerror = () => {
+                    console.log(`Image failed to load for ${shoe.brand} ${shoe.model}`);
+                };
+                
+                imgContainer.appendChild(img);
+            }
         }
         
         // Load sneaker images within a specific grid context (avoids duplicate ID issues)
@@ -9871,6 +9898,11 @@
 
         function generateCrateShoe(crateType) {
             const odds = CRATE_ODDS[crateType];
+            if (!odds) {
+                console.error('No odds found for crate type:', crateType);
+                return null;
+            }
+            
             const totalProb = odds.reduce((sum, o) => sum + o.probability, 0);
             let rand = Math.random() * totalProb;
             
@@ -9895,6 +9927,12 @@
             
             // Select shoe from tier using weights
             const tierShoesFiltered = SNEAKER_MODELS.filter(s => s.tier === selectedCombo.tier);
+            
+            if (tierShoesFiltered.length === 0) {
+                console.error('No shoes found for tier:', selectedCombo.tier);
+                return null;
+            }
+            
             const totalWeight = tierShoesFiltered.reduce((sum, s) => sum + s.weight, 0);
             rand = Math.random() * totalWeight;
             
@@ -9910,17 +9948,23 @@
             
             const colorway = randomChoice(COLORWAYS);
             const conditionData = CONDITION_LEVELS.find(c => c.name === selectedCombo.condition);
+            if (!conditionData) {
+                console.error('No condition data found for:', selectedCombo.condition);
+                return null;
+            }
             const size = random(7, 13) + (Math.random() > 0.5 ? 0.5 : 0);
             
             // Get trend and calculate value
             const trend = getShoeTrend(selectedModel.brand, selectedModel.model);
-            const estimatedValue = calculateMarketValue(
-                selectedModel.baseValue,
-                selectedCombo.tier,
-                selectedCombo.condition,
-                size,
-                trend
-            );
+            const estimatedValue = calculateMarketValue({
+                brand: selectedModel.brand,
+                model: selectedModel.model,
+                tier: selectedCombo.tier,
+                condition: selectedCombo.condition,
+                size: size,
+                colorway: colorway,
+                trend: trend
+            });
             
             const isHot = trend > 10;
             
@@ -9948,33 +9992,34 @@
         }
 
         function openCrate(crateType, cost) {
-            // Ensure cost and cash are numbers
-            cost = Number(cost);
-            gameState.cash = Number(gameState.cash);
-            
-            // Check if player has enough money
-            if (gameState.cash < cost) {
-                showNotification(`Not enough cash! Need ${formatCurrency(cost)}`, 'error');
-                return;
-            }
-            
-            // Check if inventory has space
-            if (gameState.inventory.length >= gameState.inventoryLimit) {
-                showNotification('Inventory full! Sell some shoes first.', 'error');
-                return;
-            }
-            
-            // Deduct cost
-            gameState.cash -= cost;
-            
-            // Generate shoe from crate
-            const shoe = generateCrateShoe(crateType);
-            
-            if (!shoe) {
-                showNotification('Error generating shoe from crate!', 'error');
-                gameState.cash += cost; // Refund
-                return;
-            }
+            try {
+                // Ensure cost and cash are numbers
+                cost = Number(cost);
+                gameState.cash = Number(gameState.cash);
+                
+                // Check if player has enough money
+                if (gameState.cash < cost) {
+                    showNotification(`Not enough cash! Need ${formatCurrency(cost)}`, 'error');
+                    return;
+                }
+                
+                // Check if inventory has space
+                if (gameState.inventory.length >= gameState.inventoryLimit) {
+                    showNotification('Inventory full! Sell some shoes first.', 'error');
+                    return;
+                }
+                
+                // Deduct cost
+                gameState.cash -= cost;
+                
+                // Generate shoe from crate
+                const shoe = generateCrateShoe(crateType);
+                
+                if (!shoe) {
+                    showNotification('Error generating shoe from crate!', 'error');
+                    gameState.cash += cost; // Refund
+                    return;
+                }
             
             // Set purchase price to crate cost
             shoe.purchasePrice = cost;
@@ -9982,33 +10027,96 @@
             // Add to inventory
             gameState.inventory.push(shoe);
             
-            // Show reward modal
-            const rarityColors = {
-                'Standard': '#95a5a6',
-                'Limited': '#3498db',
-                'Premium': '#9b59b6',
-                'Vaulted': '#e67e22',
-                'Exclusive': '#e74c3c',
-                'Grail': '#f39c12',
-                'Unreleased': '#ff00ff'
-            };
+            // Show reward modal with actual sneaker card
+            const brandColor = getBrandColor(shoe.brand);
+            const rarityGlow = getRarityGlow(shoe.rarity);
             
-            const rarityColor = rarityColors[shoe.tier] || '#95a5a6';
+            const brandBorderColors = {
+                'Nike': '#FF6B35',
+                'Adidas': '#0066B3',
+                'New Balance': '#CC0000',
+                'Asics': '#0051BA',
+                'Converse': '#000000',
+                'Vans': '#DC0000'
+            };
+            const borderColor = brandBorderColors[shoe.brand] || '#667eea';
+            
+            const { minValue, maxValue } = getMarketValueRange(shoe);
+            const profit = shoe.estimatedValue - shoe.purchasePrice;
+            const profitPercent = ((profit / shoe.purchasePrice) * 100).toFixed(0);
+            
+            const trendColor = shoe.trend > 5 ? '#27ae60' : shoe.trend < -5 ? '#e74c3c' : '#f39c12';
+            const trendIcon = shoe.trend > 5 ? '↑' : shoe.trend < -5 ? '↓' : '→';
+            
+            let cardBorderColor = '#000';
+            let cardBorderWidth = '3px';
+            
+            if (shoe.isHot) {
+                cardBorderColor = '#ff4444';
+                cardBorderWidth = '5px';
+            } else if (shoe.isTanking) {
+                cardBorderColor = '#4488ff';
+                cardBorderWidth = '5px';
+            }
             
             const content = `
-                <div style="text-align: center;">
-                    <h2 style="color: #1a1a1a; margin-bottom: 20px;">🎉 Crate Opened! 🎉</h2>
-                    <div style="font-size: 60px; margin: 20px 0;">${shoe.conditionEmoji}</div>
-                    <div style="background: linear-gradient(135deg, ${rarityColor}, ${rarityColor}dd); padding: 20px; border: 3px solid #000; margin: 20px 0;">
-                        <div style="color: white; font-size: 24px; font-weight: 800; text-shadow: 2px 2px 0 rgba(0,0,0,0.3);">${shoe.brand} ${shoe.model}</div>
-                        <div style="color: white; font-size: 16px; margin-top: 10px;">${shoe.colorway} | Size ${shoe.size}</div>
-                        <div style="color: white; font-size: 18px; font-weight: 800; margin-top: 10px;">${shoe.tier} ${shoe.condition}</div>
+                <div style="text-align: center; max-width: 400px; margin: 0 auto;">
+                    <h2 style="color: #1a1a1a; margin-bottom: 20px; font-size: 28px;">🎉 Crate Opened! 🎉</h2>
+                    
+                    <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden; background: #fff;">
+                        <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.tier} ${shoe.condition}</div>
+                        ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥 HOT</div>' : ''}
+                        
+                        <!-- Image as centerpiece -->
+                        <div id="crate-sneaker-img-${shoe.id}" style="width: 100%; height: 260px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                            <div class="sneaker-initial" style="font-size: 80px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 3px 3px 6px rgba(0,0,0,0.6);">${getBrandInitial(shoe)}</div>
+                        </div>
+                        
+                        <!-- Content below image -->
+                        <div style="padding: 16px;">
+                            <div style="margin-bottom: 12px;">
+                                <div style="font-weight: 900; font-size: 20px; color: #000; margin-bottom: 6px; line-height: 1.2;">${shoe.brand} ${shoe.model}</div>
+                                <div style="font-size: 13px; color: #666; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; line-height: 1.2;">${shoe.colorway}</div>
+                                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; justify-content: center;">
+                                    <span style="font-weight: 700;">Size ${shoe.size}</span>
+                                    <span>${shoe.conditionEmoji} ${shoe.condition}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                <div style="background: #f5f5f5; padding: 10px; border: 2px solid #000;">
+                                    <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; line-height: 1;">Paid</div>
+                                    <div style="font-size: 18px; font-weight: 900; color: #e74c3c; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(shoe.purchasePrice)}</div>
+                                </div>
+                                <div style="background: #f5f5f5; padding: 10px; border: 2px solid #000;">
+                                    <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; line-height: 1;">Potential Profit</div>
+                                    <div style="font-size: 18px; font-weight: 900; color: ${profit > 0 ? '#27ae60' : '#e74c3c'}; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(profit)}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f5f5f5; padding: 10px; border: 2px solid #000; margin-bottom: 12px;">
+                                <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; text-align: center;">Market Value</div>
+                                <div style="text-align: center; font-size: 24px; font-weight: 900; color: #3498db; padding: 4px 0; font-family: 'Inter', sans-serif; line-height: 1;">
+                                    ${formatCurrency(shoe.estimatedValue)}
+                                </div>
+                                <div style="font-size: 8px; color: #666; text-align: center; font-style: italic; margin-top: 4px;">
+                                    Range: ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f5f5f5; padding: 10px; border: 2px solid #000; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <div style="font-size: 10px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Market Trend</div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="font-size: 16px;">${trendIcon}</span>
+                                        <span style="font-size: 16px; font-weight: 900; color: ${trendColor}; font-family: 'Inter', sans-serif;">${shoe.trend > 0 ? '+' : ''}${shoe.trend}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="action-btn" onclick="closeModal()" style="width: 100%; padding: 14px; font-size: 16px; font-weight: 900;">Awesome!</button>
+                        </div>
                     </div>
-                    <div style="font-size: 20px; color: #27ae60; font-weight: 800; margin: 20px 0;">
-                        Value: ${formatCurrency(shoe.estimatedValue)}
-                    </div>
-                    ${shoe.isHot ? '<div style="color: #e74c3c; font-size: 18px; font-weight: 800;">🔥 HOT ITEM! 🔥</div>' : ''}
-                    <button class="action-btn" onclick="closeModal()" style="margin-top: 20px; width: 100%;">Awesome!</button>
                 </div>
             `;
             
@@ -10016,8 +10124,25 @@
             updateUI();
             saveGame();
             
+            // Load the sneaker image in the modal
+            setTimeout(() => {
+                const imgContainer = document.getElementById(`crate-sneaker-img-${shoe.id}`);
+                if (imgContainer) {
+                    loadSneakerImageForCrate(shoe, imgContainer);
+                }
+            }, 100);
+            
             // Play success sound effect (if you want to add audio later)
             showNotification(`Got ${shoe.tier} ${shoe.condition} ${shoe.brand}!`, 'success');
+            } catch (err) {
+                console.error('Error in openCrate:', err);
+                showNotification('Error opening crate! Check console for details.', 'error');
+                // Try to refund the player if cash was deducted
+                if (gameState.cash !== undefined) {
+                    gameState.cash += cost;
+                    updateUI();
+                }
+            }
         }
 
         // ==================== REFRESH BUTTON ====================
@@ -10343,8 +10468,13 @@
 
         // ==================== SAVE/LOAD ====================
         function saveGame() {
-            localStorage.setItem('sneakerGameSave', JSON.stringify(gameState));
-            showNotification('Game saved!', 'success');
+            try {
+                localStorage.setItem('sneakerGameSave', JSON.stringify(gameState));
+                showNotification('Game saved!', 'success');
+            } catch (err) {
+                console.error('Error saving game:', err);
+                showNotification('Error saving game!', 'error');
+            }
         }
 
         function loadGame() {
@@ -10382,8 +10512,8 @@
                 
                 // Fix cash if it's not a valid number
                 if (typeof gameState.cash !== 'number' || isNaN(gameState.cash)) {
-                    console.warn(`Fixing cash from ${gameState.cash} to 1000`);
-                    gameState.cash = 1000;
+                    console.warn(`Fixing cash from ${gameState.cash} to 2000`);
+                    gameState.cash = 2000;
                 }
                 
                 updateUI();
@@ -10483,7 +10613,7 @@
             localStorage.removeItem('sneakerGameSave');
             
             // Reset gameState to initial values
-            gameState.cash = 1000;
+            gameState.cash = 2000;
             gameState.totalProfit = 0;
             gameState.reputation = 3;
             gameState.inventory = [];
