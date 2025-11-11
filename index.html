@@ -346,6 +346,41 @@
             opacity: 1;
         }
 
+        /* Crate Sub-tabs */
+        .crate-subtab-btn {
+            padding: 12px 24px;
+            background: #fff;
+            border: 3px solid #000;
+            border-bottom: none;
+            color: #000;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            top: 3px;
+        }
+
+        .crate-subtab-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .crate-subtab-btn.active {
+            background: #fff;
+            color: #000;
+            border-bottom: 3px solid #fff;
+            z-index: 1;
+        }
+
+        .crate-subtab-content {
+            display: none;
+        }
+
+        .crate-subtab-content.active {
+            display: block;
+        }
+
         /* Tab Content */
         .tab-content {
             display: none;
@@ -2837,6 +2872,7 @@
             <button class="tab-btn" data-tab="sell">Sell Shoes</button>
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
+            <button class="tab-btn" data-tab="crates">Lucky Crates</button>
         </div>
 
         <!-- Buy Shoes Tab -->
@@ -3027,6 +3063,195 @@
             <div class="trend-chart">
                 <h3 style="color: #1a1a1a; margin-bottom: 15px;">Shoe Market Trends</h3>
                 <div id="brand-heatmap" style="display: flex; flex-direction: column; gap: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Lucky Crates Tab -->
+        <div id="crates-tab" class="tab-content">
+            <div class="section-header">
+                <span>🎁 Lucky Crates</span>
+            </div>
+            
+            <!-- Sub-tabs for crate tiers -->
+            <div style="display: flex; gap: 10px; margin: 20px 0; border-bottom: 3px solid #000;">
+                <button class="crate-subtab-btn active" data-crate-tab="entry" onclick="switchCrateTab('entry')">Entry</button>
+                <button class="crate-subtab-btn" data-crate-tab="premium" onclick="switchCrateTab('premium')">Premium</button>
+                <button class="crate-subtab-btn" data-crate-tab="elite" onclick="switchCrateTab('elite')">Elite</button>
+                <button class="crate-subtab-btn" data-crate-tab="ultra" onclick="switchCrateTab('ultra')">Ultra</button>
+            </div>
+
+            <!-- Entry Crate -->
+            <div id="entry-crate" class="crate-subtab-content active">
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 80px; margin-bottom: 20px;">📦</div>
+                    <h2 style="color: #1a1a1a; margin-bottom: 10px;">Entry Lucky Crate</h2>
+                    <div style="font-size: 32px; font-weight: 800; color: #27ae60; margin: 15px 0;">$2,000</div>
+                    <button class="action-btn" onclick="openCrate('entry', 2000)" style="font-size: 18px; padding: 15px 40px; margin-top: 20px;">
+                        Open Crate
+                    </button>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #1a1a1a; margin-bottom: 15px; text-align: center;">Drop Rates</h3>
+                    <table style="width: 100%; border-collapse: collapse; background: white; border: 3px solid #000;">
+                        <thead>
+                            <tr style="background: #f8f9fa; border-bottom: 3px solid #000;">
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">TIER</th>
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">CONDITION</th>
+                                <th style="padding: 12px; text-align: center; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">DROP RATE</th>
+                                <th style="padding: 12px; text-align: center; color: #1a1a1a; font-weight: 800;">APPROX ODDS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Standard</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">22%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">~1 in 5</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Standard</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">4%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 25</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Standard</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">10%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 10</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Standard</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">9%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 11</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Standard</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">7%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 14</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Standard</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">5%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 20</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">8%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 13</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 33</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">6%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 17</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">6%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 17</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">4%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 25</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd;">4%</td><td style="padding: 10px; text-align: center;">1 in 25</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Premium Crate -->
+            <div id="premium-crate" class="crate-subtab-content">
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 80px; margin-bottom: 20px;">📦</div>
+                    <h2 style="color: #1a1a1a; margin-bottom: 10px;">Premium Lucky Crate</h2>
+                    <div style="font-size: 32px; font-weight: 800; color: #9b59b6; margin: 15px 0;">$12,500</div>
+                    <button class="action-btn" onclick="openCrate('premium', 12500)" style="font-size: 18px; padding: 15px 40px; margin-top: 20px;">
+                        Open Crate
+                    </button>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #1a1a1a; margin-bottom: 15px; text-align: center;">Drop Rates</h3>
+                    <table style="width: 100%; border-collapse: collapse; background: white; border: 3px solid #000;">
+                        <thead>
+                            <tr style="background: #f8f9fa; border-bottom: 3px solid #000;">
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">TIER</th>
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">CONDITION</th>
+                                <th style="padding: 12px; text-align: center; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">DROP RATE</th>
+                                <th style="padding: 12px; text-align: center; color: #1a1a1a; font-weight: 800;">APPROX ODDS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">10%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">~1 in 10</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">2%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 50</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">6%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 17</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">5%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 20</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 33</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Limited</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 33</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 33</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">1%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 100</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">2%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 50</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">1.5%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 67</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">1%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 100</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.7%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 143</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">1.5%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 67</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 333</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.9%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 111</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.7%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 143</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.4%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 250</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd;">0.3%</td><td style="padding: 10px; text-align: center;">1 in 333</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Elite Crate -->
+            <div id="elite-crate" class="crate-subtab-content">
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 80px; margin-bottom: 20px;">📦</div>
+                    <h2 style="color: #1a1a1a; margin-bottom: 10px;">Elite Lucky Crate</h2>
+                    <div style="font-size: 32px; font-weight: 800; color: #e67e22; margin: 15px 0;">$25,000</div>
+                    <button class="action-btn" onclick="openCrate('elite', 25000)" style="font-size: 18px; padding: 15px 40px; margin-top: 20px;">
+                        Open Crate
+                    </button>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #1a1a1a; margin-bottom: 15px; text-align: center;">Drop Rates</h3>
+                    <table style="width: 100%; border-collapse: collapse; background: white; border: 3px solid #000;">
+                        <thead>
+                            <tr style="background: #f8f9fa; border-bottom: 3px solid #000;">
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">TIER</th>
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">CONDITION</th>
+                                <th style="padding: 12px; text-align: center; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">DROP RATE</th>
+                                <th style="padding: 12px; text-align: center; color: #1a1a1a; font-weight: 800;">APPROX ODDS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 33</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.6%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 167</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">2%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 50</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">1.2%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 83</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.6%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 167</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Premium</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.4%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 250</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">1.5%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 67</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 333</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.9%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 111</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.6%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 167</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 333</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.2%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 500</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.12%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 833</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.02%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 5,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.08%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 1,250</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.04%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 2,500</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.02%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 5,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd;">0.01%</td><td style="padding: 10px; text-align: center;">1 in 10,000</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Ultra Crate -->
+            <div id="ultra-crate" class="crate-subtab-content">
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 80px; margin-bottom: 20px;">📦</div>
+                    <h2 style="color: #1a1a1a; margin-bottom: 10px;">Ultra Lucky Crate</h2>
+                    <div style="font-size: 32px; font-weight: 800; color: #e74c3c; margin: 15px 0;">$50,000</div>
+                    <button class="action-btn" onclick="openCrate('ultra', 50000)" style="font-size: 18px; padding: 15px 40px; margin-top: 20px;">
+                        Open Crate
+                    </button>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #1a1a1a; margin-bottom: 15px; text-align: center;">Drop Rates</h3>
+                    <table style="width: 100%; border-collapse: collapse; background: white; border: 3px solid #000;">
+                        <thead>
+                            <tr style="background: #f8f9fa; border-bottom: 3px solid #000;">
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">TIER</th>
+                                <th style="padding: 12px; text-align: left; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">CONDITION</th>
+                                <th style="padding: 12px; text-align: center; border-right: 2px solid #ddd; color: #1a1a1a; font-weight: 800;">DROP RATE</th>
+                                <th style="padding: 12px; text-align: center; color: #1a1a1a; font-weight: 800;">APPROX ODDS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">2%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 50</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.5%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 200</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">1%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 100</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.8%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 125</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.5%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 200</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Vaulted</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.3%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 333</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.2%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 500</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.05%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 2,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.1%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 1,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.05%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 2,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.03%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 3,333</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Exclusive</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.02%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 5,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Grail</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Scuffed</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.08%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 1,250</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Grail</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Celeb Worn</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.025%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 4,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Grail</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Used</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.04%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 2,500</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Grail</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">VNDS</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.025%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 4,000</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Grail</td><td style="padding: 10px; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">Deadstock</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd; border-bottom: 1px solid #eee;">0.015%</td><td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">1 in 6,667</td></tr>
+                            <tr><td style="padding: 10px; border-right: 2px solid #ddd;">Grail</td><td style="padding: 10px; border-right: 2px solid #ddd;">OG</td><td style="padding: 10px; text-align: center; border-right: 2px solid #ddd;">0.01%</td><td style="padding: 10px; text-align: center;">1 in 10,000</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -9555,6 +9780,242 @@
             });
         });
 
+        // ==================== CRATE SYSTEM ====================
+        function switchCrateTab(crateType) {
+            // Remove active class from all subtab buttons and content
+            document.querySelectorAll('.crate-subtab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.crate-subtab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected button and content
+            document.querySelector(`[data-crate-tab="${crateType}"]`).classList.add('active');
+            document.getElementById(`${crateType}-crate`).classList.add('active');
+        }
+
+        // Crate odds definitions
+        const CRATE_ODDS = {
+            entry: [
+                { tier: 'Standard', condition: 'Scuffed', probability: 22 },
+                { tier: 'Standard', condition: 'Celeb Worn', probability: 4 },
+                { tier: 'Standard', condition: 'Used', probability: 10 },
+                { tier: 'Standard', condition: 'VNDS', probability: 9 },
+                { tier: 'Standard', condition: 'Deadstock', probability: 7 },
+                { tier: 'Standard', condition: 'OG', probability: 5 },
+                { tier: 'Limited', condition: 'Scuffed', probability: 8 },
+                { tier: 'Limited', condition: 'Celeb Worn', probability: 3 },
+                { tier: 'Limited', condition: 'Used', probability: 6 },
+                { tier: 'Limited', condition: 'VNDS', probability: 6 },
+                { tier: 'Limited', condition: 'Deadstock', probability: 4 },
+                { tier: 'Limited', condition: 'OG', probability: 4 }
+            ],
+            premium: [
+                { tier: 'Limited', condition: 'Scuffed', probability: 10 },
+                { tier: 'Limited', condition: 'Celeb Worn', probability: 2 },
+                { tier: 'Limited', condition: 'Used', probability: 6 },
+                { tier: 'Limited', condition: 'VNDS', probability: 5 },
+                { tier: 'Limited', condition: 'Deadstock', probability: 3 },
+                { tier: 'Limited', condition: 'OG', probability: 3 },
+                { tier: 'Premium', condition: 'Scuffed', probability: 3 },
+                { tier: 'Premium', condition: 'Celeb Worn', probability: 1 },
+                { tier: 'Premium', condition: 'Used', probability: 2 },
+                { tier: 'Premium', condition: 'VNDS', probability: 1.5 },
+                { tier: 'Premium', condition: 'Deadstock', probability: 1 },
+                { tier: 'Premium', condition: 'OG', probability: 0.7 },
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 1.5 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 0.3 },
+                { tier: 'Vaulted', condition: 'Used', probability: 0.9 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 0.7 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.4 },
+                { tier: 'Vaulted', condition: 'OG', probability: 0.3 }
+            ],
+            elite: [
+                { tier: 'Premium', condition: 'Scuffed', probability: 3 },
+                { tier: 'Premium', condition: 'Celeb Worn', probability: 0.6 },
+                { tier: 'Premium', condition: 'Used', probability: 2 },
+                { tier: 'Premium', condition: 'VNDS', probability: 1.2 },
+                { tier: 'Premium', condition: 'Deadstock', probability: 0.6 },
+                { tier: 'Premium', condition: 'OG', probability: 0.4 },
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 1.5 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 0.3 },
+                { tier: 'Vaulted', condition: 'Used', probability: 0.9 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 0.6 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.3 },
+                { tier: 'Vaulted', condition: 'OG', probability: 0.2 },
+                { tier: 'Exclusive', condition: 'Scuffed', probability: 0.12 },
+                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.02 },
+                { tier: 'Exclusive', condition: 'Used', probability: 0.08 },
+                { tier: 'Exclusive', condition: 'VNDS', probability: 0.04 },
+                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.02 },
+                { tier: 'Exclusive', condition: 'OG', probability: 0.01 }
+            ],
+            ultra: [
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 2 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 0.5 },
+                { tier: 'Vaulted', condition: 'Used', probability: 1 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 0.8 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.5 },
+                { tier: 'Vaulted', condition: 'OG', probability: 0.3 },
+                { tier: 'Exclusive', condition: 'Scuffed', probability: 0.2 },
+                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.05 },
+                { tier: 'Exclusive', condition: 'Used', probability: 0.1 },
+                { tier: 'Exclusive', condition: 'VNDS', probability: 0.05 },
+                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.03 },
+                { tier: 'Exclusive', condition: 'OG', probability: 0.02 },
+                { tier: 'Grail', condition: 'Scuffed', probability: 0.08 },
+                { tier: 'Grail', condition: 'Celeb Worn', probability: 0.025 },
+                { tier: 'Grail', condition: 'Used', probability: 0.04 },
+                { tier: 'Grail', condition: 'VNDS', probability: 0.025 },
+                { tier: 'Grail', condition: 'Deadstock', probability: 0.015 },
+                { tier: 'Grail', condition: 'OG', probability: 0.01 }
+            ]
+        };
+
+        function generateCrateShoe(crateType) {
+            const odds = CRATE_ODDS[crateType];
+            const totalProb = odds.reduce((sum, o) => sum + o.probability, 0);
+            let rand = Math.random() * totalProb;
+            
+            let selectedCombo;
+            for (let combo of odds) {
+                if (rand < combo.probability) {
+                    selectedCombo = combo;
+                    break;
+                }
+                rand -= combo.probability;
+            }
+            if (!selectedCombo) selectedCombo = odds[0];
+            
+            // Filter shoes that match the tier
+            const tierShoes = SNEAKER_MODELS.filter(s => s.tier === selectedCombo.tier);
+            if (tierShoes.length === 0) {
+                // Fallback to first available shoe if tier not found
+                selectedCombo = odds[0];
+                const fallbackShoes = SNEAKER_MODELS.filter(s => s.tier === selectedCombo.tier);
+                if (fallbackShoes.length === 0) return null;
+            }
+            
+            // Select shoe from tier using weights
+            const tierShoesFiltered = SNEAKER_MODELS.filter(s => s.tier === selectedCombo.tier);
+            const totalWeight = tierShoesFiltered.reduce((sum, s) => sum + s.weight, 0);
+            rand = Math.random() * totalWeight;
+            
+            let selectedModel;
+            for (let shoeModel of tierShoesFiltered) {
+                if (rand < shoeModel.weight) {
+                    selectedModel = shoeModel;
+                    break;
+                }
+                rand -= shoeModel.weight;
+            }
+            if (!selectedModel) selectedModel = tierShoesFiltered[0];
+            
+            const colorway = randomChoice(COLORWAYS);
+            const conditionData = CONDITION_LEVELS.find(c => c.name === selectedCombo.condition);
+            const size = random(7, 13) + (Math.random() > 0.5 ? 0.5 : 0);
+            
+            // Get trend and calculate value
+            const trend = getShoeTrend(selectedModel.brand, selectedModel.model);
+            const estimatedValue = calculateMarketValue(
+                selectedModel.baseValue,
+                selectedCombo.tier,
+                selectedCombo.condition,
+                size,
+                trend
+            );
+            
+            const isHot = trend > 10;
+            
+            return {
+                id: generateID(),
+                brand: selectedModel.brand,
+                brandInitial: selectedModel.initial,
+                model: selectedModel.model,
+                colorway: colorway,
+                size: size,
+                condition: selectedCombo.condition,
+                conditionEmoji: conditionData.emoji,
+                tier: selectedCombo.tier,
+                rarity: selectedCombo.tier,
+                rarityTier: selectedCombo.tier,
+                price: 0,
+                estimatedValue: estimatedValue,
+                purchasePrice: 0,
+                isHot: isHot,
+                trend: trend,
+                daysHeld: 0,
+                listedForSale: false,
+                salePrice: 0
+            };
+        }
+
+        function openCrate(crateType, cost) {
+            // Check if player has enough money
+            if (gameState.cash < cost) {
+                showNotification(`Not enough cash! Need ${formatCurrency(cost)}`, 'error');
+                return;
+            }
+            
+            // Check if inventory has space
+            if (gameState.inventory.length >= gameState.inventoryCapacity) {
+                showNotification('Inventory full! Sell some shoes first.', 'error');
+                return;
+            }
+            
+            // Deduct cost
+            gameState.cash -= cost;
+            
+            // Generate shoe from crate
+            const shoe = generateCrateShoe(crateType);
+            
+            if (!shoe) {
+                showNotification('Error generating shoe from crate!', 'error');
+                gameState.cash += cost; // Refund
+                return;
+            }
+            
+            // Set purchase price to crate cost
+            shoe.purchasePrice = cost;
+            
+            // Add to inventory
+            gameState.inventory.push(shoe);
+            
+            // Show reward modal
+            const rarityColors = {
+                'Standard': '#95a5a6',
+                'Limited': '#3498db',
+                'Premium': '#9b59b6',
+                'Vaulted': '#e67e22',
+                'Exclusive': '#e74c3c',
+                'Grail': '#f39c12',
+                'Unreleased': '#ff00ff'
+            };
+            
+            const rarityColor = rarityColors[shoe.tier] || '#95a5a6';
+            
+            const content = `
+                <div style="text-align: center;">
+                    <h2 style="color: #1a1a1a; margin-bottom: 20px;">🎉 Crate Opened! 🎉</h2>
+                    <div style="font-size: 60px; margin: 20px 0;">${shoe.conditionEmoji}</div>
+                    <div style="background: linear-gradient(135deg, ${rarityColor}, ${rarityColor}dd); padding: 20px; border: 3px solid #000; margin: 20px 0;">
+                        <div style="color: white; font-size: 24px; font-weight: 800; text-shadow: 2px 2px 0 rgba(0,0,0,0.3);">${shoe.brand} ${shoe.model}</div>
+                        <div style="color: white; font-size: 16px; margin-top: 10px;">${shoe.colorway} | Size ${shoe.size}</div>
+                        <div style="color: white; font-size: 18px; font-weight: 800; margin-top: 10px;">${shoe.tier} ${shoe.condition}</div>
+                    </div>
+                    <div style="font-size: 20px; color: #27ae60; font-weight: 800; margin: 20px 0;">
+                        Value: ${formatCurrency(shoe.estimatedValue)}
+                    </div>
+                    ${shoe.isHot ? '<div style="color: #e74c3c; font-size: 18px; font-weight: 800;">🔥 HOT ITEM! 🔥</div>' : ''}
+                    <button class="action-btn" onclick="closeModal()" style="margin-top: 20px; width: 100%;">Awesome!</button>
+                </div>
+            `;
+            
+            showModal(content);
+            updateUI();
+            saveGame();
+            
+            // Play success sound effect (if you want to add audio later)
+            showNotification(`Got ${shoe.tier} ${shoe.condition} ${shoe.brand}!`, 'success');
+        }
+
         // ==================== REFRESH BUTTON ====================
         document.getElementById('refresh-shoes-btn').addEventListener('click', () => {
             if (gameState.cash >= 100) {
@@ -9991,7 +10452,8 @@
                     </tbody>
                 </table>
                 <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
-                    <p>Rarest drop: Unreleased OG (0.0001%) - approximately 1 in 1,000,000 drops!</p>
+                    <p>Rarest drop: Unreleased OG (0.0001%) - 1 in 1,000,000 chance <strong>per individual shoe</strong>!</p>
+                    <p style="margin-top: 8px;">With 12 shoes per refresh, that's ~1 in 83,333 chance per full shop refresh.</p>
                 </div>
                 <button class="action-btn" onclick="closeModal()" style="margin-top: 20px; width: 100%;">Close</button>
             `;
