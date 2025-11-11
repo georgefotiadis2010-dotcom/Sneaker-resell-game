@@ -4376,16 +4376,32 @@
             }
         }
 
-        // Generate market value range for display
+        // Generate market value range for display with 1-minute caching
         // The actual market value will be somewhere in the middle of this range
-        function getMarketValueRange(estimatedValue) {
-            // Calculate range: ±12-18% of estimated value
+        // Range only updates every 60 seconds to provide consistency
+        function getMarketValueRange(shoe) {
+            const currentTime = gameState.timeElapsed;
+            const cacheExpiry = 60; // 1 minute in seconds
+            
+            // Check if we have a cached range that's still valid
+            if (shoe.marketValueRange && 
+                shoe.marketValueRangeTimestamp && 
+                (currentTime - shoe.marketValueRangeTimestamp) < cacheExpiry) {
+                // Return cached range (still fresh)
+                return shoe.marketValueRange;
+            }
+            
+            // Calculate new range: ±12-18% of estimated value
             // This creates a realistic price spread that players see in the market
             const lowerVariance = 0.12 + (Math.random() * 0.06); // 12-18%
             const upperVariance = 0.12 + (Math.random() * 0.06); // 12-18%
             
-            const minValue = Math.floor(estimatedValue * (1 - lowerVariance));
-            const maxValue = Math.floor(estimatedValue * (1 + upperVariance));
+            const minValue = Math.floor(shoe.estimatedValue * (1 - lowerVariance));
+            const maxValue = Math.floor(shoe.estimatedValue * (1 + upperVariance));
+            
+            // Cache the range on the shoe object
+            shoe.marketValueRange = { minValue, maxValue };
+            shoe.marketValueRangeTimestamp = currentTime;
             
             return { minValue, maxValue };
         }
@@ -4974,7 +4990,7 @@
                 ((profit / shoe.price) * 100).toFixed(0);
             
             // Get market value range for this shoe (for buy context)
-            const { minValue, maxValue } = context === 'buy' ? getMarketValueRange(shoe.estimatedValue) : { minValue: 0, maxValue: 0 };
+            const { minValue, maxValue } = context === 'buy' ? getMarketValueRange(shoe) : { minValue: 0, maxValue: 0 };
             
             const brandColor = getBrandColor(shoe.brand);
             const rarityGlow = getRarityGlow(shoe.rarity);
@@ -5244,7 +5260,7 @@
                     shoe.isTanking = currentTrend < -10;
                     
                     // Get market value range for this shoe
-                    const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
+                    const { minValue, maxValue } = getMarketValueRange(shoe);
                     
                     const brandColor = getBrandColor(shoe.brand);
                     const rarityGlow = getRarityGlow(shoe.rarity);
@@ -6640,7 +6656,7 @@
             const timeLeft = formatTime(auction.timeRemaining);
             
             // Get market value range for this shoe
-            const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
+            const { minValue, maxValue } = getMarketValueRange(shoe);
             
             showModal(`
                 <h2 class="modal-title">Place Your Bid</h2>
@@ -6822,7 +6838,7 @@
             }
             
             // Get market value range for this shoe
-            const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
+            const { minValue, maxValue } = getMarketValueRange(shoe);
             
             const suggestedMin = Math.floor(shoe.estimatedValue * 0.5);
             const suggestedMax = Math.floor(shoe.estimatedValue * 0.7);
@@ -8940,7 +8956,7 @@
 
         function openNegotiationModal(shoe) {
             // Get market value range for this shoe
-            const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
+            const { minValue, maxValue } = getMarketValueRange(shoe);
             
             showModal(`
                 <h2 class="modal-title">Negotiate Purchase</h2>
