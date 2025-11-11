@@ -2934,7 +2934,7 @@
                 <div class="empty-state">
                     <div class="empty-state-icon">🔨</div>
                     <div class="empty-state-text">No active auctions</div>
-                    <p>AI auctions appear every 15 minutes. List your own shoe to get started!</p>
+                    <p>AI auctions appear every 5 minutes. List your own shoe to get started!</p>
                 </div>
             </div>
         </div>
@@ -4196,13 +4196,13 @@
             salesHistory: [], // Track all sales for market data
             inventoryLimit: 10,
             timeElapsed: 0,
-            nextRefresh: 3600,
+            nextRefresh: 900,
             milestones: [5000, 10000, 15000, 20000, 25000],
             currentMilestone: 0,
             shoeTrends: {}, // Trends for individual shoe models
             // Auction System
             activeAuctions: [], // All active auctions
-            nextAIAuction: 900, // Time until next AI auction (15 mins)
+            nextAIAuction: 300, // Time until next AI auction (5 mins)
             auctionIdCounter: 0
         };
 
@@ -4688,7 +4688,7 @@
             }
             
             renderBuyTab();
-            gameState.nextRefresh = 3600;
+            gameState.nextRefresh = 900;
             showNotification('New shoes available!', 'info');
         }
 
@@ -6298,7 +6298,7 @@
                 currentBid: 0,
                 currentBidder: null,
                 bids: [],
-                timeRemaining: 900, // 15 minutes
+                timeRemaining: 300, // 5 minutes
                 startTime: Date.now()
             };
             
@@ -6728,7 +6728,7 @@
                 ` : ''}
                 
                 <div class="message-box" id="auction-message">
-                    "Set your minimum starting bid. The auction runs for 15 minutes. Choose wisely!"
+                    "Set your minimum starting bid. The auction runs for 5 minutes. Choose wisely!"
                 </div>
                 
                 <div style="margin: 15px 0;">
@@ -6777,7 +6777,7 @@
                 currentBid: 0,
                 currentBidder: null,
                 bids: [],
-                timeRemaining: 900, // 15 minutes
+                timeRemaining: 300, // 5 minutes
                 startTime: Date.now()
             };
             
@@ -6885,7 +6885,7 @@
                     <div class="empty-state">
                         <div class="empty-state-icon">🔨</div>
                         <div class="empty-state-text">No active auctions</div>
-                        <p>AI auctions appear every 15 minutes. List your own shoe to get started!</p>
+                        <p>AI auctions appear every 5 minutes. List your own shoe to get started!</p>
                     </div>
                 `;
                 return;
@@ -7543,11 +7543,11 @@
                 if (isGrail) {
                     // Grail shoes: much tougher
                     accepted = Math.random() > 0.7; // 30% accept
-                    shouldCounter = !accepted && Math.random() > 0.1;
+                    shouldCounter = !accepted && Math.random() > 0.3; // 70% counter
                 } else if (isVaulted) {
                     // Vaulted shoes: very tough
                     accepted = Math.random() > 0.5; // 50% accept
-                    shouldCounter = !accepted && Math.random() > 0.2;
+                    shouldCounter = !accepted && Math.random() > 0.3; // 70% counter
                 } else if (isTough) {
                     accepted = Math.random() > 0.4; // 60% accept
                     shouldCounter = !accepted && Math.random() > 0.3;
@@ -7562,20 +7562,20 @@
                 // MUCH HARDER: Most will counter now, especially for rare shoes
                 if (isGrail) {
                     // Grail shoes: almost always counter
-                    shouldCounter = Math.random() > 0.02; // 98% counter
+                    shouldCounter = Math.random() > 0.3; // 70% counter
                     accepted = !shouldCounter && Math.random() > 0.95; // 5% accept
                 } else if (isVaulted) {
                     // Vaulted shoes: very likely counter
-                    shouldCounter = Math.random() > 0.08; // 92% counter
+                    shouldCounter = Math.random() > 0.3; // 70% counter
                     accepted = !shouldCounter && Math.random() > 0.8; // 20% accept
                 } else if (isTough) {
-                    shouldCounter = Math.random() > 0.1; // 90% counter
+                    shouldCounter = Math.random() > 0.3; // 70% counter
                     accepted = !shouldCounter && Math.random() > 0.8; // 20% accept
                 } else if (isEager) {
                     accepted = Math.random() > 0.4; // 60% accept
                     shouldCounter = !accepted && Math.random() > 0.3;
                 } else {
-                    shouldCounter = Math.random() > 0.15; // 85% counter
+                    shouldCounter = Math.random() > 0.3; // 70% counter
                     accepted = !shouldCounter && Math.random() > 0.7; // 30% accept
                 }
             } else if (offer >= minAcceptable * 0.80) {
@@ -7594,12 +7594,12 @@
                         contextualMessage = `That's ${shoe.rarity} rarity bro, you gotta come correct.`;
                     }
                 } else if (isTough || isCollector) {
-                    shouldCounter = Math.random() > 0.2; // 80% counter
+                    shouldCounter = Math.random() > 0.3; // 70% counter
                     if (!shouldCounter) {
                         shouldCoinFlip = true;
                     }
                 } else if (isEager) {
-                    shouldCounter = Math.random() > 0.4; // 60% counter
+                    shouldCounter = Math.random() > 0.3; // 70% counter
                     if (!shouldCounter && Math.random() > 0.5) {
                         shouldCoinFlip = true;
                     }
@@ -8629,14 +8629,14 @@
             } else if (askingPrice <= theirBudget * 1.25) {
                 // Too high but negotiable
                 reaction = SELLER_REACTIONS.fair;
-                shouldCounter = Math.random() > 0.2; // 80% counter
+                shouldCounter = Math.random() > 0.3; // 70% counter
                 if (!shouldCounter) {
                     accepted = Math.random() > 0.8; // 20% accept anyway
                 }
             } else if (askingPrice <= theirBudget * 1.5) {
                 // Way too high
                 reaction = SELLER_REACTIONS.low;
-                shouldCounter = Math.random() > 0.6; // 40% counter, 60% reject
+                shouldCounter = Math.random() > 0.3; // 70% counter
             } else {
                 // Insulting price
                 reaction = SELLER_REACTIONS.insult;
@@ -8794,7 +8794,7 @@
             } else if (percentage >= 97) {
                 // 97-99% of asking
                 accepted = Math.random() > 0.35; // 65% accept
-                shouldCounter = !accepted && Math.random() > 0.4;
+                shouldCounter = !accepted && Math.random() > 0.3; // 70% counter
             } else if (percentage >= 92) {
                 // 92-96% of asking
                 accepted = Math.random() > 0.6; // 40% accept
@@ -8805,13 +8805,13 @@
             } else if (percentage >= 85) {
                 // 85-91% of asking
                 accepted = Math.random() > 0.8; // 20% accept
-                shouldCounter = !accepted && Math.random() > 0.25; // 75% counter
+                shouldCounter = !accepted && Math.random() > 0.3; // 70% counter
                 if (!shouldCounter && !accepted && Math.random() > 0.4) {
                     shouldCoinFlip = true;
                 }
             } else if (percentage >= 75) {
                 // 75-84% of asking
-                shouldCounter = Math.random() > 0.4; // 60% counter
+                shouldCounter = Math.random() > 0.3; // 70% counter
                 if (!shouldCounter && Math.random() > 0.3) {
                     shouldCoinFlip = true;
                 }
@@ -9245,12 +9245,12 @@
 
         // ==================== REFRESH BUTTON ====================
         document.getElementById('refresh-shoes-btn').addEventListener('click', () => {
-            if (gameState.cash >= 50) {
-                gameState.cash -= 50;
+            if (gameState.cash >= 100) {
+                gameState.cash -= 100;
                 refreshAvailableShoes();
                 updateUI();
             } else {
-                showNotification('Need $50 to refresh!', 'error');
+                showNotification('Need $100 to refresh!', 'error');
             }
         });
 
@@ -9506,12 +9506,12 @@
                 renderAuctionsTab();
             }
             
-            // Generate AI auction every 15 minutes
+            // Generate AI auction every 5 minutes
             gameState.nextAIAuction--;
             if (gameState.nextAIAuction <= 0) {
                 const success = generateAIAuction();
                 if (success) {
-                    gameState.nextAIAuction = 900; // Reset to 15 minutes on success
+                    gameState.nextAIAuction = 300; // Reset to 5 minutes on success
                 } else {
                     gameState.nextAIAuction = random(60, 120); // Retry in 1-2 minutes if failed
                 }
@@ -9710,13 +9710,13 @@
             gameState.salesHistory = [];
             gameState.inventoryLimit = 10;
             gameState.timeElapsed = 0;
-            gameState.nextRefresh = 3600;
+            gameState.nextRefresh = 900;
             gameState.milestones = [5000, 10000, 15000, 20000, 25000];
             gameState.currentMilestone = 0;
             gameState.shoeTrends = {};
             gameState.nextMarketTrend = 300;
             gameState.activeAuctions = [];
-            gameState.nextAIAuction = 900;
+            gameState.nextAIAuction = 300;
             gameState.auctionIdCounter = 0;
             
             // Re-initialize shoe trends (needed for auction generation)
@@ -9821,7 +9821,7 @@
                 gameState.activeAuctions = [];
             }
             if (gameState.nextAIAuction === undefined) {
-                gameState.nextAIAuction = 900;
+                gameState.nextAIAuction = 300;
             }
             if (gameState.auctionIdCounter === undefined) {
                 gameState.auctionIdCounter = 0;
@@ -9835,8 +9835,8 @@
             
             // FIX: When loading a saved game, ensure auction timer is reasonable
             // This prevents new auctions from appearing immediately after page refresh
-            if (savedGameLoaded && gameState.nextAIAuction < 300) {
-                gameState.nextAIAuction = random(300, 600); // Reset to 5-10 minutes
+            if (savedGameLoaded && gameState.nextAIAuction < 150) {
+                gameState.nextAIAuction = random(150, 300); // Reset to 2.5-5 minutes
                 console.log('[AUCTION] Reset auction timer on load to prevent immediate auction');
             }
             
