@@ -574,9 +574,9 @@
         }
 
         /* Rarity badge styling - Tier colors fade to Condition colors
-           Tiers: Standard=Grey, Limited=Green, Vaulted=Purple, Grail=Gold
+           Tiers: Standard=Grey, Limited=Green, Premium=Teal, Vaulted=Purple, Exclusive=Navy, Grail=Gold, Unreleased=Crimson
            Conditions: Scuffed=Grey, Celeb Worn=Blue, Used=Green, VNDS=Red, Deadstock=Purple, OG=Gold
-           Shake intensity increases with rarity: Standard < Limited < Vaulted < Grail */
+           Shake intensity increases with rarity: Standard < Limited < Premium < Vaulted < Exclusive < Grail < Unreleased */
         
         /* STANDARD TIER (Grey) combinations - minimal shake */
         .rarity-common, 
@@ -755,6 +755,142 @@
             text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
         }
 
+        /* PREMIUM TIER (Teal) combinations - strong effects */
+        [class*="premium-scuffed"] {
+            background: linear-gradient(135deg, #1abc9c 0%, #95a5a6 100%); /* Teal → Grey */
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 80px rgba(26, 188, 156, 1), 0 0 120px rgba(26, 188, 156, 0.8);
+            animation: premiumPulse 1.6s ease-in-out infinite, strongRumble 1.6s ease-in-out infinite;
+        }
+        
+        [class*="premium-celeb"] {
+            background: linear-gradient(135deg, #1abc9c 0%, #3498db 100%); /* Teal → Blue */
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 90px rgba(52, 152, 219, 1), 0 0 130px rgba(52, 152, 219, 1);
+            animation: premiumPulse 1.5s ease-in-out infinite, strongRumble 1.5s ease-in-out infinite;
+        }
+        
+        [class*="premium-used"] {
+            background: linear-gradient(135deg, #1abc9c 0%, #2ecc71 100%); /* Teal → Green */
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 100px rgba(46, 204, 113, 1), 0 0 140px rgba(46, 204, 113, 1);
+            animation: premiumPulse 1.4s ease-in-out infinite, strongRumble 1.4s ease-in-out infinite;
+        }
+        
+        [class*="premium-vnds"] {
+            background: linear-gradient(135deg, #1abc9c 0%, #e74c3c 100%); /* Teal → Red */
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 110px rgba(231, 76, 60, 1), 0 0 150px rgba(231, 76, 60, 1);
+            animation: premiumPulse 1.3s ease-in-out infinite, strongRumble 1.3s ease-in-out infinite;
+        }
+        
+        [class*="premium-deadstock"] {
+            background: linear-gradient(135deg, #1abc9c 0%, #9b59b6 100%); /* Teal → Purple */
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 120px rgba(155, 89, 182, 1), 0 0 160px rgba(155, 89, 182, 1);
+            animation: premiumPulse 1.2s ease-in-out infinite, strongRumble 1.2s ease-in-out infinite;
+        }
+        
+        [class*="premium-og"] {
+            background: linear-gradient(135deg, #1abc9c 0%, #f39c12 100%); /* Teal → Gold */
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 130px rgba(243, 156, 18, 1), 0 0 170px rgba(243, 156, 18, 1);
+            animation: premiumPulse 1.1s ease-in-out infinite, intenseRumble 1.1s ease-in-out infinite;
+        }
+        
+        /* EXCLUSIVE TIER (Navy Blue) combinations - very intense effects */
+        [class*="exclusive-scuffed"] {
+            background: linear-gradient(135deg, #2c3e50 0%, #95a5a6 100%); /* Navy → Grey */
+            color: #fff;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.5), 0 0 140px rgba(44, 62, 80, 1), 0 0 180px rgba(44, 62, 80, 1), 0 0 220px rgba(44, 62, 80, 0.8);
+            animation: exclusiveGlow 1s ease-in-out infinite, intenseRumble 1s ease-in-out infinite;
+        }
+        
+        [class*="exclusive-celeb"] {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); /* Navy → Blue */
+            color: #fff;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.5), 0 0 150px rgba(52, 152, 219, 1), 0 0 190px rgba(52, 152, 219, 1), 0 0 230px rgba(52, 152, 219, 1);
+            animation: exclusiveGlow 0.95s ease-in-out infinite, intenseRumble 0.95s ease-in-out infinite;
+        }
+        
+        [class*="exclusive-used"] {
+            background: linear-gradient(135deg, #2c3e50 0%, #2ecc71 100%); /* Navy → Green */
+            color: #fff;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.5), 0 0 160px rgba(46, 204, 113, 1), 0 0 200px rgba(46, 204, 113, 1), 0 0 240px rgba(46, 204, 113, 1);
+            animation: exclusiveGlow 0.9s ease-in-out infinite, intenseRumble 0.9s ease-in-out infinite;
+        }
+        
+        [class*="exclusive-vnds"] {
+            background: linear-gradient(135deg, #2c3e50 0%, #e74c3c 100%); /* Navy → Red */
+            color: #fff;
+            box-shadow: 0 2px 18px rgba(0,0,0,0.6), 0 0 170px rgba(231, 76, 60, 1), 0 0 210px rgba(231, 76, 60, 1), 0 0 250px rgba(231, 76, 60, 1);
+            animation: exclusiveGlow 0.85s ease-in-out infinite, intenseRumble 0.85s ease-in-out infinite;
+        }
+        
+        [class*="exclusive-deadstock"] {
+            background: linear-gradient(135deg, #2c3e50 0%, #9b59b6 100%); /* Navy → Purple */
+            color: #fff;
+            box-shadow: 0 2px 18px rgba(0,0,0,0.6), 0 0 180px rgba(155, 89, 182, 1), 0 0 220px rgba(155, 89, 182, 1), 0 0 260px rgba(155, 89, 182, 1);
+            animation: exclusiveGlow 0.8s ease-in-out infinite, intenseRumble 0.8s ease-in-out infinite;
+        }
+        
+        [class*="exclusive-og"] {
+            background: linear-gradient(135deg, #2c3e50 0%, #f39c12 100%); /* Navy → Gold */
+            color: #fff;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.7), 0 0 190px rgba(243, 156, 18, 1), 0 0 230px rgba(243, 156, 18, 1), 0 0 270px rgba(243, 156, 18, 1);
+            animation: exclusiveGlow 0.75s ease-in-out infinite, intenseRumble 0.75s ease-in-out infinite;
+        }
+        
+        /* UNRELEASED TIER (Crimson) combinations - ULTRA INTENSE effects */
+        [class*="unreleased-scuffed"] {
+            background: linear-gradient(135deg, #c0392b 0%, #95a5a6 100%); /* Crimson → Grey */
+            color: #fff;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.8), 0 0 200px rgba(192, 57, 43, 1), 0 0 250px rgba(192, 57, 43, 1), 0 0 300px rgba(192, 57, 43, 1), 0 0 350px rgba(192, 57, 43, 0.8);
+            animation: unreleasedGlow 0.6s ease-in-out infinite, ultraRumble 0.6s ease-in-out infinite;
+            font-weight: 1000;
+        }
+        
+        [class*="unreleased-celeb"] {
+            background: linear-gradient(135deg, #c0392b 0%, #3498db 100%); /* Crimson → Blue */
+            color: #fff;
+            box-shadow: 0 2px 22px rgba(0,0,0,0.8), 0 0 220px rgba(52, 152, 219, 1), 0 0 270px rgba(52, 152, 219, 1), 0 0 320px rgba(52, 152, 219, 1), 0 0 370px rgba(52, 152, 219, 1);
+            animation: unreleasedGlow 0.55s ease-in-out infinite, ultraRumble 0.55s ease-in-out infinite;
+            font-weight: 1000;
+        }
+        
+        [class*="unreleased-used"] {
+            background: linear-gradient(135deg, #c0392b 0%, #2ecc71 100%); /* Crimson → Green */
+            color: #fff;
+            box-shadow: 0 2px 25px rgba(0,0,0,0.8), 0 0 240px rgba(46, 204, 113, 1), 0 0 290px rgba(46, 204, 113, 1), 0 0 340px rgba(46, 204, 113, 1), 0 0 390px rgba(46, 204, 113, 1);
+            animation: unreleasedGlow 0.5s ease-in-out infinite, ultraRumble 0.5s ease-in-out infinite;
+            font-weight: 1000;
+        }
+        
+        [class*="unreleased-vnds"] {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); /* Crimson → Red */
+            color: #fff;
+            box-shadow: 0 2px 28px rgba(0,0,0,0.9), 0 0 260px rgba(231, 76, 60, 1), 0 0 310px rgba(231, 76, 60, 1), 0 0 360px rgba(231, 76, 60, 1), 0 0 410px rgba(231, 76, 60, 1);
+            animation: unreleasedGlow 0.45s ease-in-out infinite, ultraRumble 0.45s ease-in-out infinite;
+            font-weight: 1000;
+        }
+        
+        [class*="unreleased-deadstock"] {
+            background: linear-gradient(135deg, #c0392b 0%, #9b59b6 100%); /* Crimson → Purple */
+            color: #fff;
+            box-shadow: 0 2px 30px rgba(0,0,0,0.9), 0 0 280px rgba(155, 89, 182, 1), 0 0 330px rgba(155, 89, 182, 1), 0 0 380px rgba(155, 89, 182, 1), 0 0 430px rgba(155, 89, 182, 1);
+            animation: unreleasedGlow 0.4s ease-in-out infinite, ultraRumble 0.4s ease-in-out infinite;
+            font-weight: 1000;
+        }
+        
+        [class*="unreleased-og"] {
+            background: linear-gradient(135deg, #c0392b 0%, #ffd700 100%); /* Crimson → Gold */
+            color: #fff;
+            box-shadow: 0 2px 35px rgba(0,0,0,1), 0 0 300px rgba(255, 215, 0, 1), 0 0 350px rgba(255, 215, 0, 1), 0 0 400px rgba(255, 215, 0, 1), 0 0 450px rgba(255, 215, 0, 1), 0 0 500px rgba(255, 215, 0, 1);
+            animation: supremeUnreleasedGlow 0.35s ease-in-out infinite, ultraRumble 0.35s ease-in-out infinite;
+            font-weight: 1000;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 1);
+        }
+
         /* Animation keyframes - INTENSE pulsing effects with rumble */
         
         /* Subtle rumble for standard tier */
@@ -884,6 +1020,70 @@
             50% { 
                 box-shadow: 0 2px 35px rgba(0,0,0,0.8), 0 0 200px rgba(255, 255, 255, 1), 0 0 250px rgba(255, 215, 0, 1), 0 0 300px rgba(255, 215, 0, 1), 0 0 350px rgba(255, 215, 0, 1);
             }
+        }
+        
+        /* Premium tier pulse animation */
+        @keyframes premiumPulse {
+            0%, 100% { 
+                box-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 80px rgba(26, 188, 156, 0.8), 0 0 120px rgba(26, 188, 156, 0.6);
+            }
+            50% { 
+                box-shadow: 0 2px 15px rgba(0,0,0,0.5), 0 0 130px rgba(26, 188, 156, 1), 0 0 170px rgba(26, 188, 156, 0.8);
+            }
+        }
+        
+        /* Exclusive tier glow animation */
+        @keyframes exclusiveGlow {
+            0%, 100% { 
+                box-shadow: 0 2px 15px rgba(0,0,0,0.5), 0 0 140px rgba(44, 62, 80, 0.9), 0 0 180px rgba(44, 62, 80, 0.7);
+            }
+            50% { 
+                box-shadow: 0 2px 20px rgba(0,0,0,0.6), 0 0 190px rgba(52, 152, 219, 1), 0 0 230px rgba(52, 152, 219, 0.9);
+            }
+        }
+        
+        /* Unreleased tier ultra glow animation */
+        @keyframes unreleasedGlow {
+            0%, 100% { 
+                box-shadow: 0 2px 20px rgba(0,0,0,0.8), 0 0 200px rgba(192, 57, 43, 1), 0 0 250px rgba(192, 57, 43, 0.9), 0 0 300px rgba(192, 57, 43, 0.7);
+            }
+            50% { 
+                box-shadow: 0 2px 30px rgba(0,0,0,0.9), 0 0 280px rgba(231, 76, 60, 1), 0 0 330px rgba(231, 76, 60, 1), 0 0 380px rgba(231, 76, 60, 0.9);
+            }
+        }
+        
+        /* Supreme unreleased glow (for OG condition) */
+        @keyframes supremeUnreleasedGlow {
+            0%, 100% { 
+                box-shadow: 0 2px 30px rgba(0,0,0,1), 0 0 300px rgba(255, 215, 0, 1), 0 0 350px rgba(255, 215, 0, 1), 0 0 400px rgba(255, 215, 0, 0.9);
+            }
+            50% { 
+                box-shadow: 0 2px 40px rgba(0,0,0,1), 0 0 380px rgba(255, 255, 255, 1), 0 0 430px rgba(255, 215, 0, 1), 0 0 480px rgba(255, 215, 0, 1);
+            }
+        }
+        
+        /* Ultra rumble for unreleased tier */
+        @keyframes ultraRumble {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            5% { transform: translate(2px, 2px) rotate(1deg); }
+            10% { transform: translate(-2px, 2px) rotate(-1deg); }
+            15% { transform: translate(2px, -2px) rotate(1deg); }
+            20% { transform: translate(-2px, -2px) rotate(-1deg); }
+            25% { transform: translate(2px, 0) rotate(1deg); }
+            30% { transform: translate(-2px, 0) rotate(-1deg); }
+            35% { transform: translate(0, 2px) rotate(0.5deg); }
+            40% { transform: translate(0, -2px) rotate(-0.5deg); }
+            45% { transform: translate(1.5px, 1.5px) rotate(0.8deg); }
+            50% { transform: translate(-1.5px, -1.5px) rotate(-0.8deg); }
+            55% { transform: translate(1px, -1px) rotate(0.5deg); }
+            60% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+            65% { transform: translate(1.5px, 0) rotate(0.7deg); }
+            70% { transform: translate(-1.5px, 0) rotate(-0.7deg); }
+            75% { transform: translate(0, 1.5px) rotate(0.4deg); }
+            80% { transform: translate(0, -1.5px) rotate(-0.4deg); }
+            85% { transform: translate(1px, 1px) rotate(0.3deg); }
+            90% { transform: translate(-1px, -1px) rotate(-0.3deg); }
+            95% { transform: translate(0.5px, -0.5px) rotate(0.2deg); }
         }
 
         .sneaker-image {
@@ -2884,116 +3084,136 @@
         
         // ==================== GAME DATA ====================
         const SNEAKER_MODELS = [
-            // GRAIL TIER - Ultra rare exclusives (1-500 pairs) - Most exclusive shoes in existence
+            // UNRELEASED TIER - Never released to public (samples, prototypes, cancelled releases)
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Shattered Backboard 3.0 Sample', tier: 'Unreleased', basePrice: 25000, weight: 0.01 },
+            { brand: 'Nike', initial: 'N', model: 'Air Yeezy 3', tier: 'Unreleased', basePrice: 50000, weight: 0.005 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 11 Jeter Sample', tier: 'Unreleased', basePrice: 35000, weight: 0.008 },
+            { brand: 'Nike', initial: 'N', model: 'Dunk Low EMB 75th Anniversary Sample', tier: 'Unreleased', basePrice: 20000, weight: 0.01 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Laser Sample', tier: 'Unreleased', basePrice: 30000, weight: 0.008 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 12 Flu Game Original PE', tier: 'Unreleased', basePrice: 45000, weight: 0.005 },
+            { brand: 'Nike', initial: 'N', model: 'LeBron X MVP Sample', tier: 'Unreleased', basePrice: 22000, weight: 0.01 },
+            { brand: 'Nike', initial: 'N', model: 'Kobe 11 Mamba Day Sample', tier: 'Unreleased', basePrice: 28000, weight: 0.008 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Parra Friends & Family', tier: 'Unreleased', basePrice: 18000, weight: 0.012 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 3 Oregon Ducks PE', tier: 'Unreleased', basePrice: 24000, weight: 0.009 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 750 Grey Gum Sample', tier: 'Unreleased', basePrice: 32000, weight: 0.007 },
+            { brand: 'Adidas', initial: 'A', model: 'Futurecraft 4D Friends & Family', tier: 'Unreleased', basePrice: 15000, weight: 0.012 },
+            { brand: 'Nike', initial: 'N', model: 'Off-White Dunk Low Pine Green Sample', tier: 'Unreleased', basePrice: 26000, weight: 0.008 },
+            { brand: 'Nike', initial: 'N', model: 'Travis Scott Air Jordan 1 Low Phantom', tier: 'Unreleased', basePrice: 38000, weight: 0.006 },
+            { brand: 'Nike', initial: 'N', model: 'Fragment Air Jordan 3 Sample', tier: 'Unreleased', basePrice: 42000, weight: 0.005 },
+            
+            // GRAIL TIER - The absolute holy grails (under 200 pairs) - Museum pieces
             { brand: 'Nike', initial: 'N', model: 'SB Dunk High Paris', tier: 'Grail', basePrice: 7000, weight: 0.1 },
             { brand: 'Nike', initial: 'N', model: 'Air Mag Back to the Future', tier: 'Grail', basePrice: 15000, weight: 0.05 },
             { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Freddy Krueger', tier: 'Grail', basePrice: 8000, weight: 0.1 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk High FLOM', tier: 'Grail', basePrice: 4000, weight: 0.3 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Pigeon', tier: 'Grail', basePrice: 2000, weight: 0.5 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low What The Dunk', tier: 'Grail', basePrice: 2500, weight: 0.4 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Diamond Supply Tiffany', tier: 'Grail', basePrice: 2200, weight: 0.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Kaws', tier: 'Grail', basePrice: 3500, weight: 0.3 },
-            { brand: 'Nike', initial: 'N', model: 'Air Yeezy 2 Red October', tier: 'Grail', basePrice: 6000, weight: 0.2 },
-            { brand: 'Adidas', initial: 'A', model: 'Human Race NMD Chanel', tier: 'Grail', basePrice: 2500, weight: 0.4 },
-            { brand: 'Reebok', initial: 'R', model: 'Question Mid Kobe PE', tier: 'Grail', basePrice: 900, weight: 0.7 },
-            { brand: 'Nike', initial: 'N', model: 'Foamposite Paranorman', tier: 'Grail', basePrice: 900, weight: 0.8 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Retro High Dior', tier: 'Grail', basePrice: 5000, weight: 0.3 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Heineken', tier: 'Grail', basePrice: 600, weight: 0.9 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk High FLOM', tier: 'Grail', basePrice: 4000, weight: 0.15 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Pigeon', tier: 'Grail', basePrice: 2000, weight: 0.2 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low What The Dunk', tier: 'Grail', basePrice: 2500, weight: 0.18 },
+            { brand: 'Nike', initial: 'N', model: 'Air Yeezy 2 Red October', tier: 'Grail', basePrice: 6000, weight: 0.12 },
+            { brand: 'Nike', initial: 'N', model: 'Foamposite Paranorman', tier: 'Grail', basePrice: 900, weight: 0.25 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Heineken', tier: 'Grail', basePrice: 600, weight: 0.3 },
             
-            // VAULTED TIER - Discontinued or rare models (500-4,999 pairs)
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Travis Scott', tier: 'Vaulted', basePrice: 1200, weight: 1 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Off-White Chicago', tier: 'Vaulted', basePrice: 1500, weight: 0.8 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Travis Scott', tier: 'Vaulted', basePrice: 900, weight: 1 },
-            { brand: 'Nike', initial: 'N', model: 'Dunk Low Travis Scott', tier: 'Vaulted', basePrice: 800, weight: 1.2 },
-            { brand: 'Nike', initial: 'N', model: 'Union Jordan 1 Storm Blue', tier: 'Vaulted', basePrice: 1100, weight: 0.9 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Grateful Dead', tier: 'Vaulted', basePrice: 800, weight: 1 },
-            { brand: 'Nike', initial: 'N', model: 'Dunk Low Off-White Lot 1', tier: 'Vaulted', basePrice: 550, weight: 0.8 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Ben and Jerrys', tier: 'Vaulted', basePrice: 1800, weight: 0.6 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Shattered Backboard', tier: 'Vaulted', basePrice: 1300, weight: 0.8 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Parra', tier: 'Vaulted', basePrice: 900, weight: 0.9 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 750 Grey Gum', tier: 'Vaulted', basePrice: 1200, weight: 0.7 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 5 Off-White Sail', tier: 'Vaulted', basePrice: 850, weight: 0.9 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 2 Off-White', tier: 'Vaulted', basePrice: 750, weight: 0.9 },
-            { brand: 'Nike', initial: 'N', model: 'Air Force 1 Travis Scott Cactus Jack', tier: 'Vaulted', basePrice: 1400, weight: 0.7 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 6 Travis Scott', tier: 'Vaulted', basePrice: 1000, weight: 0.8 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Sean Wotherspoon', tier: 'Vaulted', basePrice: 1100, weight: 0.8 },
-            { brand: 'Nike', initial: 'N', model: 'Zoom Fly Off-White', tier: 'Vaulted', basePrice: 600, weight: 0.9 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Union LA Black Toe', tier: 'Vaulted', basePrice: 1600, weight: 0.7 },
-            { brand: 'Nike', initial: 'N', model: 'Air Fear of God 1', tier: 'Vaulted', basePrice: 700, weight: 0.9 },
-            { brand: 'Nike', initial: 'N', model: 'LeBron 10 What The MVP', tier: 'Vaulted', basePrice: 900, weight: 0.8 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Moonrock', tier: 'Vaulted', basePrice: 900, weight: 0.8 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Oxford Tan', tier: 'Vaulted', basePrice: 850, weight: 0.8 },
-            { brand: 'Adidas', initial: 'A', model: 'Futurecraft 4D', tier: 'Vaulted', basePrice: 700, weight: 0.9 },
-            { brand: 'New Balance', initial: 'NB', model: '990v2 WTAPS', tier: 'Vaulted', basePrice: 600, weight: 0.9 },
-            { brand: 'New Balance', initial: 'NB', model: '1500 Ronnie Fieg CNCPTS', tier: 'Vaulted', basePrice: 700, weight: 0.8 },
-            { brand: 'New Balance', initial: 'NB', model: '998 CNCPTS C-Note', tier: 'Vaulted', basePrice: 650, weight: 0.9 },
-            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte III Ronnie Fieg Leatherback', tier: 'Vaulted', basePrice: 800, weight: 0.8 },
-            { brand: 'Reebok', initial: 'R', model: 'Pump Fury UNDFTD', tier: 'Vaulted', basePrice: 750, weight: 0.8 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Atmos Elephant', tier: 'Vaulted', basePrice: 700, weight: 0.6 },
-            { brand: 'Adidas', initial: 'A', model: 'Pharrell NMD Human Race Yellow', tier: 'Vaulted', basePrice: 800, weight: 1 },
-            { brand: 'New Balance', initial: 'NB', model: '990v2 Kith Grey', tier: 'Vaulted', basePrice: 450, weight: 1 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk High Supreme Stars', tier: 'Vaulted', basePrice: 1200, weight: 2 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Fragment', tier: 'Vaulted', basePrice: 600, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Union', tier: 'Vaulted', basePrice: 500, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Union Dunk Low Argon', tier: 'Vaulted', basePrice: 400, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Strangelove', tier: 'Vaulted', basePrice: 550, weight: 2.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Parra', tier: 'Vaulted', basePrice: 400, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 High Chicago', tier: 'Vaulted', basePrice: 280, weight: 5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 High Royal', tier: 'Vaulted', basePrice: 260, weight: 5 },
-            { brand: 'Nike', initial: 'N', model: 'Sacai Waffle Black Nylon', tier: 'Vaulted', basePrice: 450, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Sacai VaporWaffle Tour Yellow', tier: 'Vaulted', basePrice: 380, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Blazer Mid Off-White Grim Reaper', tier: 'Vaulted', basePrice: 500, weight: 2.5 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 V2 Beluga', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte III Kith Salmon Toe', tier: 'Vaulted', basePrice: 300, weight: 2 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Bred Banned', tier: 'Vaulted', basePrice: 450, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 5 Supreme Desert Camo', tier: 'Vaulted', basePrice: 600, weight: 2.5 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Supreme Cement', tier: 'Vaulted', basePrice: 700, weight: 2 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 3 Black Cement', tier: 'Vaulted', basePrice: 350, weight: 3.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Presto Off-White', tier: 'Vaulted', basePrice: 550, weight: 2.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 90 Off-White Desert Ore', tier: 'Vaulted', basePrice: 500, weight: 2.5 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Turtle Dove', tier: 'Vaulted', basePrice: 800, weight: 2 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Pirate Black', tier: 'Vaulted', basePrice: 750, weight: 2 },
-            { brand: 'Adidas', initial: 'A', model: 'NMD Pharrell Human Race Black', tier: 'Vaulted', basePrice: 400, weight: 3 },
-            { brand: 'New Balance', initial: 'NB', model: '997 Concepts Rosé', tier: 'Vaulted', basePrice: 300, weight: 3 },
-            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte III Ronnie Fieg Flamingo', tier: 'Vaulted', basePrice: 350, weight: 2.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Shadow 2.0', tier: 'Vaulted', basePrice: 300, weight: 4 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 3 True Blue', tier: 'Vaulted', basePrice: 320, weight: 3.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Cool Grey', tier: 'Vaulted', basePrice: 380, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 5 Metallic', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 6 Gatorade', tier: 'Vaulted', basePrice: 280, weight: 4 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 7 Bordeaux', tier: 'Vaulted', basePrice: 300, weight: 3.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 8 Aqua', tier: 'Vaulted', basePrice: 280, weight: 4 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 9 Bred', tier: 'Vaulted', basePrice: 300, weight: 3.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 10 Chicago', tier: 'Vaulted', basePrice: 280, weight: 4 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 11 Legend Blue', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 12 Flu Game', tier: 'Vaulted', basePrice: 400, weight: 2.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 13 He Got Game', tier: 'Vaulted', basePrice: 300, weight: 3.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Jordan 14 Ferrari', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Raygun', tier: 'Vaulted', basePrice: 500, weight: 2.5 },
-            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Purple Lobster', tier: 'Vaulted', basePrice: 650, weight: 2 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 90 Infrared OG', tier: 'Vaulted', basePrice: 280, weight: 4 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 95 Safari', tier: 'Vaulted', basePrice: 300, weight: 3.5 },
-            { brand: 'Nike', initial: 'N', model: 'Air Max 97 Sean Wotherspoon', tier: 'Vaulted', basePrice: 600, weight: 2 },
-            { brand: 'Nike', initial: 'N', model: 'Foamposite Galaxy', tier: 'Vaulted', basePrice: 800, weight: 2 },
-            { brand: 'Nike', initial: 'N', model: 'Foamposite Paranorman', tier: 'Vaulted', basePrice: 900, weight: 1.5 },
-            { brand: 'Nike', initial: 'N', model: 'Kobe 4 Carpe Diem', tier: 'Vaulted', basePrice: 500, weight: 2.5 },
-            { brand: 'Nike', initial: 'N', model: 'Kobe 5 Bruce Lee', tier: 'Vaulted', basePrice: 450, weight: 3 },
-            { brand: 'Nike', initial: 'N', model: 'LeBron 9 Watch the Throne', tier: 'Vaulted', basePrice: 500, weight: 2.5 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 V2 Sesame', tier: 'Vaulted', basePrice: 300, weight: 3.5 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 500 Supermoon Yellow', tier: 'Vaulted', basePrice: 320, weight: 3 },
-            { brand: 'Adidas', initial: 'A', model: 'Yeezy 700 Inertia', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'Adidas', initial: 'A', model: 'Ultra Boost Mid Kith', tier: 'Vaulted', basePrice: 400, weight: 2.5 },
-            { brand: 'Adidas', initial: 'A', model: 'Ultra Boost Wood Wood', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'Adidas', initial: 'A', model: 'NMD R1 Primeknit OG', tier: 'Vaulted', basePrice: 450, weight: 2.5 },
-            { brand: 'Adidas', initial: 'A', model: 'EQT Support 93/17 Overkill', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'New Balance', initial: 'NB', model: '990v4 Kith Navy', tier: 'Vaulted', basePrice: 400, weight: 2.5 },
-            { brand: 'New Balance', initial: 'NB', model: '997 Concepts Luxury Goods', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'New Balance', initial: 'NB', model: '1300 CNCPTS Esruc', tier: 'Vaulted', basePrice: 400, weight: 2.5 },
-            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte V Maldives', tier: 'Vaulted', basePrice: 300, weight: 3 },
-            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte V Volcano', tier: 'Vaulted', basePrice: 320, weight: 3 },
-            { brand: 'Puma', initial: 'P', model: 'Disc Blaze Ronnie Fieg COA', tier: 'Vaulted', basePrice: 400, weight: 2.5 },
-            { brand: 'Reebok', initial: 'R', model: 'Question Mid Blue Toe', tier: 'Vaulted', basePrice: 350, weight: 3 },
-            { brand: 'Reebok', initial: 'R', model: 'Shaqnosis OG', tier: 'Vaulted', basePrice: 300, weight: 3.5 },
+            // EXCLUSIVE TIER - Friend & Family, ultra-exclusive collabs (200-1000 pairs)
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Retro High Dior', tier: 'Exclusive', basePrice: 5000, weight: 0.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Kaws', tier: 'Exclusive', basePrice: 3500, weight: 0.6 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Diamond Supply Tiffany', tier: 'Exclusive', basePrice: 2200, weight: 0.8 },
+            { brand: 'Adidas', initial: 'A', model: 'Human Race NMD Chanel', tier: 'Exclusive', basePrice: 2500, weight: 0.7 },
+            { brand: 'Reebok', initial: 'R', model: 'Question Mid Kobe PE', tier: 'Exclusive', basePrice: 900, weight: 1.2 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Travis Scott', tier: 'Exclusive', basePrice: 1200, weight: 1 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Off-White Chicago', tier: 'Exclusive', basePrice: 1500, weight: 0.9 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Travis Scott', tier: 'Exclusive', basePrice: 900, weight: 1.1 },
+            { brand: 'Nike', initial: 'N', model: 'Dunk Low Travis Scott', tier: 'Exclusive', basePrice: 800, weight: 1.2 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Ben and Jerrys', tier: 'Exclusive', basePrice: 1800, weight: 0.8 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 750 Grey Gum', tier: 'Exclusive', basePrice: 1200, weight: 0.9 },
+            { brand: 'Nike', initial: 'N', model: 'Air Force 1 Travis Scott Cactus Jack', tier: 'Exclusive', basePrice: 1400, weight: 0.9 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 6 Travis Scott', tier: 'Exclusive', basePrice: 1000, weight: 1 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Sean Wotherspoon', tier: 'Exclusive', basePrice: 1100, weight: 1 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Union LA Black Toe', tier: 'Exclusive', basePrice: 1600, weight: 0.8 },
+            
+            // PREMIUM TIER - Highly sought collabs and special releases (1,000-5,000 pairs)
+            { brand: 'Nike', initial: 'N', model: 'Union Jordan 1 Storm Blue', tier: 'Premium', basePrice: 1100, weight: 2 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Grateful Dead', tier: 'Premium', basePrice: 800, weight: 2.5 },
+            { brand: 'Nike', initial: 'N', model: 'Dunk Low Off-White Lot 1', tier: 'Premium', basePrice: 550, weight: 3 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Parra', tier: 'Premium', basePrice: 900, weight: 2.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 5 Off-White Sail', tier: 'Premium', basePrice: 850, weight: 2.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 2 Off-White', tier: 'Premium', basePrice: 750, weight: 3 },
+            { brand: 'Nike', initial: 'N', model: 'Zoom Fly Off-White', tier: 'Premium', basePrice: 600, weight: 3.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Fear of God 1', tier: 'Premium', basePrice: 700, weight: 3 },
+            { brand: 'Nike', initial: 'N', model: 'Air Presto Off-White', tier: 'Premium', basePrice: 550, weight: 3.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 90 Off-White Desert Ore', tier: 'Premium', basePrice: 500, weight: 3.5 },
+            { brand: 'Nike', initial: 'N', model: 'Blazer Mid Off-White Grim Reaper', tier: 'Premium', basePrice: 500, weight: 3.5 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Turtle Dove', tier: 'Premium', basePrice: 800, weight: 3 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Pirate Black', tier: 'Premium', basePrice: 750, weight: 3 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Moonrock', tier: 'Premium', basePrice: 900, weight: 2.5 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 Oxford Tan', tier: 'Premium', basePrice: 850, weight: 2.5 },
+            { brand: 'Nike', initial: 'N', model: 'Sacai Waffle Black Nylon', tier: 'Premium', basePrice: 450, weight: 4 },
+            { brand: 'Nike', initial: 'N', model: 'Sacai VaporWaffle Tour Yellow', tier: 'Premium', basePrice: 380, weight: 4.5 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 V2 Beluga', tier: 'Premium', basePrice: 350, weight: 5 },
+            { brand: 'Adidas', initial: 'A', model: 'NMD Pharrell Human Race Black', tier: 'Premium', basePrice: 400, weight: 4.5 },
+            { brand: 'Adidas', initial: 'A', model: 'Pharrell NMD Human Race Yellow', tier: 'Premium', basePrice: 800, weight: 3 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Fragment', tier: 'Premium', basePrice: 600, weight: 4 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Union', tier: 'Premium', basePrice: 500, weight: 4.5 },
+            { brand: 'Nike', initial: 'N', model: 'Union Dunk Low Argon', tier: 'Premium', basePrice: 400, weight: 5 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Strangelove', tier: 'Premium', basePrice: 550, weight: 4 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk High Supreme Stars', tier: 'Premium', basePrice: 1200, weight: 2.5 },
+            { brand: 'New Balance', initial: 'NB', model: '990v2 Kith Grey', tier: 'Premium', basePrice: 450, weight: 4.5 },
+            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte III Kith Salmon Toe', tier: 'Premium', basePrice: 300, weight: 5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Bred Banned', tier: 'Premium', basePrice: 450, weight: 4.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 5 Supreme Desert Camo', tier: 'Premium', basePrice: 600, weight: 4 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Supreme Cement', tier: 'Premium', basePrice: 700, weight: 3.5 },
+            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte III Ronnie Fieg Flamingo', tier: 'Premium', basePrice: 350, weight: 5 },
+            { brand: 'New Balance', initial: 'NB', model: '997 Concepts Rosé', tier: 'Premium', basePrice: 300, weight: 5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 12 Flu Game', tier: 'Premium', basePrice: 400, weight: 4.5 },
+            { brand: 'Nike', initial: 'N', model: 'Foamposite Galaxy', tier: 'Premium', basePrice: 800, weight: 3 },
+            { brand: 'Nike', initial: 'N', model: 'Kobe 4 Carpe Diem', tier: 'Premium', basePrice: 500, weight: 4 },
+            { brand: 'Nike', initial: 'N', model: 'Kobe 5 Bruce Lee', tier: 'Premium', basePrice: 450, weight: 4.5 },
+            { brand: 'Nike', initial: 'N', model: 'LeBron 9 Watch the Throne', tier: 'Premium', basePrice: 500, weight: 4 },
+            { brand: 'Adidas', initial: 'A', model: 'Ultra Boost Mid Kith', tier: 'Premium', basePrice: 400, weight: 4.5 },
+            { brand: 'Adidas', initial: 'A', model: 'Ultra Boost Wood Wood', tier: 'Premium', basePrice: 350, weight: 5 },
+            { brand: 'Adidas', initial: 'A', model: 'NMD R1 Primeknit OG', tier: 'Premium', basePrice: 450, weight: 4.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 High Chicago', tier: 'Premium', basePrice: 280, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 High Royal', tier: 'Premium', basePrice: 260, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Raygun', tier: 'Premium', basePrice: 500, weight: 4 },
+            { brand: 'Nike', initial: 'N', model: 'SB Dunk Low Purple Lobster', tier: 'Premium', basePrice: 650, weight: 3.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 97 Sean Wotherspoon', tier: 'Premium', basePrice: 600, weight: 3.5 },
+            { brand: 'Nike', initial: 'N', model: 'Foamposite Paranorman', tier: 'Premium', basePrice: 900, weight: 3 },
+            
+            // VAULTED TIER - Discontinued or rare models (older releases that are still valuable but not as hyped)
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Shattered Backboard', tier: 'Vaulted', basePrice: 1300, weight: 3 },
+            { brand: 'Nike', initial: 'N', model: 'LeBron 10 What The MVP', tier: 'Vaulted', basePrice: 900, weight: 4 },
+            { brand: 'Adidas', initial: 'A', model: 'Futurecraft 4D', tier: 'Vaulted', basePrice: 700, weight: 5 },
+            { brand: 'New Balance', initial: 'NB', model: '990v2 WTAPS', tier: 'Vaulted', basePrice: 600, weight: 5 },
+            { brand: 'New Balance', initial: 'NB', model: '1500 Ronnie Fieg CNCPTS', tier: 'Vaulted', basePrice: 700, weight: 4 },
+            { brand: 'New Balance', initial: 'NB', model: '998 CNCPTS C-Note', tier: 'Vaulted', basePrice: 650, weight: 4.5 },
+            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte III Ronnie Fieg Leatherback', tier: 'Vaulted', basePrice: 800, weight: 4 },
+            { brand: 'Reebok', initial: 'R', model: 'Pump Fury UNDFTD', tier: 'Vaulted', basePrice: 750, weight: 4 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 1 Atmos Elephant', tier: 'Vaulted', basePrice: 700, weight: 4.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 3 Black Cement', tier: 'Vaulted', basePrice: 350, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 1 Shadow 2.0', tier: 'Vaulted', basePrice: 300, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 3 True Blue', tier: 'Vaulted', basePrice: 320, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 4 Cool Grey', tier: 'Vaulted', basePrice: 380, weight: 5.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 5 Metallic', tier: 'Vaulted', basePrice: 350, weight: 5.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 6 Gatorade', tier: 'Vaulted', basePrice: 280, weight: 6.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 7 Bordeaux', tier: 'Vaulted', basePrice: 300, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 8 Aqua', tier: 'Vaulted', basePrice: 280, weight: 6.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 9 Bred', tier: 'Vaulted', basePrice: 300, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 10 Chicago', tier: 'Vaulted', basePrice: 280, weight: 6.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 11 Legend Blue', tier: 'Vaulted', basePrice: 350, weight: 5.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 13 He Got Game', tier: 'Vaulted', basePrice: 300, weight: 6 },
+            { brand: 'Nike', initial: 'N', model: 'Air Jordan 14 Ferrari', tier: 'Vaulted', basePrice: 350, weight: 5.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 90 Infrared OG', tier: 'Vaulted', basePrice: 280, weight: 6.5 },
+            { brand: 'Nike', initial: 'N', model: 'Air Max 95 Safari', tier: 'Vaulted', basePrice: 300, weight: 6 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 350 V2 Sesame', tier: 'Vaulted', basePrice: 300, weight: 6 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 500 Supermoon Yellow', tier: 'Vaulted', basePrice: 320, weight: 5.5 },
+            { brand: 'Adidas', initial: 'A', model: 'Yeezy 700 Inertia', tier: 'Vaulted', basePrice: 350, weight: 5.5 },
+            { brand: 'Adidas', initial: 'A', model: 'EQT Support 93/17 Overkill', tier: 'Vaulted', basePrice: 350, weight: 5.5 },
+            { brand: 'New Balance', initial: 'NB', model: '990v4 Kith Navy', tier: 'Vaulted', basePrice: 400, weight: 5 },
+            { brand: 'New Balance', initial: 'NB', model: '997 Concepts Luxury Goods', tier: 'Vaulted', basePrice: 350, weight: 5.5 },
+            { brand: 'New Balance', initial: 'NB', model: '1300 CNCPTS Esruc', tier: 'Vaulted', basePrice: 400, weight: 5 },
+            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte V Maldives', tier: 'Vaulted', basePrice: 300, weight: 6 },
+            { brand: 'Asics', initial: 'AS', model: 'Gel-Lyte V Volcano', tier: 'Vaulted', basePrice: 320, weight: 5.5 },
+            { brand: 'Puma', initial: 'P', model: 'Disc Blaze Ronnie Fieg COA', tier: 'Vaulted', basePrice: 400, weight: 5 },
+            { brand: 'Reebok', initial: 'R', model: 'Question Mid Blue Toe', tier: 'Vaulted', basePrice: 350, weight: 5.5 },
+            { brand: 'Reebok', initial: 'R', model: 'Shaqnosis OG', tier: 'Vaulted', basePrice: 300, weight: 6 },
             
             // LIMITED TIER - Limited releases (5,000-49,999 pairs) - Special releases with moderate scarcity
             { brand: 'Nike', initial: 'N', model: 'Air Jordan 3 A Ma Maniere', tier: 'Limited', basePrice: 400, weight: 8 },
@@ -3470,9 +3690,12 @@
 
         const RARITY_TIERS = {
             'Standard': { tier: 'Standard', tierMultiplier: 1.0, description: 'General release', weight: 55 },
-            'Limited': { tier: 'Limited', tierMultiplier: 1.8, description: 'Limited release', weight: 35 },
-            'Vaulted': { tier: 'Vaulted', tierMultiplier: 2.5, description: 'No longer produced', weight: 8 },
-            'Grail': { tier: 'Grail', tierMultiplier: 4.0, description: 'Extremely rare', weight: 2 }
+            'Limited': { tier: 'Limited', tierMultiplier: 2.5, description: 'Limited release', weight: 35 },
+            'Premium': { tier: 'Premium', tierMultiplier: 4.0, description: 'Premium release', weight: 15 },
+            'Vaulted': { tier: 'Vaulted', tierMultiplier: 6.0, description: 'No longer produced', weight: 8 },
+            'Exclusive': { tier: 'Exclusive', tierMultiplier: 9.0, description: 'Exclusive collaboration', weight: 3 },
+            'Grail': { tier: 'Grail', tierMultiplier: 15.0, description: 'Legendary grail', weight: 1 },
+            'Unreleased': { tier: 'Unreleased', tierMultiplier: 25.0, description: 'Never released to public', weight: 0.1 }
         };
 
         const CONDITION_LEVELS = [
@@ -3498,26 +3721,47 @@
             { tier: 'Limited', condition: 'VNDS', probability: 4.0 },
             { tier: 'Limited', condition: 'Deadstock', probability: 2.0 },
             { tier: 'Limited', condition: 'OG', probability: 1.0 },
+            { tier: 'Premium', condition: 'Scuffed', probability: 2.0 },
+            { tier: 'Premium', condition: 'Celeb Worn', probability: 0.3 },
+            { tier: 'Premium', condition: 'Used', probability: 1.0 },
+            { tier: 'Premium', condition: 'VNDS', probability: 0.7 },
+            { tier: 'Premium', condition: 'Deadstock', probability: 0.3 },
+            { tier: 'Premium', condition: 'OG', probability: 0.2 },
             { tier: 'Vaulted', condition: 'Scuffed', probability: 1.0 },
             { tier: 'Vaulted', condition: 'Celeb Worn', probability: 0.1 },
             { tier: 'Vaulted', condition: 'Used', probability: 0.4 },
             { tier: 'Vaulted', condition: 'VNDS', probability: 0.3 },
             { tier: 'Vaulted', condition: 'Deadstock', probability: 0.1 },
             { tier: 'Vaulted', condition: 'OG', probability: 0.07 },
+            { tier: 'Exclusive', condition: 'Scuffed', probability: 0.05 },
+            { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.007 },
+            { tier: 'Exclusive', condition: 'Used', probability: 0.02 },
+            { tier: 'Exclusive', condition: 'VNDS', probability: 0.01 },
+            { tier: 'Exclusive', condition: 'Deadstock', probability: 0.006 },
+            { tier: 'Exclusive', condition: 'OG', probability: 0.004 },
             { tier: 'Grail', condition: 'Scuffed', probability: 0.07 },
             { tier: 'Grail', condition: 'Celeb Worn', probability: 0.01 },
             { tier: 'Grail', condition: 'Used', probability: 0.03 },
             { tier: 'Grail', condition: 'VNDS', probability: 0.01 },
             { tier: 'Grail', condition: 'Deadstock', probability: 0.007 },
-            { tier: 'Grail', condition: 'OG', probability: 0.003 }
+            { tier: 'Grail', condition: 'OG', probability: 0.003 },
+            { tier: 'Unreleased', condition: 'Scuffed', probability: 0.002 },
+            { tier: 'Unreleased', condition: 'Celeb Worn', probability: 0.0005 },
+            { tier: 'Unreleased', condition: 'Used', probability: 0.001 },
+            { tier: 'Unreleased', condition: 'VNDS', probability: 0.0007 },
+            { tier: 'Unreleased', condition: 'Deadstock', probability: 0.0003 },
+            { tier: 'Unreleased', condition: 'OG', probability: 0.0001 }
         ];
 
         // Negotiation firmness by tier
         const TIER_FIRMNESS = {
             'Standard': 0.82,
             'Limited': 0.90,
+            'Premium': 0.93,
             'Vaulted': 0.95,
-            'Grail': 0.98
+            'Exclusive': 0.97,
+            'Grail': 0.98,
+            'Unreleased': 0.99
         };
 
         const BUYER_NAMES = [
@@ -3571,6 +3815,17 @@
                     "You pay for heat? This one's fire; let's make a deal.",
                     "It's limited and pristine—hit me with your real cash number."
                 ],
+                premium: [
+                    "This is premium tier—resale market is crazy right now.",
+                    "These are highly sought after, I need serious cash for these.",
+                    "Premium collaboration piece—your store needs this flex.",
+                    "You know what premium means in this game, show me the money.",
+                    "Not many of these around, and mine's authenticated.",
+                    "I've seen these go for insane prices online—can you compete?",
+                    "Premium quality, premium price—that's the deal here.",
+                    "This isn't just limited, it's premium tier. What can you really offer?",
+                    "Collectors are hunting these—you better have a strong cash offer."
+                ],
                 vaulted: [
                     "They don't make these anymore, so your offer better show respect.",
                     "Vaulted pairs like this get rarer with every year—what's your cash deal?",
@@ -3584,6 +3839,17 @@
                     "Other stores just offer pennies for discontinued shoes. I need better.",
                     "Super rare, zero chance of restock—prove you're a real collector's shop."
                 ],
+                exclusive: [
+                    "This is an exclusive collab—I'm talking museum-level rarity here.",
+                    "You can't just walk into a store and find this. Exclusive means exclusive.",
+                    "Friend-and-family level exclusive—your offer needs to reflect that.",
+                    "I had to pull strings just to get my hands on this. What's your best?",
+                    "Exclusive drops like this define careers. Are you ready to invest?",
+                    "Only a few hundred pairs exist worldwide—this is your unicorn moment.",
+                    "You won't see another one of these come through your door for years.",
+                    "Exclusive collabs are investment pieces—treat this like gold.",
+                    "Your competition would kill to have this in their inventory. What's it worth to you?"
+                ],
                 grail: [
                     "This is a once-in-a-generation grail—show me you mean business.",
                     "You know this pair runs the whole market. Ready to make a statement offer?",
@@ -3595,6 +3861,18 @@
                     "I waited and camped for these, so I won't settle for less.",
                     "People fly across continents to chase this grail. What's your number?",
                     "You get bragging rights if you buy them from me—make it worth my while."
+                ],
+                unreleased: [
+                    "You realize these were never released to the public, right?",
+                    "Sample pair—this literally should not exist outside the vault.",
+                    "I'm not supposed to have these. That's why the price is what it is.",
+                    "Unreleased means priceless. But I need cash, so name your absolute best.",
+                    "Factory sample—there's maybe 10 pairs of these in existence.",
+                    "You'll never see these in stores because they never dropped. Ever.",
+                    "PE sample—player exclusive that never made it to retail. Think about that.",
+                    "This is sneaker history that was never meant to be sold. What's that worth?",
+                    "Unreleased prototype—your store would be legendary for having this.",
+                    "I could auction these for six figures, but I need cash now. Don't waste my time."
                 ]
             },
             
@@ -4467,11 +4745,17 @@
                     const tier = shoe.rarityTier || shoe.tier || 'Standard';
                     const messages = [];
                     
-                    // Priority 1: Tier-specific opening (Grail > Vaulted > Limited > Standard)
-                    if (tier === 'Grail') {
+                    // Priority 1: Tier-specific opening (Unreleased > Grail > Exclusive > Vaulted > Premium > Limited > Standard)
+                    if (tier === 'Unreleased') {
+                        messages.push(...AI_DIALOGUE.opening.unreleased);
+                    } else if (tier === 'Grail') {
                         messages.push(...AI_DIALOGUE.opening.grail);
+                    } else if (tier === 'Exclusive') {
+                        messages.push(...AI_DIALOGUE.opening.exclusive);
                     } else if (tier === 'Vaulted') {
                         messages.push(...AI_DIALOGUE.opening.vaulted);
+                    } else if (tier === 'Premium') {
+                        messages.push(...AI_DIALOGUE.opening.premium);
                     } else if (tier === 'Limited' || shoe.rarity === 'Epic' || shoe.rarity === 'Legendary') {
                         messages.push(...AI_DIALOGUE.opening.limited);
                     } else {
@@ -7211,7 +7495,7 @@
                     <button class="action-btn" onclick="submitCustomerSellerOffer('${customerId}')"><span>Make Offer</span></button>
                     <button class="action-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%);" 
                             onclick="acceptCustomerSellerPrice('${customerId}')"><span>Accept Full Price</span></button>
-                    <button class="action-btn danger" onclick="closeModal()"><span>Pass</span></button>
+                    <button class="action-btn danger" onclick="handleWalkAway('${customerId}', 'seller')"><span>Pass</span></button>
                 </div>
             `);
         }
@@ -7413,7 +7697,18 @@
                 } else if (shouldCounter) {
                     showCounterOffer(customer, offer, 'seller');
                 } else {
-                    showNotification('Offer rejected! Try again or pass.', 'error');
+                    // 30% chance they stay, 70% chance they walk away
+                    const stayChance = Math.random();
+                    if (stayChance < 0.3) {
+                        // They stay - show message but keep them in the list
+                        showNotification('Offer rejected! They\'re still willing to negotiate.', 'error');
+                    } else {
+                        // They walk away completely - remove from customers
+                        gameState.customers = gameState.customers.filter(c => c.id !== customer.id);
+                        showNotification(`${customer.name} rejected your offer and walked away with their shoes!`, 'error');
+                        closeModal();
+                        renderCustomersTab(); // Update the UI to show they're gone
+                    }
                 }
             }, 1500);
         }
@@ -7591,7 +7886,7 @@
                             onclick="counterTheCounter('${customer.id}', ${counterOffer}, '${customerType}')">
                         <span>Counter Again</span>
                     </button>
-                    <button class="action-btn danger" onclick="closeModal()">
+                    <button class="action-btn danger" onclick="handleWalkAway('${customer.id}', '${customerType}')">
                         <span>Walk Away</span>
                     </button>
                 </div>
@@ -7599,6 +7894,39 @@
                     Tip: Counter-offers are based on hype, condition, rarity, and market value
                 </div>
             `);
+        }
+
+        function handleWalkAway(customerId, customerType) {
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer) {
+                closeModal();
+                return;
+            }
+            
+            // 30% chance they stay, 70% chance they walk away
+            const stayChance = Math.random();
+            
+            if (stayChance < 0.3) {
+                // They stay - customer is still willing to negotiate
+                closeModal();
+                if (customerType === 'seller') {
+                    showNotification(`${customer.name} is disappointed but still here. Try a better offer?`, 'error');
+                } else {
+                    showNotification(`${customer.name} looks frustrated but hasn't left yet...`, 'error');
+                }
+            } else {
+                // They walk away completely - remove from customers
+                gameState.customers = gameState.customers.filter(c => c.id !== customerId);
+                closeModal();
+                
+                if (customerType === 'seller') {
+                    showNotification(`${customer.name} took their shoes and left! Deal lost.`, 'error');
+                } else {
+                    showNotification(`${customer.name} walked out of your shop! Sale lost.`, 'error');
+                }
+                
+                renderCustomersTab(); // Update the UI to show they're gone
+            }
         }
 
         // ==================== BULK DEAL FUNCTIONS ====================
@@ -8258,7 +8586,7 @@
                     <button class="action-btn" onclick="submitSellingPrice('${customerId}')"><span>Set Price</span></button>
                     <button class="action-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%);" 
                             onclick="acceptBuyerBudget('${customerId}')"><span>Accept ${formatCurrency(theirBudget)}</span></button>
-                    <button class="action-btn danger" onclick="closeModal()"><span>Cancel</span></button>
+                    <button class="action-btn danger" onclick="handleWalkAway('${customerId}', 'buyer')"><span>Cancel</span></button>
                 </div>
             `);
         }
@@ -8329,8 +8657,19 @@
                 } else if (shouldCounter) {
                     showCounterOffer(customer, askingPrice, 'buyer');
                 } else {
-                    showNotification('They passed on your price.', 'error');
-                    closeModal();
+                    // 30% chance they stay, 70% chance they walk away
+                    const stayChance = Math.random();
+                    if (stayChance < 0.3) {
+                        // They stay - show message but keep them in the list
+                        showNotification('They passed on your price but might reconsider.', 'error');
+                        closeModal();
+                    } else {
+                        // They walk away completely - remove from customers
+                        gameState.customers = gameState.customers.filter(c => c.id !== customer.id);
+                        showNotification(`${customer.name} passed on your price and left the shop!`, 'error');
+                        closeModal();
+                        renderCustomersTab(); // Update the UI to show they're gone
+                    }
                 }
             }, 1500);
         }
@@ -9341,7 +9680,7 @@
                     </tbody>
                 </table>
                 <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
-                    <p>Rarest drop: Grail OG (0.003%) - approximately 1 in 33,333 drops!</p>
+                    <p>Rarest drop: Unreleased OG (0.0001%) - approximately 1 in 1,000,000 drops!</p>
                 </div>
                 <button class="action-btn" onclick="closeModal()" style="margin-top: 20px; width: 100%;">Close</button>
             `;
