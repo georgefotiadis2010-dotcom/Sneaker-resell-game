@@ -4389,9 +4389,20 @@
                     trend: trend
                 });
                 
-                // Sales have realistic variance (80-120% of market)
-                // Some sellers overprice, some underprice
-                const variance = i === 0 ? random(95, 105) : random(80, 120);
+                // Sales have realistic variance
+                // Most sales (80%) are within 92-108% of market value
+                // Some sales (20%) can be outliers between 80-125% for realism
+                let variance;
+                if (i === 0) {
+                    // First estimate matches very closely
+                    variance = random(95, 105);
+                } else if (Math.random() < 0.8) {
+                    // 80% of sales are realistic and close to market value
+                    variance = random(92, 108);
+                } else {
+                    // 20% can be outliers (deals or overpriced)
+                    variance = Math.random() < 0.5 ? random(80, 92) : random(108, 125);
+                }
                 const salePrice = Math.floor(marketValue * variance / 100);
                 
                 estimatedSales.push({
