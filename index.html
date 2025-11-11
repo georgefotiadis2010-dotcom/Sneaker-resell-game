@@ -4508,12 +4508,15 @@
             // Find the condition data
             const conditionData = CONDITION_LEVELS.find(c => c.name === conditionName) || CONDITION_LEVELS[0];
             
-            // Update shoe properties
+            // Update shoe properties - IMPORTANT: rarity should ONLY be the tier, never combined with condition
             shoe.tier = tier;
             shoe.rarityTier = tier;
             shoe.condition = conditionName;
             shoe.conditionEmoji = conditionData.emoji;
-            shoe.rarity = `${tier} ${conditionName}`;
+            // Set rarity to just the tier - rarity should NEVER change after initial generation
+            if (!shoe.rarity || shoe.rarity.includes(' ')) {
+                shoe.rarity = tier;
+            }
             
             return shoe;
         }
@@ -4781,16 +4784,41 @@
                 trend: trend
             });
             
-            // Calculate base asking price (without all the detailed factors)
+            // Calculate asking price with condition-based pricing
             const tierMultiplier = RARITY_TIERS[selectedCombo.tier].tierMultiplier;
-            const basePrice = selectedModel.basePrice * tierMultiplier * conditionData.multiplier;
-            const trendMultiplier = 1 + (trend / 100);
+            
+            // Base multiplier - typically BELOW market value (0.55-0.75 range)
+            let askingMultiplier = random(55, 75) / 100;
+            
+            // Condition significantly affects asking price
+            const conditionBonus = {
+                'Deadstock': 0.35,      // DS shoes can be asked at near-market value
+                'OG': 0.30,             // OG with box gets good premium
+                'Celeb Worn': 0.40,     // Celebrity provenance = highest premium
+                'VNDS': 0.15,           // Very Near Deadstock gets moderate boost
+                'Used': -0.05,          // Used shoes are cheaper
+                'Scuffed': -0.15        // Scuffed shoes are significantly cheaper
+            };
+            askingMultiplier += (conditionBonus[selectedCombo.condition] || 0);
+            
+            // If shoe is trending up, sellers ask for slightly more
+            if (trend > 10) {
+                askingMultiplier *= 1.10; // 10% premium for hot trends
+            } else if (trend > 5) {
+                askingMultiplier *= 1.05; // 5% premium for rising trends
+            } else if (trend < -10) {
+                askingMultiplier *= 0.80; // 20% discount for tanking shoes
+            } else if (trend < -5) {
+                askingMultiplier *= 0.90; // 10% discount for falling shoes
+            }
+            
+            // Ensure asking price is reasonable (between 40% and 110% of market value)
+            askingMultiplier = Math.max(0.40, Math.min(1.10, askingMultiplier));
+            
+            const askingPrice = Math.floor(estimatedValue * askingMultiplier);
             
             // Hot status based on trend
             const isHot = trend > 10;
-            
-            // Create combined rarity name
-            const rarityDisplay = `${selectedCombo.tier} ${selectedCombo.condition}`;
             
             return {
                 id: generateID(),
@@ -4802,9 +4830,9 @@
                 condition: selectedCombo.condition,
                 conditionEmoji: conditionData.emoji,
                 tier: selectedCombo.tier,
-                rarity: rarityDisplay,
+                rarity: selectedCombo.tier, // IMPORTANT: rarity is ONLY the tier, never changes
                 rarityTier: selectedCombo.tier, // For logic checks
-                price: Math.floor(basePrice * trendMultiplier),
+                price: askingPrice, // Price based on condition, tier, and market trends
                 estimatedValue: estimatedValue, // Already floored in calculateMarketValue
                 purchasePrice: 0,
                 isHot: isHot,
@@ -4849,19 +4877,35 @@
                 // Tier affects seller firmness (Grail shoes = tougher negotiation)
                 const rarityFirmness = TIER_FIRMNESS[shoe.rarityTier || shoe.tier] || 0.85;
                 
-                // Sellers ask for MORE based on trends AND rarity
-                let askingMultiplier = personality.firmness * rarityFirmness * random(95, 120) / 100;
+                // Base multiplier - typically BELOW market value (0.55-0.75 range)
+                let askingMultiplier = personality.firmness * rarityFirmness * random(55, 75) / 100;
                 
-                // If shoe is trending up, sellers ask for even more
+                // Condition significantly affects asking price
+                const conditionBonus = {
+                    'Deadstock': 0.35,      // DS shoes can be asked at near-market value
+                    'OG': 0.30,              // OG with box gets good premium
+                    'Celeb Worn': 0.40,      // Celebrity provenance = highest premium
+                    'VNDS': 0.15,            // Very Near Deadstock gets moderate boost
+                    'Used': -0.05,           // Used shoes are cheaper
+                    'Scuffed': -0.15,        // Scuffed shoes are significantly cheaper
+                    'Worn': -0.10,           // Worn shoes are cheaper
+                    'No Box': -0.10          // No box = discount
+                };
+                askingMultiplier += (conditionBonus[shoe.condition] || 0);
+                
+                // If shoe is trending up, sellers ask for slightly more
                 if (shoe.trend > 10) {
-                    askingMultiplier *= 1.15; // 15% premium for hot trends
+                    askingMultiplier *= 1.10; // 10% premium for hot trends
                 } else if (shoe.trend > 5) {
-                    askingMultiplier *= 1.08; // 8% premium for rising trends
+                    askingMultiplier *= 1.05; // 5% premium for rising trends
                 } else if (shoe.trend < -10) {
-                    askingMultiplier *= 0.85; // 15% discount for tanking shoes
+                    askingMultiplier *= 0.80; // 20% discount for tanking shoes
                 } else if (shoe.trend < -5) {
-                    askingMultiplier *= 0.92; // 8% discount for falling shoes
+                    askingMultiplier *= 0.90; // 10% discount for falling shoes
                 }
+                
+                // Ensure asking price is reasonable (between 40% and 110% of market value)
+                askingMultiplier = Math.max(0.40, Math.min(1.10, askingMultiplier));
                 
                 const askingPrice = Math.floor(shoe.estimatedValue * askingMultiplier);
                 shoe.price = askingPrice;
@@ -5026,7 +5070,7 @@
             
             return `
                 <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
-                    <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                    <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                     ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                     ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                     
@@ -5092,9 +5136,12 @@
                         </div>
                         
                         <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000; margin-bottom: 10px;">
-                            <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; text-align: center;">Market Value Range</div>
-                            <div style="text-align: center; font-size: 16px; font-weight: 900; color: #3498db; padding: 4px 0; font-family: 'Inter', sans-serif;">
-                                ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
+                            <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; text-align: center;">Exact Market Value</div>
+                            <div style="text-align: center; font-size: 20px; font-weight: 900; color: #3498db; padding: 4px 0; font-family: 'Inter', sans-serif; line-height: 1;">
+                                ${formatCurrency(shoe.estimatedValue)}
+                            </div>
+                            <div style="font-size: 8px; color: #666; text-align: center; font-style: italic; margin-top: 4px;">
+                                Range: ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
                             </div>
                         </div>
                         
@@ -5304,7 +5351,7 @@
                     
                     return `
                         <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
-                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                             ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                             ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                             
@@ -5468,7 +5515,7 @@
             
             return `
                 <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
-                    <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                    <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                     ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                     ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                     
@@ -5491,10 +5538,13 @@
                             <div style="font-size: 26px; font-weight: 900; color: #2c3e50; font-family: 'Inter', sans-serif; line-height: 1;">${formatCurrency(shoe.listingPrice)}</div>
                         </div>
                         
-                        <div style="background: #e3f2fd; padding: 8px; border: 2px solid #2196F3; margin-bottom: 8px;">
-                            <div style="font-size: 9px; color: #2196F3; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; text-align: center;">Market Value Range</div>
-                            <div style="text-align: center; font-size: 16px; font-weight: 900; color: #1976D2; padding: 4px 0; font-family: 'Inter', sans-serif;">
-                                ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
+                        <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000; margin-bottom: 8px;">
+                            <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; text-align: center;">Exact Market Value</div>
+                            <div style="text-align: center; font-size: 18px; font-weight: 900; color: #3498db; padding: 4px 0; font-family: 'Inter', sans-serif; line-height: 1;">
+                                ${formatCurrency(shoe.estimatedValue)}
+                            </div>
+                            <div style="font-size: 8px; color: #666; text-align: center; font-style: italic; margin-top: 4px;">
+                                Range: ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
                             </div>
                         </div>
                         
@@ -5720,7 +5770,7 @@
                     
                     html += `
                         <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
-                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                             ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                             ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                             
@@ -5885,7 +5935,7 @@
                     
                     html += `
                         <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
-                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                             ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                             ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
                             
@@ -5996,7 +6046,7 @@
                     
                     html += `
                         <div class="sneaker-card" style="border: 2px solid #27ae60; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
-                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                            <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                             ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                             
                             <!-- Shoe Image -->
@@ -6696,7 +6746,7 @@
                     <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
-                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity} ${shoe.condition}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
@@ -6834,7 +6884,7 @@
                             <div>
                                 <div style="font-weight: 700; margin-bottom: 5px;">${shoe.brand} ${shoe.model}</div>
                                 <div style="font-size: 14px; color: #666;">
-                                    ${shoe.colorway} | Size ${shoe.size} | ${shoe.rarity}
+                                    ${shoe.colorway} | Size ${shoe.size} | ${shoe.rarity} ${shoe.condition}
                                 </div>
                                 <div style="font-size: 14px; margin-top: 5px;">
                                     Market Value: ${formatCurrency(shoe.estimatedValue)}
@@ -6882,7 +6932,7 @@
                     <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
-                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity} ${shoe.condition}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
@@ -7173,7 +7223,7 @@
                 
                 html += `
                     <div class="sneaker-card" style="border: 2px solid ${levelBadge.color}; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
-                        <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
+                        <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                         ${shoe.isHot ? '<div style="position: absolute; top: 40px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                         <div style="position: absolute; top: 12px; left: 12px; font-size: 12px; font-weight: 900; color: white; background: ${levelBadge.color}; padding: 4px 8px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">${levelBadge.icon} ${levelBadge.text}</div>
                         
@@ -7403,7 +7453,7 @@
                     <div style="font-size: 18px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
-                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity} ${shoe.condition}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
@@ -7737,7 +7787,7 @@
                     <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
-                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity} ${shoe.condition}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
@@ -7859,7 +7909,7 @@
                         shouldCoinFlip = true;
                     } else {
                         shouldCounter = Math.random() > 0.3; // 70% counter
-                        contextualMessage = `That's ${shoe.rarity} rarity bro, you gotta come correct.`;
+                        contextualMessage = `That's ${shoe.rarity} tier bro, you gotta come correct.`;
                     }
                 } else if (isTough || isCollector) {
                     shouldCounter = Math.random() > 0.3; // 70% counter
@@ -7881,7 +7931,7 @@
                 // Way too low (65-80% of minimum)
                 if (isGrail || isVaulted) {
                     // Rare shoes: outright reject, don't even offer coin flip
-                    contextualMessage = `You're not serious. I'm keeping these ${shoe.rarity} kicks.`;
+                    contextualMessage = `You're not serious. I'm keeping these ${shoe.rarity} tier kicks.`;
                     shouldCounter = false;
                     accepted = false;
                 } else {
@@ -8257,7 +8307,7 @@
                                         <div style="font-weight: 900; font-size: 14px; color: #000; margin-bottom: 2px;">${shoe.brand} ${shoe.model}</div>
                                         <div style="font-size: 10px; color: #666; margin-bottom: 4px;">${shoe.colorway}</div>
                                         <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 10px; margin-bottom: 4px;">
-                                            <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0; font-size: 8px; padding: 2px 6px;">${shoe.rarity}</span>
+                                            <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0; font-size: 8px; padding: 2px 6px;">${shoe.rarity} ${shoe.condition}</span>
                                             <span>Size ${shoe.size}</span>
                                             <span>${shoe.conditionEmoji} ${shoe.condition}</span>
                                             ${shoe.isHot ? '<span style="color: #e74c3c;">[HOT]</span>' : ''}
@@ -8821,7 +8871,7 @@
                     <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
-                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity} ${shoe.condition}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
@@ -8996,7 +9046,7 @@
                     <div style="font-size: 20px; font-weight: bold;">${shoe.brand} ${shoe.model}</div>
                     <div style="color: #666;">${shoe.colorway} | Size ${shoe.size}</div>
                     <div style="margin-top: 5px;">
-                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
+                        <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity} ${shoe.condition}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
