@@ -4376,42 +4376,25 @@
             }
         }
 
+        // Generate market value range for display
+        // The actual market value will be somewhere in the middle of this range
+        function getMarketValueRange(estimatedValue) {
+            // Calculate range: ±12-18% of estimated value
+            // This creates a realistic price spread that players see in the market
+            const lowerVariance = 0.12 + (Math.random() * 0.06); // 12-18%
+            const upperVariance = 0.12 + (Math.random() * 0.06); // 12-18%
+            
+            const minValue = Math.floor(estimatedValue * (1 - lowerVariance));
+            const maxValue = Math.floor(estimatedValue * (1 + upperVariance));
+            
+            return { minValue, maxValue };
+        }
+        
         function getRecentSales(brand, model, size, condition, rarity) {
-            // Find real sales matching the criteria
-            const sales = gameState.salesHistory.filter(sale => {
-                return sale.brand === brand && sale.model === model;
-            });
-            
-            // Sort by similarity and recency
-            const scoredSales = sales.map(sale => {
-                let score = 0;
-                
-                // Exact matches get higher scores
-                if (sale.size === size) score += 10;
-                if (sale.condition === condition) score += 8;
-                if (sale.rarity === rarity) score += 6;
-                
-                // Recent sales more relevant (decay over time)
-                const ageInMinutes = (gameState.timeElapsed - sale.timestamp) / 60;
-                score -= ageInMinutes * 0.1;
-                
-                return { sale, score };
-            });
-            
-            // Get top real sales
-            let realSales = scoredSales
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 5)
-                .map(s => s.sale);
-            
-            // If we have fewer than 5 sales, generate estimated sales
-            if (realSales.length < 5) {
-                const neededSales = 5 - realSales.length;
-                const estimatedSales = generateEstimatedSales(brand, model, size, condition, rarity, neededSales);
-                realSales = [...realSales, ...estimatedSales];
-            }
-            
-            return realSales.slice(0, 5);
+            // DEPRECATED: This function is no longer used for display
+            // Kept for backwards compatibility with save files
+            // Market value range is now shown instead of recent sales
+            return [];
         }
         
         function generateEstimatedSales(brand, model, size, condition, rarity, count) {
@@ -4867,9 +4850,6 @@
                 const askingPrice = Math.floor(shoe.estimatedValue * askingMultiplier);
                 shoe.price = askingPrice;
                 
-                // Cache recent sales data for this shoe (so it doesn't regenerate every render)
-                shoe.cachedRecentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity).slice(0, 3);
-                
                     shoes.push(shoe);
                 }
                 
@@ -4993,8 +4973,8 @@
                 ((profit / shoe.purchasePrice) * 100).toFixed(0) : 
                 ((profit / shoe.price) * 100).toFixed(0);
             
-            // Get recent sales for this shoe (for buy context) - limit to last 3
-            const recentSales = context === 'buy' ? getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity).slice(0, 3) : [];
+            // Get market value range for this shoe (for buy context)
+            const { minValue, maxValue } = context === 'buy' ? getMarketValueRange(shoe.estimatedValue) : { minValue: 0, maxValue: 0 };
             
             const brandColor = getBrandColor(shoe.brand);
             const rarityGlow = getRarityGlow(shoe.rarity);
@@ -5072,19 +5052,13 @@
                         </div>
                         
                         <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000; margin-bottom: 10px;">
-                            <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1;">Last 3 Sales</div>
-                            ${recentSales.length > 0 ? recentSales.map((sale, idx) => {
-                                const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
-                                const isEstimated = sale.isEstimated;
-                                return `
-                                    <div style="font-size: 10px; color: ${match ? '#27ae60' : '#888'}; padding: 3px 0; display: flex; justify-content: space-between; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                        <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 600;">
-                                            ${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Size ${sale.size}${sale.wasHot ? ' [HOT]' : ''}
-                                        </span>
-                                        <span style="font-weight: 800; margin-left: 8px; white-space: nowrap;">${formatCurrency(sale.price)}</span>
-                                    </div>
-                                `;
-                            }).join('') : '<div style="font-size: 10px; color: #888; font-style: italic;">No recent sales data</div>'}
+                            <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; text-align: center;">Market Value Range</div>
+                            <div style="text-align: center; font-size: 16px; font-weight: 900; color: #3498db; padding: 4px 0; font-family: 'Inter', sans-serif;">
+                                ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
+                            </div>
+                            <div style="font-size: 8px; color: #666; text-align: center; font-style: italic; margin-top: 2px;">
+                                Actual value in this range
+                            </div>
                         </div>
                     ` : `
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
@@ -5269,12 +5243,8 @@
                     shoe.isHot = currentTrend > 10;
                     shoe.isTanking = currentTrend < -10;
                     
-                    // Use cached recent sales data (set when customer was generated)
-                    // If not cached yet, generate it once and cache it
-                    if (!shoe.cachedRecentSales) {
-                        shoe.cachedRecentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity).slice(0, 3);
-                    }
-                    const recentSales = shoe.cachedRecentSales;
+                    // Get market value range for this shoe
+                    const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
                     
                     const brandColor = getBrandColor(shoe.brand);
                     const rarityGlow = getRarityGlow(shoe.rarity);
@@ -5355,19 +5325,13 @@
                                 </div>
                                 
                                 <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000; margin-bottom: 8px;">
-                                    <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1;">Last 3 Sales</div>
-                                    ${recentSales.length > 0 ? recentSales.map((sale, idx) => {
-                                        const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
-                                        const isEstimated = sale.isEstimated;
-                                        return `
-                                            <div style="font-size: 10px; color: ${match ? '#27ae60' : '#888'}; padding: 3px 0; display: flex; justify-content: space-between; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                                <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 600;">
-                                                    ${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Size ${sale.size}${sale.wasHot ? ' [HOT]' : ''}
-                                                </span>
-                                                <span style="font-weight: 800; margin-left: 8px; white-space: nowrap;">${formatCurrency(sale.price)}</span>
-                                            </div>
-                                        `;
-                                    }).join('') : '<div style="font-size: 10px; color: #888; font-style: italic;">No recent sales data</div>'}
+                                    <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; text-align: center;">Market Value Range</div>
+                                    <div style="text-align: center; font-size: 16px; font-weight: 900; color: #3498db; padding: 4px 0; font-family: 'Inter', sans-serif;">
+                                        ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
+                                    </div>
+                                    <div style="font-size: 8px; color: #666; text-align: center; font-style: italic; margin-top: 2px;">
+                                        Actual value in this range
+                                    </div>
                                 </div>
                                 
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
@@ -6675,8 +6639,8 @@
             const minimumNextBid = (auction.currentBid || auction.minimumBid);
             const timeLeft = formatTime(auction.timeRemaining);
             
-            // Get recent sales data for this shoe
-            const recentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity);
+            // Get market value range for this shoe
+            const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
             
             showModal(`
                 <h2 class="modal-title">Place Your Bid</h2>
@@ -6690,10 +6654,6 @@
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
                     </div>
                     <div style="margin-top: 10px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                        <div>
-                            <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Est. Value</div>
-                            <div style="color: #3498db; font-weight: bold; font-size: 18px;">${formatCurrency(shoe.estimatedValue)}</div>
-                        </div>
                         <div>
                             <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Current Bid</div>
                             <div style="color: ${auction.currentBid > 0 ? '#27ae60' : '#999'}; font-weight: bold; font-size: 18px;">${auction.currentBid ? formatCurrency(auction.currentBid) : 'None'}</div>
@@ -6725,21 +6685,15 @@
                     </div>
                 </div>
                 
-                ${recentSales.length > 0 ? `
-                    <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
-                        ${recentSales.slice(0, 5).map(sale => {
-                            const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
-                            const isEstimated = sale.isEstimated;
-                            return `
-                                <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' [HOT]' : ''}</span>
-                                    <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
-                                </div>
-                            `;
-                        }).join('')}
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px; text-align: center;">Estimated Market Value</div>
+                    <div style="text-align: center; font-size: 20px; font-weight: bold; color: #3498db; padding: 8px 0;">
+                        ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
                     </div>
-                ` : ''}
+                    <div style="font-size: 10px; color: #666; text-align: center; font-style: italic;">
+                        Actual value is somewhere in this range
+                    </div>
+                </div>
                 
                 <div class="message-box" id="bid-message">
                     "${auction.currentBid > 0 ? `Beat the current bid of ${formatCurrency(auction.currentBid)}!` : 'Be the first to bid on this auction!'}"
@@ -6754,7 +6708,7 @@
                 </div>
                 
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    Tip: Bid smart! Check recent sales and estimated value. ${auction.timeRemaining < 300 ? 'WARNING: Auction ending soon!' : ''}
+                    Tip: Bid smart! Check the market value range. ${auction.timeRemaining < 300 ? 'WARNING: Auction ending soon!' : ''}
                 </div>
             `);
         }
@@ -6867,8 +6821,8 @@
                 return;
             }
             
-            // Get recent sales data for this shoe
-            const recentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity);
+            // Get market value range for this shoe
+            const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
             
             const suggestedMin = Math.floor(shoe.estimatedValue * 0.5);
             const suggestedMax = Math.floor(shoe.estimatedValue * 0.7);
@@ -6884,10 +6838,6 @@
                         <span class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: relative; top: 0; right: 0;">${shoe.rarity}</span>
                         <span style="margin-left: 10px;">${shoe.conditionEmoji} ${shoe.condition}</span>
                         ${shoe.isHot ? '<span style="color: #e74c3c; margin-left: 10px;">[HOT]</span>' : ''}
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <div style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600;">Estimated Market Value</div>
-                        <div style="color: #3498db; font-weight: bold; font-size: 24px;">${formatCurrency(shoe.estimatedValue)}</div>
                     </div>
                 </div>
                 
@@ -6907,21 +6857,15 @@
                     </div>
                 </div>
                 
-                ${recentSales.length > 0 ? `
-                    <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
-                        ${recentSales.slice(0, 5).map(sale => {
-                            const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
-                            const isEstimated = sale.isEstimated;
-                            return `
-                                <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' [HOT]' : ''}</span>
-                                    <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
-                                </div>
-                            `;
-                        }).join('')}
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px; text-align: center;">Estimated Market Value</div>
+                    <div style="text-align: center; font-size: 20px; font-weight: bold; color: #3498db; padding: 8px 0;">
+                        ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
                     </div>
-                ` : ''}
+                    <div style="font-size: 10px; color: #666; text-align: center; font-style: italic;">
+                        Actual value is somewhere in this range
+                    </div>
+                </div>
                 
                 <div class="message-box" id="auction-message">
                     "Set your minimum starting bid. The auction runs for 5 minutes. Choose wisely!"
@@ -8995,8 +8939,8 @@
         }
 
         function openNegotiationModal(shoe) {
-            // Get recent sales data for this shoe
-            const recentSales = getRecentSales(shoe.brand, shoe.model, shoe.size, shoe.condition, shoe.rarity);
+            // Get market value range for this shoe
+            const { minValue, maxValue } = getMarketValueRange(shoe.estimatedValue);
             
             showModal(`
                 <h2 class="modal-title">Negotiate Purchase</h2>
@@ -9013,21 +8957,15 @@
                         <span style="color: #e74c3c; font-weight: bold; font-size: 20px;">Asking: ${formatCurrency(shoe.price)}</span>
                     </div>
                 </div>
-                ${recentSales.length > 0 ? `
-                    <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">Recent Sales: <span style="font-size: 10px; font-weight: 600; color: #666;">(≈ = estimated)</span></div>
-                        ${recentSales.map(sale => {
-                            const match = sale.size === shoe.size && sale.condition === shoe.condition && sale.rarity === shoe.rarity;
-                            const isEstimated = sale.isEstimated;
-                            return `
-                                <div style="font-size: 11px; color: ${match ? '#27ae60' : '#666'}; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; ${isEstimated ? 'opacity: 0.7;' : ''}">
-                                    <span style="flex: 1; min-width: 0;">${match ? '✓ ' : ''}${isEstimated ? '≈ ' : ''}${sale.condition} | Sz ${sale.size}${sale.wasHot ? ' [HOT]' : ''}</span>
-                                    <span style="font-weight: bold; white-space: nowrap;">${formatCurrency(sale.price)}</span>
-                                </div>
-                            `;
-                        }).join('')}
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; color: #1a1a1a;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px; text-align: center;">Estimated Market Value</div>
+                    <div style="text-align: center; font-size: 20px; font-weight: bold; color: #3498db; padding: 8px 0;">
+                        ${formatCurrency(minValue)} - ${formatCurrency(maxValue)}
                     </div>
-                ` : ''}
+                    <div style="font-size: 10px; color: #666; text-align: center; font-style: italic;">
+                        Actual value is somewhere in this range
+                    </div>
+                </div>
                 <div class="message-box" id="seller-message">
                     "What's your offer? And don't lowball me."
                 </div>
@@ -9038,7 +8976,7 @@
                     <button class="action-btn danger" onclick="closeModal()"><span>Walk Away</span></button>
                 </div>
                 <div style="margin-top: 15px; color: #666; font-size: 12px; text-align: center;">
-                    Tip: Use recent sales to guide your offer. Sellers are tough!
+                    Tip: Use the market value range to guide your offer. Sellers are tough!
                 </div>
             `);
         }
