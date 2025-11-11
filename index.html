@@ -9948,6 +9948,10 @@
         }
 
         function openCrate(crateType, cost) {
+            // Ensure cost and cash are numbers
+            cost = Number(cost);
+            gameState.cash = Number(gameState.cash);
+            
             // Check if player has enough money
             if (gameState.cash < cost) {
                 showNotification(`Not enough cash! Need ${formatCurrency(cost)}`, 'error');
@@ -9955,7 +9959,7 @@
             }
             
             // Check if inventory has space
-            if (gameState.inventory.length >= gameState.inventoryCapacity) {
+            if (gameState.inventory.length >= gameState.inventoryLimit) {
                 showNotification('Inventory full! Sell some shoes first.', 'error');
                 return;
             }
@@ -10374,6 +10378,12 @@
                 if (typeof gameState.totalProfit !== 'number' || isNaN(gameState.totalProfit)) {
                     console.warn(`Fixing totalProfit from ${gameState.totalProfit} to 0`);
                     gameState.totalProfit = 0;
+                }
+                
+                // Fix cash if it's not a valid number
+                if (typeof gameState.cash !== 'number' || isNaN(gameState.cash)) {
+                    console.warn(`Fixing cash from ${gameState.cash} to 1000`);
+                    gameState.cash = 1000;
                 }
                 
                 updateUI();
