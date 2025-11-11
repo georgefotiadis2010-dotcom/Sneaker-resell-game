@@ -2926,15 +2926,88 @@
             <div class="section-header">
                 <span>Live Auctions</span>
                 <div>
-                    <span class="timer">Next AI Auction: <span id="next-auction-timer">--:--</span></span>
                     <button class="refresh-btn" onclick="showListAuctionModal()">List Your Shoe</button>
                 </div>
             </div>
-            <div class="sneaker-grid" id="auctions-grid">
-                <div class="empty-state">
-                    <div class="empty-state-icon">🔨</div>
-                    <div class="empty-state-text">No active auctions</div>
-                    <p>AI auctions appear every 5 minutes. List your own shoe to get started!</p>
+            
+            <!-- Sub-tabs for Auction levels -->
+            <div class="buy-sub-tabs">
+                <div class="buy-sub-tab active" onclick="switchAuctionSubTab('entry')">
+                    ⚡ Entry
+                </div>
+                <div class="buy-sub-tab" onclick="switchAuctionSubTab('premium')">
+                    💎 Premium
+                </div>
+                <div class="buy-sub-tab" onclick="switchAuctionSubTab('elite')">
+                    🔥 Elite
+                </div>
+                <div class="buy-sub-tab" onclick="switchAuctionSubTab('my-auctions')">
+                    📋 My Auctions
+                </div>
+            </div>
+            
+            <!-- Entry Level Auctions ($750-$4,999) -->
+            <div id="auction-entry-content" class="buy-sub-content active">
+                <div class="section-header">
+                    <span>Entry Auctions ($750-$5K)</span>
+                    <div>
+                        <span class="timer">Next auction: <span id="next-auction-timer-1">--:--</span></span>
+                    </div>
+                </div>
+                <div class="sneaker-grid" id="auctions-grid-entry">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔨</div>
+                        <div class="empty-state-text">No active entry auctions</div>
+                        <p>Entry level auctions appear every 5 minutes!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Premium Level Auctions ($5,000-$49,999) -->
+            <div id="auction-premium-content" class="buy-sub-content">
+                <div class="section-header">
+                    <span>Premium Auctions ($5K-$50K)</span>
+                    <div>
+                        <span class="timer">Next auction: <span id="next-auction-timer-2">--:--</span></span>
+                    </div>
+                </div>
+                <div class="sneaker-grid" id="auctions-grid-premium">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔨</div>
+                        <div class="empty-state-text">No active premium auctions</div>
+                        <p>Premium level auctions appear every 5 minutes!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Elite Level Auctions ($50,000+) -->
+            <div id="auction-elite-content" class="buy-sub-content">
+                <div class="section-header">
+                    <span>Elite Auctions ($50K+)</span>
+                    <div>
+                        <span class="timer">Next auction: <span id="next-auction-timer-3">--:--</span></span>
+                    </div>
+                </div>
+                <div class="sneaker-grid" id="auctions-grid-elite">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔨</div>
+                        <div class="empty-state-text">No active elite auctions</div>
+                        <p>Elite level auctions appear every 5 minutes!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- My Auctions (Player's Listed Shoes) -->
+            <div id="auction-my-auctions-content" class="buy-sub-content">
+                <div class="section-header">
+                    <span>My Auctions</span>
+                </div>
+                <div class="sneaker-grid" id="auctions-grid-my-auctions">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔨</div>
+                        <div class="empty-state-text">No active auctions</div>
+                        <p>List your shoes from inventory to start an auction!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4202,7 +4275,10 @@
             shoeTrends: {}, // Trends for individual shoe models
             // Auction System
             activeAuctions: [], // All active auctions
-            nextAIAuction: 300, // Time until next AI auction (5 mins)
+            nextAIAuction: 300, // Time until next AI auction (5 mins) - DEPRECATED
+            nextAIAuctionLevel1: 300, // Level 1: $750-$4,999 (5 mins)
+            nextAIAuctionLevel2: 300, // Level 2: $5,000-$49,999 (5 mins)
+            nextAIAuctionLevel3: 300, // Level 3: $50,000+ (5 mins)
             auctionIdCounter: 0
         };
 
@@ -4390,19 +4466,8 @@
                 });
                 
                 // Sales have realistic variance
-                // Most sales (80%) are within 92-108% of market value
-                // Some sales (20%) can be outliers between 80-125% for realism
-                let variance;
-                if (i === 0) {
-                    // First estimate matches very closely
-                    variance = random(95, 105);
-                } else if (Math.random() < 0.8) {
-                    // 80% of sales are realistic and close to market value
-                    variance = random(92, 108);
-                } else {
-                    // 20% can be outliers (deals or overpriced)
-                    variance = Math.random() < 0.5 ? random(80, 92) : random(108, 125);
-                }
+                // All sales are within 90-105% of market value
+                let variance = random(90, 105);
                 const salePrice = Math.floor(marketValue * variance / 100);
                 
                 estimatedSales.push({
@@ -5465,6 +5530,33 @@
             }
         }
 
+        function switchAuctionSubTab(tab) {
+            // Update tab buttons - find parent container's tabs
+            const parentTabs = event.target.parentElement;
+            const tabs = parentTabs.querySelectorAll('.buy-sub-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content sections
+            document.getElementById('auction-entry-content').classList.remove('active');
+            document.getElementById('auction-premium-content').classList.remove('active');
+            document.getElementById('auction-elite-content').classList.remove('active');
+            document.getElementById('auction-my-auctions-content').classList.remove('active');
+            
+            if (tab === 'entry') {
+                document.getElementById('auction-entry-content').classList.add('active');
+            } else if (tab === 'premium') {
+                document.getElementById('auction-premium-content').classList.add('active');
+            } else if (tab === 'elite') {
+                document.getElementById('auction-elite-content').classList.add('active');
+            } else if (tab === 'my-auctions') {
+                document.getElementById('auction-my-auctions-content').classList.add('active');
+            }
+            
+            // Re-render auctions to update the visible section
+            renderAuctionsTab();
+        }
+
         function renderSellTab() {
             const inventoryGrid = document.getElementById('sell-inventory-grid');
             const listedGrid = document.getElementById('sell-listed-grid');
@@ -6274,27 +6366,50 @@
 
         // ==================== AUCTION SYSTEM ====================
         
-        // Generate AI auction
-        function generateAIAuction() {
-            // Generate a shoe for auction - try to find one worth at least $1,500
+        // Generate AI auction with specified value range
+        function generateAIAuction(minValue = 750, maxValue = 999999, level = 1) {
+            // Generate a shoe for auction within the specified price range
             let shoe = generateSneaker();
             let bestShoe = shoe;
             
-            // Try to find a shoe worth at least $1,500 (lower threshold for more reliable generation)
+            // Try to find a shoe within the price range
             let attempts = 0;
-            while (shoe.estimatedValue < 1500 && attempts < 100) {
+            const maxAttempts = 500; // Increased attempts to find shoes in range
+            
+            while ((shoe.estimatedValue < minValue || shoe.estimatedValue > maxValue) && attempts < maxAttempts) {
                 shoe = generateSneaker();
-                // Keep track of the best shoe found
-                if (shoe.estimatedValue > bestShoe.estimatedValue) {
+                
+                if (shoe.estimatedValue >= minValue && shoe.estimatedValue <= maxValue) {
+                    // Found a perfect match
+                    bestShoe = shoe;
+                    break;
+                }
+                
+                // Keep track of the best shoe found (closest to range)
+                const currentDiff = Math.abs(shoe.estimatedValue - minValue);
+                const bestDiff = Math.abs(bestShoe.estimatedValue - minValue);
+                
+                if (currentDiff < bestDiff) {
                     bestShoe = shoe;
                 }
+                
                 attempts++;
             }
             
-            // Use the best shoe we found (guaranteed to have at least one shoe)
-            shoe = (shoe.estimatedValue >= 1500) ? shoe : bestShoe;
+            // Use the shoe found (in range if possible)
+            shoe = (shoe.estimatedValue >= minValue && shoe.estimatedValue <= maxValue) ? shoe : bestShoe;
             
-            console.log(`AI Auction generated: ${shoe.brand} ${shoe.model} - Market Value: $${shoe.estimatedValue.toLocaleString()}`);
+            // ENFORCE PRICE RANGE: If shoe is still outside range, clamp it
+            if (shoe.estimatedValue < minValue) {
+                shoe.estimatedValue = Math.floor(minValue + random(0, Math.min(500, (maxValue - minValue) / 10)));
+                console.log(`[AUCTION] Adjusted shoe value UP to meet minimum: $${shoe.estimatedValue.toLocaleString()}`);
+            } else if (shoe.estimatedValue > maxValue) {
+                shoe.estimatedValue = Math.floor(maxValue - random(0, Math.min(500, (maxValue - minValue) / 10)));
+                console.log(`[AUCTION] Adjusted shoe value DOWN to meet maximum: $${shoe.estimatedValue.toLocaleString()}`);
+            }
+            
+            const levelNames = ['', 'Entry', 'Premium', 'Elite'];
+            console.log(`AI Auction Level ${level} (${levelNames[level]}) generated: ${shoe.brand} ${shoe.model} - Market Value: $${shoe.estimatedValue.toLocaleString()} (Range: $${minValue.toLocaleString()}-$${maxValue === 999999 ? '∞' : maxValue.toLocaleString()})`);
             
             // AI sets a minimum bid (usually 50-70% of estimated value)
             const minBidPercent = random(50, 70) / 100;
@@ -6303,18 +6418,27 @@
             const auction = {
                 id: gameState.auctionIdCounter++,
                 shoe: shoe,
-                seller: 'AI Seller',
+                seller: level === 3 ? 'Elite Collector' : level === 2 ? 'Premium Seller' : 'AI Seller',
                 isPlayerAuction: false,
                 minimumBid: minimumBid,
                 currentBid: 0,
                 currentBidder: null,
                 bids: [],
                 timeRemaining: 300, // 5 minutes
-                startTime: Date.now()
+                startTime: Date.now(),
+                auctionLevel: level // Track which level this auction is from
             };
             
             gameState.activeAuctions.push(auction);
-            showNotification(`New AI auction: ${shoe.brand} ${shoe.model}!`, 'info');
+            
+            // Different notification styles for different levels
+            if (level === 3) {
+                showNotification(`🔥 ELITE AUCTION: ${shoe.brand} ${shoe.model} - ${formatCurrency(shoe.estimatedValue)}!`, 'success');
+            } else if (level === 2) {
+                showNotification(`💎 Premium Auction: ${shoe.brand} ${shoe.model} - ${formatCurrency(shoe.estimatedValue)}!`, 'info');
+            } else {
+                showNotification(`New auction: ${shoe.brand} ${shoe.model}!`, 'info');
+            }
             
             // Schedule AI bids for this auction
             scheduleAIBids(auction);
@@ -6633,12 +6757,12 @@
             
             let html = `
                 <h2 class="modal-title">List Shoe for Auction</h2>
-                <p style="color: #1a1a1a; margin: 15px 0;">Select a shoe to auction (minimum market value: $3,000):</p>
+                <p style="color: #1a1a1a; margin: 15px 0;">Select a shoe to auction (minimum market value: $750):</p>
                 <div style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
             `;
             
             availableShoes.forEach(shoe => {
-                const meetsRequirement = shoe.estimatedValue >= 3000;
+                const meetsRequirement = shoe.estimatedValue >= 750;
                 const disabledStyle = meetsRequirement ? '' : 'opacity: 0.5; cursor: not-allowed;';
                 const disabledAttr = meetsRequirement ? '' : 'disabled';
                 
@@ -6652,7 +6776,7 @@
                                 </div>
                                 <div style="font-size: 14px; margin-top: 5px;">
                                     Market Value: ${formatCurrency(shoe.estimatedValue)}
-                                    ${!meetsRequirement ? '<span style="color: #e74c3c; font-weight: 600;"> (Below $3,000 minimum)</span>' : ''}
+                                    ${!meetsRequirement ? '<span style="color: #e74c3c; font-weight: 600;"> (Below $750 minimum)</span>' : ''}
                                 </div>
                             </div>
                             <button class="action-btn buy-btn" onclick="selectShoeForAuction('${shoe.id}')" ${disabledAttr}>
@@ -6677,8 +6801,8 @@
             const shoe = gameState.inventory.find(s => s.id === shoeId);
             if (!shoe) return;
             
-            if (shoe.estimatedValue < 3000) {
-                showNotification('This shoe does not meet the $3,000 minimum market value!', 'error');
+            if (shoe.estimatedValue < 750) {
+                showNotification('This shoe does not meet the $750 minimum market value!', 'error');
                 return;
             }
             
@@ -6779,6 +6903,14 @@
             gameState.inventory.splice(shoeIndex, 1);
             gameState.listedShoes = gameState.listedShoes.filter(s => s.id !== shoeId);
             
+            // Determine auction level based on shoe value
+            let auctionLevel = 1; // Entry by default
+            if (shoe.estimatedValue >= 50000) {
+                auctionLevel = 3; // Elite
+            } else if (shoe.estimatedValue >= 5000) {
+                auctionLevel = 2; // Premium
+            }
+            
             const auction = {
                 id: gameState.auctionIdCounter++,
                 shoe: shoe,
@@ -6789,7 +6921,8 @@
                 currentBidder: null,
                 bids: [],
                 timeRemaining: 300, // 5 minutes
-                startTime: Date.now()
+                startTime: Date.now(),
+                auctionLevel: auctionLevel
             };
             
             gameState.activeAuctions.push(auction);
@@ -6800,6 +6933,21 @@
             closeModal();
             showNotification(`Auction listed: ${shoe.brand} ${shoe.model}!`, 'success');
             updateUI();
+            
+            // Switch to "My Auctions" tab
+            const auctionSubTabs = document.querySelectorAll('#auctions-tab .buy-sub-tab');
+            auctionSubTabs.forEach(t => t.classList.remove('active'));
+            auctionSubTabs[3].classList.add('active'); // 4th tab is My Auctions
+            
+            // Hide all auction content sections
+            document.getElementById('auction-entry-content').classList.remove('active');
+            document.getElementById('auction-premium-content').classList.remove('active');
+            document.getElementById('auction-elite-content').classList.remove('active');
+            document.getElementById('auction-my-auctions-content').classList.remove('active');
+            
+            // Show My Auctions section
+            document.getElementById('auction-my-auctions-content').classList.add('active');
+            
             renderAuctionsTab();
             renderSellTab();
         }
@@ -6889,14 +7037,43 @@
         
         // Render auctions tab
         function renderAuctionsTab() {
-            const grid = document.getElementById('auctions-grid');
+            // Get grids for each level
+            const entryGrid = document.getElementById('auctions-grid-entry');
+            const premiumGrid = document.getElementById('auctions-grid-premium');
+            const eliteGrid = document.getElementById('auctions-grid-elite');
+            const myAuctionsGrid = document.getElementById('auctions-grid-my-auctions');
             
-            if (gameState.activeAuctions.length === 0) {
+            // Separate AI auctions by level and player auctions
+            const entryAuctions = gameState.activeAuctions.filter(a => !a.isPlayerAuction && (a.auctionLevel || 1) === 1);
+            const premiumAuctions = gameState.activeAuctions.filter(a => !a.isPlayerAuction && (a.auctionLevel || 1) === 2);
+            const eliteAuctions = gameState.activeAuctions.filter(a => !a.isPlayerAuction && (a.auctionLevel || 1) === 3);
+            const playerAuctions = gameState.activeAuctions.filter(a => a.isPlayerAuction);
+            
+            // Render each level
+            renderAuctionLevel(entryGrid, entryAuctions, 'entry');
+            renderAuctionLevel(premiumGrid, premiumAuctions, 'premium');
+            renderAuctionLevel(eliteGrid, eliteAuctions, 'elite');
+            renderAuctionLevel(myAuctionsGrid, playerAuctions, 'my-auctions');
+        }
+        
+        // Helper function to render auctions for a specific level
+        function renderAuctionLevel(grid, auctions, levelName) {
+            if (auctions.length === 0) {
+                let emptyText, emptyMessage;
+                if (levelName === 'my-auctions') {
+                    emptyText = 'No active auctions';
+                    emptyMessage = 'List your shoes from inventory to start an auction!';
+                } else {
+                    const levelText = levelName === 'entry' ? 'entry' : levelName === 'premium' ? 'premium' : 'elite';
+                    emptyText = `No active ${levelText} auctions`;
+                    emptyMessage = `${levelText.charAt(0).toUpperCase() + levelText.slice(1)} level auctions appear every 5 minutes!`;
+                }
+                
                 grid.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🔨</div>
-                        <div class="empty-state-text">No active auctions</div>
-                        <p>AI auctions appear every 5 minutes. List your own shoe to get started!</p>
+                        <div class="empty-state-text">${emptyText}</div>
+                        <p>${emptyMessage}</p>
                     </div>
                 `;
                 return;
@@ -6904,7 +7081,7 @@
             
             let html = '';
             
-            gameState.activeAuctions.forEach(auction => {
+            auctions.forEach(auction => {
                 const shoe = auction.shoe;
                 const timeLeft = formatTime(auction.timeRemaining);
                 const currentBidDisplay = auction.currentBid > 0 ? formatCurrency(auction.currentBid) : 'No bids yet';
@@ -6933,10 +7110,20 @@
                 const trendColor = currentTrend > 5 ? '#27ae60' : currentTrend < -5 ? '#e74c3c' : '#f39c12';
                 const trendIcon = currentTrend > 5 ? '↑' : currentTrend < -5 ? '↓' : '→';
                 
+                // Determine auction level badge
+                const auctionLevel = auction.auctionLevel || 1;
+                const levelBadges = {
+                    1: { icon: '⚡', text: 'Entry', color: '#3498db' },
+                    2: { icon: '💎', text: 'Premium', color: '#9b59b6' },
+                    3: { icon: '🔥', text: 'Elite', color: '#e74c3c' }
+                };
+                const levelBadge = levelBadges[auctionLevel] || levelBadges[1];
+                
                 html += `
-                    <div class="sneaker-card" style="border: 2px solid #9b59b6; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                    <div class="sneaker-card" style="border: 2px solid ${levelBadge.color}; border-top: 4px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                         <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity}</div>
-                        ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
+                        ${shoe.isHot ? '<div style="position: absolute; top: 40px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
+                        <div style="position: absolute; top: 12px; left: 12px; font-size: 12px; font-weight: 900; color: white; background: ${levelBadge.color}; padding: 4px 8px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">${levelBadge.icon} ${levelBadge.text}</div>
                         
                         <!-- Image as centerpiece -->
                         <div id="sneaker-img-${shoe.id}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -6955,7 +7142,7 @@
                             </div>
                             
                             <!-- Auction Info -->
-                            <div style="background: #f8f9fa; padding: 10px; border: 2px solid #9b59b6; margin-bottom: 8px; border-radius: 4px;">
+                            <div style="background: #f8f9fa; padding: 10px; border: 2px solid ${levelBadge.color}; margin-bottom: 8px; border-radius: 4px;">
                                 <div style="font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Seller: ${auction.seller}</div>
                                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
                                     <span style="font-size: 10px; color: #000; font-weight: 700; text-transform: uppercase;">Current Bid</span>
@@ -7014,21 +7201,39 @@
             
             grid.innerHTML = html;
             
-            // Load real sneaker images for auction shoes
-            const auctionShoes = gameState.activeAuctions.map(a => a.shoe);
+            // Load real sneaker images for auction shoes in this grid
+            const auctionShoes = auctions.map(a => a.shoe);
             loadSneakerImages(auctionShoes);
         }
         
-        // Update next auction timer display
+        // Update next auction timer displays for all 3 levels
         function updateNextAuctionTimer() {
-            const timerElement = document.getElementById('next-auction-timer');
-            if (!timerElement) return;
+            // Level 1 timer
+            const timer1 = document.getElementById('next-auction-timer-1');
+            if (timer1) {
+                const timeLeft1 = gameState.nextAIAuctionLevel1;
+                const minutes1 = Math.floor(timeLeft1 / 60);
+                const seconds1 = timeLeft1 % 60;
+                timer1.textContent = `${minutes1.toString().padStart(2, '0')}:${seconds1.toString().padStart(2, '0')}`;
+            }
             
-            const timeLeft = gameState.nextAIAuction;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
+            // Level 2 timer
+            const timer2 = document.getElementById('next-auction-timer-2');
+            if (timer2) {
+                const timeLeft2 = gameState.nextAIAuctionLevel2;
+                const minutes2 = Math.floor(timeLeft2 / 60);
+                const seconds2 = timeLeft2 % 60;
+                timer2.textContent = `${minutes2.toString().padStart(2, '0')}:${seconds2.toString().padStart(2, '0')}`;
+            }
             
-            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            // Level 3 timer
+            const timer3 = document.getElementById('next-auction-timer-3');
+            if (timer3) {
+                const timeLeft3 = gameState.nextAIAuctionLevel3;
+                const minutes3 = Math.floor(timeLeft3 / 60);
+                const seconds3 = timeLeft3 % 60;
+                timer3.textContent = `${minutes3.toString().padStart(2, '0')}:${seconds3.toString().padStart(2, '0')}`;
+            }
         }
 
         // Update market trend timer display
@@ -9517,18 +9722,29 @@
                 renderAuctionsTab();
             }
             
-            // Generate AI auction every 5 minutes
-            gameState.nextAIAuction--;
-            if (gameState.nextAIAuction <= 0) {
-                const success = generateAIAuction();
-                if (success) {
-                    gameState.nextAIAuction = 300; // Reset to 5 minutes on success
-                } else {
-                    gameState.nextAIAuction = random(60, 120); // Retry in 1-2 minutes if failed
-                }
+            // Generate AI auctions for all 3 levels (all start at same time)
+            // Level 1: $750-$4,999 every 5 minutes
+            gameState.nextAIAuctionLevel1--;
+            if (gameState.nextAIAuctionLevel1 <= 0) {
+                const success = generateAIAuction(750, 4999, 1);
+                gameState.nextAIAuctionLevel1 = success ? 300 : random(60, 120);
             }
             
-            // Update next auction timer display
+            // Level 2: $5,000-$49,999 every 5 minutes
+            gameState.nextAIAuctionLevel2--;
+            if (gameState.nextAIAuctionLevel2 <= 0) {
+                const success = generateAIAuction(5000, 49999, 2);
+                gameState.nextAIAuctionLevel2 = success ? 300 : random(60, 120);
+            }
+            
+            // Level 3: $50,000+ every 5 minutes
+            gameState.nextAIAuctionLevel3--;
+            if (gameState.nextAIAuctionLevel3 <= 0) {
+                const success = generateAIAuction(50000, 999999, 3);
+                gameState.nextAIAuctionLevel3 = success ? 300 : random(60, 120);
+            }
+            
+            // Update next auction timer displays
             updateNextAuctionTimer();
         }
 
@@ -9727,7 +9943,10 @@
             gameState.shoeTrends = {};
             gameState.nextMarketTrend = 300;
             gameState.activeAuctions = [];
-            gameState.nextAIAuction = 300;
+            gameState.nextAIAuction = 300; // Legacy - kept for compatibility
+            gameState.nextAIAuctionLevel1 = 300; // Level 1: $750-$4,999 (5 mins)
+            gameState.nextAIAuctionLevel2 = 300; // Level 2: $5,000-$49,999 (5 mins)
+            gameState.nextAIAuctionLevel3 = 300; // Level 3: $50,000+ (5 mins)
             gameState.auctionIdCounter = 0;
             
             // Re-initialize shoe trends (needed for auction generation)
@@ -9736,8 +9955,10 @@
                 gameState.shoeTrends[key] = random(-10, 15);
             });
             
-            // Start an auction immediately on reset (before rendering)
-            generateAIAuction();
+            // Start all 3 auctions immediately on reset (one from each level)
+            generateAIAuction(750, 4999, 1);
+            generateAIAuction(5000, 49999, 2);
+            generateAIAuction(50000, 999999, 3);
             
             // Refresh the UI
             updateUI();
@@ -9832,23 +10053,47 @@
                 gameState.activeAuctions = [];
             }
             if (gameState.nextAIAuction === undefined) {
-                gameState.nextAIAuction = 300;
+                gameState.nextAIAuction = 300; // Legacy timer
             }
             if (gameState.auctionIdCounter === undefined) {
                 gameState.auctionIdCounter = 0;
             }
             
-            // ONLY generate an auction for brand new games (no save data loaded)
-            // Don't generate on refresh - let the timer handle it naturally
-            if (!savedGameLoaded && gameState.activeAuctions.length === 0) {
-                generateAIAuction();
+            // Initialize new 3-level auction timers (for existing save games)
+            if (gameState.nextAIAuctionLevel1 === undefined) {
+                gameState.nextAIAuctionLevel1 = 300; // Level 1: $750-$4,999 (5 mins)
+            }
+            if (gameState.nextAIAuctionLevel2 === undefined) {
+                gameState.nextAIAuctionLevel2 = 300; // Level 2: $5,000-$49,999 (5 mins)
+            }
+            if (gameState.nextAIAuctionLevel3 === undefined) {
+                gameState.nextAIAuctionLevel3 = 300; // Level 3: $50,000+ (5 mins)
             }
             
-            // FIX: When loading a saved game, ensure auction timer is reasonable
+            // ONLY generate auctions for brand new games (no save data loaded)
+            // Don't generate on refresh - let the timer handle it naturally
+            if (!savedGameLoaded && gameState.activeAuctions.length === 0) {
+                // Generate all 3 auctions at startup (one from each level)
+                generateAIAuction(750, 4999, 1);
+                generateAIAuction(5000, 49999, 2);
+                generateAIAuction(50000, 999999, 3);
+            }
+            
+            // FIX: When loading a saved game, ensure auction timers are reasonable
             // This prevents new auctions from appearing immediately after page refresh
-            if (savedGameLoaded && gameState.nextAIAuction < 150) {
-                gameState.nextAIAuction = random(150, 300); // Reset to 2.5-5 minutes
-                console.log('[AUCTION] Reset auction timer on load to prevent immediate auction');
+            if (savedGameLoaded) {
+                if (gameState.nextAIAuctionLevel1 < 60) {
+                    gameState.nextAIAuctionLevel1 = random(60, 300);
+                    console.log('[AUCTION] Reset Level 1 auction timer on load');
+                }
+                if (gameState.nextAIAuctionLevel2 < 60) {
+                    gameState.nextAIAuctionLevel2 = random(60, 300);
+                    console.log('[AUCTION] Reset Level 2 auction timer on load');
+                }
+                if (gameState.nextAIAuctionLevel3 < 60) {
+                    gameState.nextAIAuctionLevel3 = random(60, 300);
+                    console.log('[AUCTION] Reset Level 3 auction timer on load');
+                }
             }
             
             // Initialize market trend timer if not present
