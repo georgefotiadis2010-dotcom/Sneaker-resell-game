@@ -11009,11 +11009,18 @@
                 
                 // Listen for new listings
                 socket.on('newListing', (listing) => {
+                    console.log('[SOCKET] New listing received:', listing);
                     if (listing.seller_id !== playerId) {
                         globalListings.unshift(listing);
                         const shoe = listing.shoe_data;
+                        console.log(`[SOCKET] Added to globalListings. Total listings: ${globalListings.length}`);
                         showNotification(`🆕 ${listing.seller_name} listed ${shoe.brand} ${shoe.model} for $${listing.asking_price}`, 'info');
-                        if (currentTab === 'marketplace') renderMarketplaceTab();
+                        if (currentTab === 'marketplace') {
+                            console.log('[SOCKET] Re-rendering marketplace tab');
+                            renderMarketplaceTab();
+                        }
+                    } else {
+                        console.log('[SOCKET] Ignoring own listing');
                     }
                 });
                 
@@ -11105,6 +11112,8 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    console.log('[LISTING] Successfully created listing:', data.listing);
+                    
                     // Remove from inventory
                     gameState.inventory = gameState.inventory.filter(s => s.id !== shoeId);
                     showNotification(`✅ Listed ${shoe.brand} ${shoe.model} for $${askingPrice}`, 'success');
@@ -11118,6 +11127,10 @@
                             renderSellTab();
                         }
                     }
+                    
+                    // Refresh marketplace listings to see other players' items
+                    console.log('[LISTING] Refreshing marketplace listings...');
+                    loadGlobalListings();
                     
                     saveGame();
                 } else {
@@ -11197,11 +11210,13 @@
             const marketplaceContent = document.getElementById('marketplace-content');
             if (!marketplaceContent) return;
             
+            console.log(`[MARKETPLACE] Rendering ${globalListings.length} listings`);
+            
             let html = `
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                     <h2 style="margin: 0 0 10px 0; font-size: 24px;">🌐 Global Marketplace</h2>
                     <p style="margin: 0; opacity: 0.9;">Buy shoes from other players around the world!</p>
-                    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">Playing as: <strong>${playerName}</strong> | Online: ${multiplayerEnabled ? '✅ Connected' : '❌ Offline'}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">Playing as: <strong>${playerName}</strong> | Online: ${multiplayerEnabled ? '✅ Connected' : '❌ Offline'} | Listings: ${globalListings.length}</p>
                 </div>
             `;
             
@@ -11216,67 +11231,103 @@
                 html += `
                     <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #dee2e6;">
                         <h3 style="margin: 0 0 10px 0; color: #6c757d;">📦 No Listings Yet</h3>
-                        <p style="color: #6c757d; margin: 0;">Be the first to list a shoe! Go to Inventory and click "🌐 List for Players"</p>
+                        <p style="color: #6c757d; margin: 0;">Be the first to list a shoe! Go to Sell Shoes and click "🌐 List for Players"</p>
+                        <button onclick="loadGlobalListings()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                            🔄 Refresh Listings
+                        </button>
                     </div>
                 `;
             } else {
-                html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">';
+                // Use the same grid structure as Buy Shoes tab
+                html += '<div class="sneaker-grid" id="marketplace-grid">';
                 
+                // Convert listings to shoe format and render with renderSneakerCard
                 globalListings.forEach(listing => {
                     const shoe = listing.shoe_data;
-                    const canAfford = gameState.cash >= listing.asking_price;
-                    const brandColor = getBrandColor(shoe.brand);
                     
-                    html += `
-                        <div class="sneaker-card" style="border: 3px solid ${canAfford ? '#28a745' : '#dc3545'}; position: relative;">
-                            <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
-                                👁️ ${listing.views || 0} views
-                            </div>
-                            
-                            <div class="sneaker-image" style="background: ${brandColor};">
-                                <div class="brand-initial" style="font-size: 80px; opacity: 0.3;">${shoe.brand[0]}</div>
-                            </div>
-                            
-                            <div class="sneaker-info">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                                    <h3 style="margin: 0; font-size: 18px;">${shoe.brand}</h3>
-                                    <span class="rarity-badge ${shoe.rarity.toLowerCase()}">${shoe.rarity}</span>
-                                </div>
-                                
-                                <p style="font-weight: bold; margin: 5px 0;">${shoe.model}</p>
-                                <p style="color: #666; margin: 5px 0;">Seller: ${listing.seller_name}</p>
-                                
-                                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>Size:</span>
-                                        <strong>${shoe.size}</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>Condition:</span>
-                                        <strong>${shoe.condition}</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Price:</span>
-                                        <strong style="color: #28a745; font-size: 20px;">$${listing.asking_price}</strong>
-                                    </div>
-                                </div>
-                                
-                                <button 
-                                    onclick="buyFromPlayer('${listing.listing_id}')"
-                                    style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background: ${canAfford ? '#28a745' : '#dc3545'}; color: white;"
-                                    ${!canAfford ? 'disabled' : ''}
-                                >
-                                    ${canAfford ? '🛒 Buy Now' : '❌ Can\'t Afford'}
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    // Add marketplace-specific properties
+                    shoe.price = listing.asking_price;
+                    shoe.listingId = listing.listing_id;
+                    shoe.sellerName = listing.seller_name;
+                    shoe.isMarketplaceListing = true;
+                    
+                    // Render using the game's standard sneaker card
+                    html += renderMarketplaceCard(shoe, listing);
                 });
                 
                 html += '</div>';
             }
             
             marketplaceContent.innerHTML = html;
+            
+            // Load real sneaker images for marketplace listings
+            if (globalListings.length > 0) {
+                const shoes = globalListings.map(l => l.shoe_data);
+                setTimeout(() => {
+                    loadSneakerImagesInGrid(shoes, document.getElementById('marketplace-grid'));
+                }, 100);
+            }
+        }
+        
+        // Render marketplace card using game styling
+        function renderMarketplaceCard(shoe, listing) {
+            const currentTrend = getShoeTrend(shoe.brand, shoe.model);
+            shoe.trend = currentTrend;
+            shoe.isHot = currentTrend >= 10;
+            
+            const canAfford = gameState.cash >= listing.asking_price;
+            const brandColor = getBrandColor(shoe.brand);
+            
+            return `
+                <div class="sneaker-card ${shoe.isHot ? 'hot-item' : ''}" style="position: relative;">
+                    ${shoe.isHot ? '<div class="hot-badge">🔥 HOT</div>' : ''}
+                    
+                    <div class="brand-strip" style="background: ${brandColor};"></div>
+                    
+                    <div class="sneaker-image" id="sneaker-img-${shoe.id}" style="background: linear-gradient(135deg, ${brandColor}95, ${brandColor}70);">
+                        <div class="brand-initial" style="color: rgba(255,255,255,0.4);">${shoe.brand[0]}</div>
+                    </div>
+                    
+                    <div class="sneaker-info">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h3 class="brand-name" style="color: ${brandColor};">${shoe.brand}</h3>
+                            <span class="rarity-badge ${shoe.rarity ? shoe.rarity.toLowerCase() : 'common'}">${shoe.rarity || 'Common'}</span>
+                        </div>
+                        
+                        <p class="model-name">${shoe.model}</p>
+                        <p class="colorway-text">${shoe.colorway || 'Original'}</p>
+                        
+                        <div style="padding: 8px; background: #f0f0f0; border-radius: 4px; margin: 10px 0; font-size: 11px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>Seller:</span>
+                                <strong style="color: #667eea;">${listing.seller_name}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>Size:</span>
+                                <strong>${shoe.size}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>${shoe.conditionEmoji || '✨'} ${shoe.condition}</span>
+                                <span>${currentTrend >= 10 ? '🔥' : currentTrend > 0 ? '📈' : currentTrend < -10 ? '💀' : currentTrend < 0 ? '📉' : '➡️'} ${currentTrend > 0 ? '+' : ''}${currentTrend}%</span>
+                            </div>
+                        </div>
+                        
+                        <div style="background: ${canAfford ? '#e8f5e9' : '#ffebee'}; padding: 12px; border-radius: 5px; margin-bottom: 10px; border: 2px solid ${canAfford ? '#4caf50' : '#f44336'};">
+                            <div style="font-size: 10px; color: ${canAfford ? '#2e7d32' : '#c62828'}; font-weight: 700; text-transform: uppercase; margin-bottom: 3px;">Asking Price</div>
+                            <div style="font-size: 24px; font-weight: 900; color: ${canAfford ? '#1b5e20' : '#b71c1c'};">$${listing.asking_price}</div>
+                        </div>
+                        
+                        <button 
+                            class="action-btn" 
+                            onclick="buyFromPlayer('${listing.listing_id}')"
+                            style="width: 100%; padding: 12px; background: ${canAfford ? 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)' : 'linear-gradient(135deg, #999 0%, #666 100%)'}; ${!canAfford ? 'cursor: not-allowed; opacity: 0.6;' : ''}"
+                            ${!canAfford ? 'disabled' : ''}
+                        >
+                            <span>${canAfford ? '🛒 Buy from Player' : '❌ Can\'t Afford'}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
         }
 
         // Track current tab for marketplace updates
