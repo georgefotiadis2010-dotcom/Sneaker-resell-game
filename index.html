@@ -2887,6 +2887,7 @@
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
             <button class="tab-btn" data-tab="crates">Crates</button>
+            <button class="tab-btn" data-tab="marketplace">🌐 Marketplace</button>
         </div>
 
         <!-- Buy Shoes Tab -->
@@ -3135,6 +3136,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Marketplace Tab (Multiplayer) -->
+    <div id="marketplace-tab" class="tab-content">
+        <div id="marketplace-content"></div>
     </div>
 
     <!-- Modal -->
@@ -5274,6 +5280,12 @@
                         <button class="action-btn ${context === 'buy' ? '' : 'sell'}" onclick="handle${context === 'buy' ? 'Buy' : 'Sell'}('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, ${context === 'buy' ? '#3498db 0%, #2980b9' : '#27ae60 0%, #229954'} 100%);">
                             <span>${context === 'buy' ? 'Negotiate' : 'List for Sale'}</span>
                         </button>
+                        
+                        ${context === 'inventory' ? `
+                        <button class="action-btn" onclick="listShoeForMultiplayer('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; margin-top: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px solid #5568d3;">
+                            <span>🌐 List for Players</span>
+                        </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -9685,6 +9697,11 @@
                         renderMarketTab();
                         updateMarketTrendTimer();
                         break;
+                    case 'marketplace':
+                        if (typeof renderMarketplaceTab === 'function') {
+                            renderMarketplaceTab();
+                        }
+                        break;
                 }
             });
         });
@@ -10931,6 +10948,333 @@
         
         // Apply mobile optimizations after game initializes
         initMobileOptimizations();
+    </script>
+
+    <!-- Socket.io Client Library -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <!-- Multiplayer System -->
+    <script>
+        // ==================== MULTIPLAYER VARIABLES ====================
+        let socket;
+        let playerId = localStorage.getItem('playerId') || null;
+        let playerName = localStorage.getItem('playerName') || null;
+        let globalListings = [];
+        let multiplayerEnabled = false;
+        let currentTab = 'buy'; // Track current tab
+
+        // ==================== INITIALIZE MULTIPLAYER ====================
+        async function initMultiplayer() {
+            console.log('🎮 Initializing multiplayer...');
+            
+            // Generate player ID if needed
+            if (!playerId) {
+                playerId = generateUUID();
+                localStorage.setItem('playerId', playerId);
+            }
+            
+            // Ask for player name if needed
+            if (!playerName) {
+                playerName = prompt("Enter your player name for multiplayer:") || `Player_${Math.floor(Math.random() * 9999)}`;
+                localStorage.setItem('playerName', playerName);
+            }
+            
+            try {
+                // Register with server
+                const response = await fetch('/api/player/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerId, playerName })
+                });
+                
+                const player = await response.json();
+                console.log('✅ Registered as:', player.player_name);
+                
+                // Connect Socket.io
+                socket = io(window.location.origin);
+                
+                socket.on('connect', () => {
+                    console.log('✅ Connected to multiplayer server');
+                    socket.emit('registerPlayer', playerId);
+                    multiplayerEnabled = true;
+                    loadGlobalListings();
+                    showNotification(`🌐 Connected to multiplayer as ${playerName}`, 'success');
+                });
+                
+                socket.on('disconnect', () => {
+                    console.log('❌ Disconnected from server');
+                    multiplayerEnabled = false;
+                    showNotification('⚠️ Disconnected from multiplayer', 'error');
+                });
+                
+                // Listen for new listings
+                socket.on('newListing', (listing) => {
+                    if (listing.seller_id !== playerId) {
+                        globalListings.unshift(listing);
+                        const shoe = listing.shoe_data;
+                        showNotification(`🆕 ${listing.seller_name} listed ${shoe.brand} ${shoe.model} for $${listing.asking_price}`, 'info');
+                        if (currentTab === 'marketplace') renderMarketplaceTab();
+                    }
+                });
+                
+                // Listen for sold items
+                socket.on('listingSold', ({ listingId }) => {
+                    globalListings = globalListings.filter(l => l.listing_id !== listingId);
+                    if (currentTab === 'marketplace') renderMarketplaceTab();
+                });
+                
+                // Notify when YOUR item sells
+                socket.on('yourItemSold', ({ shoe, soldPrice, buyer }) => {
+                    gameState.cash += soldPrice;
+                    const profit = soldPrice - shoe.purchasePrice;
+                    gameState.totalProfit += profit;
+                    
+                    showNotification(`🎉 ${buyer} bought your ${shoe.brand} ${shoe.model} for $${soldPrice}! Profit: $${profit}`, 'success');
+                    updateUI();
+                });
+                
+                socket.on('listingRemoved', (listingId) => {
+                    globalListings = globalListings.filter(l => l.listing_id !== listingId);
+                    if (currentTab === 'marketplace') renderMarketplaceTab();
+                });
+                
+            } catch (err) {
+                console.error('❌ Multiplayer initialization failed:', err);
+                showNotification('⚠️ Multiplayer unavailable - playing offline', 'error');
+            }
+        }
+
+        // ==================== HELPER FUNCTIONS ====================
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function loadGlobalListings() {
+            try {
+                const response = await fetch(`/api/listings?excludePlayerId=${playerId}`);
+                const data = await response.json();
+                globalListings = data.listings || [];
+                console.log(`📦 Loaded ${globalListings.length} listings from other players`);
+                if (currentTab === 'marketplace') renderMarketplaceTab();
+            } catch (err) {
+                console.error('Failed to load listings:', err);
+            }
+        }
+
+        // ==================== LIST SHOE FOR MULTIPLAYER ====================
+        async function listShoeForMultiplayer(shoeId) {
+            const shoe = gameState.inventory.find(s => s.id === shoeId);
+            if (!shoe) return;
+            
+            const price = prompt(`Enter asking price for ${shoe.brand} ${shoe.model}:\n\nEstimated Value: $${shoe.estimatedValue}`);
+            if (!price || isNaN(price) || price < 1) {
+                showNotification('Invalid price!', 'error');
+                return;
+            }
+            
+            const askingPrice = parseInt(price);
+            
+            if (!confirm(`List ${shoe.brand} ${shoe.model} for $${askingPrice}?\n\nThis will remove it from your inventory and list it for other players to buy.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/listings/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        shoe,
+                        sellerId: playerId,
+                        sellerName: playerName,
+                        askingPrice
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Remove from inventory
+                    gameState.inventory = gameState.inventory.filter(s => s.id !== shoeId);
+                    showNotification(`✅ Listed ${shoe.brand} ${shoe.model} for $${askingPrice}`, 'success');
+                    updateUI();
+                    renderInventoryTab();
+                    saveGame();
+                }
+            } catch (err) {
+                console.error('Failed to list shoe:', err);
+                showNotification('❌ Failed to create listing', 'error');
+            }
+        }
+
+        // ==================== BUY FROM ANOTHER PLAYER ====================
+        async function buyFromPlayer(listingId) {
+            const listing = globalListings.find(l => l.listing_id === listingId);
+            if (!listing) {
+                showNotification('Listing not found!', 'error');
+                return;
+            }
+            
+            const shoe = listing.shoe_data;
+            const price = listing.asking_price;
+            
+            if (gameState.cash < price) {
+                showNotification('Not enough cash!', 'error');
+                return;
+            }
+            
+            if (gameState.inventory.length >= gameState.inventoryLimit) {
+                showNotification('Inventory full!', 'error');
+                return;
+            }
+            
+            const confirm = window.confirm(`Buy ${shoe.brand} ${shoe.model} from ${listing.seller_name} for $${price}?`);
+            if (!confirm) return;
+            
+            try {
+                const response = await fetch('/api/listings/buy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        listingId,
+                        buyerId: playerId,
+                        buyerName: playerName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Deduct money
+                    gameState.cash -= price;
+                    
+                    // Add shoe to inventory
+                    const boughtShoe = { ...shoe };
+                    boughtShoe.id = Date.now() + Math.random();
+                    boughtShoe.purchasePrice = price;
+                    boughtShoe.daysHeld = 0;
+                    gameState.inventory.push(boughtShoe);
+                    
+                    showNotification(`✅ Bought ${shoe.brand} ${shoe.model} from ${listing.seller_name}!`, 'success');
+                    updateUI();
+                    loadGlobalListings();
+                    saveGame();
+                } else {
+                    showNotification('❌ Purchase failed - item may be sold', 'error');
+                    loadGlobalListings();
+                }
+            } catch (err) {
+                console.error('Purchase failed:', err);
+                showNotification('❌ Purchase failed - item may be sold', 'error');
+                loadGlobalListings(); // Refresh to remove sold item
+            }
+        }
+
+        // ==================== RENDER MARKETPLACE TAB ====================
+        function renderMarketplaceTab() {
+            const marketplaceContent = document.getElementById('marketplace-content');
+            if (!marketplaceContent) return;
+            
+            let html = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <h2 style="margin: 0 0 10px 0; font-size: 24px;">🌐 Global Marketplace</h2>
+                    <p style="margin: 0; opacity: 0.9;">Buy shoes from other players around the world!</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">Playing as: <strong>${playerName}</strong> | Online: ${multiplayerEnabled ? '✅ Connected' : '❌ Offline'}</p>
+                </div>
+            `;
+            
+            if (!multiplayerEnabled) {
+                html += `
+                    <div style="text-align: center; padding: 40px; background: #fff3cd; border-radius: 10px; border: 2px solid #ffc107;">
+                        <h3 style="margin: 0 0 10px 0; color: #856404;">⚠️ Multiplayer Unavailable</h3>
+                        <p style="color: #856404; margin: 0;">Connecting to server... Please wait or refresh the page.</p>
+                    </div>
+                `;
+            } else if (globalListings.length === 0) {
+                html += `
+                    <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #dee2e6;">
+                        <h3 style="margin: 0 0 10px 0; color: #6c757d;">📦 No Listings Yet</h3>
+                        <p style="color: #6c757d; margin: 0;">Be the first to list a shoe! Go to Inventory and click "🌐 List for Players"</p>
+                    </div>
+                `;
+            } else {
+                html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">';
+                
+                globalListings.forEach(listing => {
+                    const shoe = listing.shoe_data;
+                    const canAfford = gameState.cash >= listing.asking_price;
+                    const brandColor = getBrandColor(shoe.brand);
+                    
+                    html += `
+                        <div class="sneaker-card" style="border: 3px solid ${canAfford ? '#28a745' : '#dc3545'}; position: relative;">
+                            <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                                👁️ ${listing.views || 0} views
+                            </div>
+                            
+                            <div class="sneaker-image" style="background: ${brandColor};">
+                                <div class="brand-initial" style="font-size: 80px; opacity: 0.3;">${shoe.brand[0]}</div>
+                            </div>
+                            
+                            <div class="sneaker-info">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                    <h3 style="margin: 0; font-size: 18px;">${shoe.brand}</h3>
+                                    <span class="rarity-badge ${shoe.rarity.toLowerCase()}">${shoe.rarity}</span>
+                                </div>
+                                
+                                <p style="font-weight: bold; margin: 5px 0;">${shoe.model}</p>
+                                <p style="color: #666; margin: 5px 0;">Seller: ${listing.seller_name}</p>
+                                
+                                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>Size:</span>
+                                        <strong>${shoe.size}</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>Condition:</span>
+                                        <strong>${shoe.condition}</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Price:</span>
+                                        <strong style="color: #28a745; font-size: 20px;">$${listing.asking_price}</strong>
+                                    </div>
+                                </div>
+                                
+                                <button 
+                                    onclick="buyFromPlayer('${listing.listing_id}')"
+                                    style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background: ${canAfford ? '#28a745' : '#dc3545'}; color: white;"
+                                    ${!canAfford ? 'disabled' : ''}
+                                >
+                                    ${canAfford ? '🛒 Buy Now' : '❌ Can\'t Afford'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            marketplaceContent.innerHTML = html;
+        }
+
+        // Track current tab for marketplace updates
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentTab = btn.dataset.tab;
+            });
+        });
+
+        // ==================== INITIALIZE ON PAGE LOAD ====================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Wait a bit for game to initialize first
+            setTimeout(() => {
+                initMultiplayer();
+            }, 1000);
+        });
+
+        console.log('🎮 Multiplayer module loaded');
     </script>
 </body>
 </html>
