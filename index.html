@@ -2887,6 +2887,7 @@
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
             <button class="tab-btn" data-tab="crates">Crates</button>
+            <button class="tab-btn" data-tab="collection">Collection</button>
         </div>
 
         <!-- Buy Shoes Tab -->
@@ -3132,6 +3133,51 @@
                 </div>
                 <div style="margin-top: 30px; text-align: center;">
                     <button class="odds-btn" onclick="showCrateDropRates('ultra')" style="width: 100%; max-width: 400px;">View Drop Rates</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collection Tab -->
+        <div id="collection-tab" class="tab-content">
+            <div class="section-header">
+                <span>Your Collection</span>
+            </div>
+            
+            <!-- Sub-tabs for Collection section -->
+            <div class="sell-sub-tabs">
+                <div class="sell-sub-tab active" onclick="switchCollectionSubTab('history')">
+                    History
+                </div>
+                <div class="sell-sub-tab" onclick="switchCollectionSubTab('stash')">
+                    Stash
+                </div>
+            </div>
+            
+            <!-- History Sub-section -->
+            <div id="collection-history-content" class="sell-sub-content active">
+                <div class="section-header">
+                    <span>Transaction History</span>
+                </div>
+                <div id="history-grid" style="max-height: 600px; overflow-y: auto;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No transaction history yet</div>
+                        <p>Start buying and selling shoes to see your history!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stash Sub-section -->
+            <div id="collection-stash-content" class="sell-sub-content">
+                <div class="section-header">
+                    <span>Stashed Shoes</span>
+                </div>
+                <div class="sneaker-grid" id="stash-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No stashed shoes</div>
+                        <p>Stash shoes from your inventory to keep them safe!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -5918,6 +5964,26 @@
                 document.getElementById('sell-listed-content').classList.add('active');
             }
         }
+
+        function switchCollectionSubTab(tab) {
+            // Update tab buttons - get the parent .sell-sub-tabs within collection tab
+            const collectionTab = document.getElementById('collection-tab');
+            const tabs = collectionTab.querySelectorAll('.sell-sub-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content sections
+            const contents = collectionTab.querySelectorAll('.sell-sub-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'history') {
+                document.getElementById('collection-history-content').classList.add('active');
+                renderHistoryTab();
+            } else if (tab === 'stash') {
+                document.getElementById('collection-stash-content').classList.add('active');
+                renderStashTab();
+            }
+        }
         
         function switchBuySubTab(tab) {
             // Update tab buttons
@@ -6905,7 +6971,16 @@
             }
             
             showNotification(`${shoe.brand} ${shoe.model} stashed!`, 'success');
+            
+            // Update all relevant displays
             renderSellTab();
+            
+            // If collection tab is active, update stash display
+            const collectionTab = document.getElementById('collection-tab');
+            if (collectionTab && collectionTab.classList.contains('active')) {
+                renderStashTab();
+            }
+            
             saveGame();
         }
 
@@ -6919,8 +6994,16 @@
                     gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
                 }
                 showNotification('Shoe unstashed!', 'success');
-                renderStashTab();
+                
+                // Update all displays
                 renderSellTab();
+                
+                // If collection tab is active, update stash display
+                const collectionTab = document.getElementById('collection-tab');
+                if (collectionTab && collectionTab.classList.contains('active')) {
+                    renderStashTab();
+                }
+                
                 saveGame();
                 return;
             }
@@ -6932,8 +7015,16 @@
             gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
             
             showNotification(`${shoe.brand} ${shoe.model} unstashed!`, 'success');
-            renderStashTab();
+            
+            // Update all displays
             renderSellTab();
+            
+            // If collection tab is active, update stash display
+            const collectionTab = document.getElementById('collection-tab');
+            if (collectionTab && collectionTab.classList.contains('active')) {
+                renderStashTab();
+            }
+            
             saveGame();
         }
 
@@ -10066,6 +10157,9 @@
                         renderMarketTab();
                         updateMarketTrendTimer();
                         break;
+                    case 'collection':
+                        renderCollectionTab();
+                        break;
                 }
             });
         });
@@ -10777,6 +10871,24 @@
                 if (typeof gameState.cash !== 'number' || isNaN(gameState.cash)) {
                     console.warn(`Fixing cash from ${gameState.cash} to 200`);
                     gameState.cash = 200;
+                }
+                
+                // Initialize new Collection tab fields if they don't exist
+                if (!gameState.purchaseHistory) {
+                    gameState.purchaseHistory = [];
+                }
+                if (!gameState.stashedShoes) {
+                    gameState.stashedShoes = [];
+                }
+                
+                // Rebuild stashedShoes array from inventory items marked as stashed
+                gameState.stashedShoes = [];
+                if (gameState.inventory) {
+                    gameState.inventory.forEach(shoe => {
+                        if (shoe.isStashed) {
+                            gameState.stashedShoes.push(shoe);
+                        }
+                    });
                 }
                 
                 updateUI();
