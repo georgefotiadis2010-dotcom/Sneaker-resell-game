@@ -2851,6 +2851,160 @@
                 font-size: 12px;
             }
         }
+
+        /* ==================== STASH STYLES ==================== */
+        .stash-timer-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 10;
+            border: 2px solid #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.5);
+        }
+
+        .stash-timer-icon {
+            font-size: 14px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .stash-value-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 12px;
+            margin: 12px;
+            border-radius: 8px;
+            border: 2px solid #3498db;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stash-value-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .stash-value-label {
+            font-weight: 700;
+            color: #555;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stash-value-amount {
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .stash-value-current {
+            color: #e74c3c;
+        }
+
+        .stash-value-next {
+            color: #27ae60;
+        }
+
+        .stash-gain-badge {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.05); }
+        }
+
+        .stash-remove-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border: 3px solid #000;
+            border-radius: 0;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+
+        .stash-remove-btn:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+        }
+
+        .stash-remove-btn:active {
+            transform: translateY(0);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .stash-add-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: 3px solid #000;
+            border-radius: 0;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+
+        .stash-add-btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+        }
+
+        .stash-add-btn:active {
+            transform: translateY(0);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .stash-add-btn:disabled {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .stash-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(46, 204, 113, 0.1) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -2884,6 +3038,7 @@
         <div class="nav-tabs">
             <button class="tab-btn active" data-tab="buy">Buy Shoes</button>
             <button class="tab-btn" data-tab="sell">Sell Shoes</button>
+            <button class="tab-btn" data-tab="stash">Stash</button>
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
             <button class="tab-btn" data-tab="crates">Crates</button>
@@ -2968,6 +3123,24 @@
                         <div class="empty-state-text">No listed shoes</div>
                         <p>List some shoes from your inventory!</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stash Tab -->
+        <div id="stash-tab" class="tab-content">
+            <div class="section-header">
+                <span>Shoe Stash <span style="color: #3498db; font-size: 14px;">(Max 5 Shoes)</span></span>
+                <div style="font-size: 14px; color: #666; font-weight: 600;">
+                    Shoes gain 2.5% market value every 15 minutes
+                </div>
+            </div>
+            
+            <div class="sneaker-grid" id="stash-grid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💰</div>
+                    <div class="empty-state-text">No shoes in stash</div>
+                    <p>Store shoes here to gain passive market value over time!</p>
                 </div>
             </div>
         </div>
@@ -4576,7 +4749,10 @@
             nextAIAuctionLevel1: 300, // Level 1: $750-$4,999 (5 mins)
             nextAIAuctionLevel2: 300, // Level 2: $5,000-$49,999 (5 mins)
             nextAIAuctionLevel3: 300, // Level 3: $50,000+ (5 mins)
-            auctionIdCounter: 0
+            auctionIdCounter: 0,
+            // Stash System
+            stashedShoes: [], // Shoes in stash (max 5)
+            stashLimit: 5
         };
 
         // ==================== UTILITY FUNCTIONS ====================
@@ -5372,6 +5548,7 @@
             
             return `
                 <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden; opacity: ${cardOpacity}; filter: ${greyFilter};">
+                    ${context === 'stash' ? `<div class="stash-timer-container"><span class="stash-timer-icon">⏱️</span><span>${formatStashTime(shoe.stashElapsedSeconds || 0)}</span></div>` : ''}
                     ${isStashedInInventory ? '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; font-weight: 900; color: rgba(155, 89, 182, 0.3); z-index: 100; pointer-events: none; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">STASHED</div>' : ''}
                     <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                     ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
@@ -5484,6 +5661,28 @@
                                 </button>
                             `}
                         ` : context === 'stash' ? `
+                            <div class="stash-value-info">
+                                <div class="stash-value-row">
+                                    <span class="stash-value-label">Original Value</span>
+                                    <span class="stash-value-amount stash-value-current">${formatCurrency(shoe.stashBaseValue || shoe.estimatedValue)}</span>
+                                </div>
+                                <div class="stash-value-row">
+                                    <span class="stash-value-label">Current Value</span>
+                                    <span class="stash-value-amount stash-value-next">${formatCurrency(shoe.stashCurrentValue || shoe.estimatedValue)}</span>
+                                </div>
+                                <div class="stash-value-row">
+                                    <span class="stash-value-label">Total Gain</span>
+                                    <span class="stash-gain-badge">+${formatCurrency((shoe.stashCurrentValue || shoe.estimatedValue) - (shoe.stashBaseValue || shoe.estimatedValue))} (+${(((shoe.stashCurrentValue || shoe.estimatedValue) / (shoe.stashBaseValue || shoe.estimatedValue) - 1) * 100).toFixed(1)}%)</span>
+                                </div>
+                                <div class="stash-value-row">
+                                    <span class="stash-value-label">Time Stashed</span>
+                                    <span class="stash-value-amount" style="color: #3498db;">${formatStashTime(shoe.stashElapsedSeconds || 0)}</span>
+                                </div>
+                                <div class="stash-value-row">
+                                    <span class="stash-value-label">Next Gain In</span>
+                                    <span class="stash-value-amount" style="color: #9b59b6;">${formatStashTime(getTimeUntilNextGain(shoe))}</span>
+                                </div>
+                            </div>
                             <button class="action-btn" onclick="unstashShoe('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
                                 <span>Unstash</span>
                             </button>
@@ -6891,6 +7090,24 @@
                 const borderColor = isPurchase ? '#3498db' : '#27ae60';
                 const typeLabel = isPurchase ? 'BOUGHT' : 'SOLD';
                 
+                // Calculate time elapsed since transaction
+                const timeElapsedSeconds = gameState.timeElapsed - transaction.timestamp;
+                const minutesAgo = Math.floor(timeElapsedSeconds / 60);
+                const hoursAgo = Math.floor(minutesAgo / 60);
+                const daysAgo = Math.floor(hoursAgo / 24);
+                
+                // Format time display
+                let timeDisplay;
+                if (daysAgo > 0) {
+                    timeDisplay = `${daysAgo}d ago`;
+                } else if (hoursAgo > 0) {
+                    timeDisplay = `${hoursAgo}h ago`;
+                } else if (minutesAgo > 0) {
+                    timeDisplay = `${minutesAgo}m ago`;
+                } else {
+                    timeDisplay = 'Just now';
+                }
+                
                 html += `
                     <div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; padding: 15px; border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
@@ -6911,7 +7128,7 @@
                                     ${formatCurrency(transaction.price)}
                                 </div>
                                 <div style="font-size: 11px; color: #999;">
-                                    ${Math.floor(transaction.timestamp / 60)} min ago
+                                    ${timeDisplay}
                                 </div>
                             </div>
                         </div>
@@ -6929,9 +7146,9 @@
             if (gameState.stashedShoes.length === 0) {
                 stashGrid.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon"></div>
-                        <div class="empty-state-text">No stashed shoes</div>
-                        <p>Stash shoes from your inventory to keep them safe!</p>
+                        <div class="empty-state-icon">💰</div>
+                        <div class="empty-state-text">No shoes in stash</div>
+                        <p>Store shoes here to gain passive market value over time!</p>
                     </div>
                 `;
                 return;
@@ -6962,8 +7179,19 @@
                 return;
             }
             
-            // Mark as stashed
+            // Check stash limit (max 5)
+            if (gameState.stashedShoes.length >= gameState.stashLimit) {
+                showNotification('Stash is full! Maximum 5 shoes allowed.', 'error');
+                return;
+            }
+            
+            // Mark as stashed and initialize timer data
             shoe.isStashed = true;
+            shoe.stashStartTime = Date.now(); // Track when shoe was stashed
+            shoe.stashElapsedSeconds = 0; // Track elapsed time in seconds
+            shoe.stashBaseValue = shoe.estimatedValue; // Store original value when stashed
+            shoe.stashCurrentValue = shoe.estimatedValue; // Current value (will compound)
+            shoe.stashGainCount = 0; // How many 15-min intervals have passed
             
             // Add to stashed shoes array (reference, not copy)
             if (!gameState.stashedShoes.find(s => s.id === shoeId)) {
@@ -6974,14 +7202,75 @@
             
             // Update all relevant displays
             renderSellTab();
-            
-            // If collection tab is active, update stash display
-            const collectionTab = document.getElementById('collection-tab');
-            if (collectionTab && collectionTab.classList.contains('active')) {
-                renderStashTab();
-            }
+            renderStashTab();
             
             saveGame();
+        }
+
+        // Update stash timers and apply compound interest
+        function updateStashTimers() {
+            const now = Date.now();
+            const INTERVAL_SECONDS = 15 * 60; // 15 minutes in seconds
+            const GAIN_PERCENT = 0.025; // 2.5% gain
+            
+            gameState.stashedShoes.forEach(shoe => {
+                if (!shoe.stashStartTime) return;
+                
+                // Calculate elapsed time in seconds
+                const totalElapsedMs = now - shoe.stashStartTime;
+                const totalElapsedSeconds = Math.floor(totalElapsedMs / 1000);
+                
+                // Calculate how many 15-minute intervals have passed
+                const intervalsCompleted = Math.floor(totalElapsedSeconds / INTERVAL_SECONDS);
+                
+                // If we've crossed a new interval threshold since last check
+                if (intervalsCompleted > shoe.stashGainCount) {
+                    // Apply compound interest for each new interval
+                    for (let i = shoe.stashGainCount; i < intervalsCompleted; i++) {
+                        shoe.stashCurrentValue = shoe.stashCurrentValue * (1 + GAIN_PERCENT);
+                    }
+                    
+                    shoe.stashGainCount = intervalsCompleted;
+                    
+                    // Update the actual market value
+                    shoe.estimatedValue = shoe.stashCurrentValue;
+                    
+                    // Show notification
+                    const totalGain = shoe.stashCurrentValue - shoe.stashBaseValue;
+                    showNotification(`💰 ${shoe.brand} ${shoe.model} gained +${formatCurrency(totalGain)}!`, 'success');
+                }
+                
+                // Update elapsed seconds for display
+                shoe.stashElapsedSeconds = totalElapsedSeconds;
+            });
+        }
+        
+        // Format time for stash display
+        function formatStashTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                if (minutes > 0) {
+                    return `${hours}h ${minutes}m`;
+                }
+                return `${hours}h`;
+            }
+            
+            if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            }
+            
+            return `${secs}s`;
+        }
+        
+        // Get time until next gain for a stashed shoe
+        function getTimeUntilNextGain(shoe) {
+            const INTERVAL_SECONDS = 15 * 60; // 15 minutes
+            const timeInCurrentInterval = shoe.stashElapsedSeconds % INTERVAL_SECONDS;
+            const timeUntilNext = INTERVAL_SECONDS - timeInCurrentInterval;
+            return timeUntilNext;
         }
 
         function unstashShoe(shoeId) {
@@ -6990,40 +7279,59 @@
                 // If not in inventory, try to find in stashed shoes
                 const stashedShoe = gameState.stashedShoes.find(s => s.id === shoeId);
                 if (stashedShoe) {
+                    // Apply gained value to actual market value
+                    if (stashedShoe.stashCurrentValue && stashedShoe.stashCurrentValue > stashedShoe.estimatedValue) {
+                        const gainAmount = stashedShoe.stashCurrentValue - stashedShoe.estimatedValue;
+                        stashedShoe.estimatedValue = stashedShoe.stashCurrentValue;
+                        showNotification(`${stashedShoe.brand} ${stashedShoe.model} unstashed with +${formatCurrency(gainAmount)} gain!`, 'success');
+                    } else {
+                        showNotification('Shoe unstashed!', 'success');
+                    }
+                    
                     stashedShoe.isStashed = false;
+                    // Clean up stash properties
+                    delete stashedShoe.stashStartTime;
+                    delete stashedShoe.stashElapsedSeconds;
+                    delete stashedShoe.stashBaseValue;
+                    delete stashedShoe.stashCurrentValue;
+                    delete stashedShoe.stashGainCount;
+                    
                     gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
                 }
-                showNotification('Shoe unstashed!', 'success');
                 
                 // Update all displays
                 renderSellTab();
-                
-                // If collection tab is active, update stash display
-                const collectionTab = document.getElementById('collection-tab');
-                if (collectionTab && collectionTab.classList.contains('active')) {
-                    renderStashTab();
-                }
+                renderStashTab();
                 
                 saveGame();
                 return;
             }
             
+            // Apply gained value to actual market value
+            if (shoe.stashCurrentValue && shoe.stashCurrentValue > shoe.estimatedValue) {
+                const gainAmount = shoe.stashCurrentValue - shoe.estimatedValue;
+                shoe.estimatedValue = shoe.stashCurrentValue;
+                showNotification(`${shoe.brand} ${shoe.model} unstashed with +${formatCurrency(gainAmount)} gain!`, 'success');
+            } else {
+                showNotification(`${shoe.brand} ${shoe.model} unstashed!`, 'success');
+            }
+            
             // Unmark as stashed
             shoe.isStashed = false;
+            
+            // Clean up stash properties
+            delete shoe.stashStartTime;
+            delete shoe.stashElapsedSeconds;
+            delete shoe.stashBaseValue;
+            delete shoe.stashCurrentValue;
+            delete shoe.stashGainCount;
             
             // Remove from stashed shoes array
             gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
             
-            showNotification(`${shoe.brand} ${shoe.model} unstashed!`, 'success');
-            
             // Update all displays
             renderSellTab();
-            
-            // If collection tab is active, update stash display
-            const collectionTab = document.getElementById('collection-tab');
-            if (collectionTab && collectionTab.classList.contains('active')) {
-                renderStashTab();
-            }
+            renderStashTab();
             
             saveGame();
         }
@@ -9667,7 +9975,7 @@
                 <div class="message-box" id="seller-message">
                     "What's your offer? And don't lowball me."
                 </div>
-                <input type="number" class="negotiation-input" id="offer-input" 
+                <input type="number" class="negotiation-input" id="marketplace-offer-input" 
                        placeholder="Enter your offer" min="0" step="10">
                 <div class="negotiation-buttons">
                     <button class="action-btn" onclick="submitOffer('${shoe.id}')"><span>Make Offer</span></button>
@@ -9683,7 +9991,7 @@
             const shoe = gameState.availableShoes.find(s => s.id === shoeId);
             if (!shoe) return;
             
-            const offer = parseInt(document.getElementById('offer-input').value);
+            const offer = parseInt(document.getElementById('marketplace-offer-input').value);
             
             if (!offer || offer <= 0) {
                 showNotification('Enter a valid offer!', 'error');
@@ -10668,6 +10976,14 @@
                 renderCustomersTab();
             }
             
+            // Update stash timers and apply compound interest
+            updateStashTimers();
+            
+            // Update stash tab display every second if active (to show live timer)
+            if (gameState.stashedShoes.length > 0 && document.getElementById('stash-tab').classList.contains('active')) {
+                renderStashTab();
+            }
+            
             // Check listings for purchases
             checkListingsForPurchase();
             
@@ -10880,12 +11196,23 @@
                 if (!gameState.stashedShoes) {
                     gameState.stashedShoes = [];
                 }
+                if (!gameState.stashLimit) {
+                    gameState.stashLimit = 5;
+                }
                 
                 // Rebuild stashedShoes array from inventory items marked as stashed
                 gameState.stashedShoes = [];
                 if (gameState.inventory) {
                     gameState.inventory.forEach(shoe => {
                         if (shoe.isStashed) {
+                            // Initialize stash timer data if missing (for old saves)
+                            if (!shoe.stashStartTime) {
+                                shoe.stashStartTime = Date.now();
+                                shoe.stashElapsedSeconds = 0;
+                                shoe.stashBaseValue = shoe.estimatedValue;
+                                shoe.stashCurrentValue = shoe.estimatedValue;
+                                shoe.stashGainCount = 0;
+                            }
                             gameState.stashedShoes.push(shoe);
                         }
                     });
