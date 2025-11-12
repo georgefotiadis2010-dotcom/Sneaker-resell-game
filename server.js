@@ -265,10 +265,12 @@ app.post('/api/player/register', async (req, res) => {
 // Get all active listings
 app.get('/api/listings', async (req, res) => {
     if (!process.env.DATABASE_URL) {
+        console.log('⚠️ [LISTINGS] No DATABASE_URL - returning empty array');
         return res.json({ listings: [] });
     }
     
     const { excludePlayerId } = req.query;
+    console.log(`📦 [LISTINGS] Fetching listings, excludePlayerId: ${excludePlayerId || 'none'}`);
     
     try {
         let query = `
@@ -290,9 +292,17 @@ app.get('/api/listings', async (req, res) => {
         }
         
         const result = await pool.query(query, params);
+        console.log(`✅ [LISTINGS] Found ${result.rows.length} active listings`);
+        console.log(`📊 [LISTINGS] Returning listings:`, result.rows.map(r => ({
+            id: r.listing_id,
+            seller: r.seller_name,
+            shoe: r.shoe_data.brand + ' ' + r.shoe_data.model,
+            price: r.asking_price
+        })));
+        
         res.json({ listings: result.rows });
     } catch (err) {
-        console.error('Fetch listings error:', err);
+        console.error('❌ [LISTINGS] Fetch error:', err);
         res.status(500).json({ error: 'Failed to fetch listings' });
     }
 });
@@ -300,10 +310,13 @@ app.get('/api/listings', async (req, res) => {
 // Create new listing
 app.post('/api/listings/create', async (req, res) => {
     if (!process.env.DATABASE_URL) {
+        console.log('⚠️ [CREATE] No DATABASE_URL - multiplayer unavailable');
         return res.status(503).json({ error: 'Multiplayer not available' });
     }
     
     const { shoe, sellerId, sellerName, askingPrice } = req.body;
+    console.log(`🆕 [CREATE] New listing from ${sellerName} (${sellerId})`);
+    console.log(`👟 [CREATE] Shoe: ${shoe.brand} ${shoe.model} - $${askingPrice}`);
     
     try {
         const listingId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -317,13 +330,15 @@ app.post('/api/listings/create', async (req, res) => {
         );
         
         const listing = result.rows[0];
+        console.log(`✅ [CREATE] Listing created successfully: ${listingId}`);
+        console.log(`📡 [CREATE] Broadcasting to ${io.engine.clientsCount} connected clients`);
         
         // Notify all connected clients
         io.emit('newListing', listing);
         
         res.json({ success: true, listing });
     } catch (err) {
-        console.error('Create listing error:', err);
+        console.error('❌ [CREATE] Error:', err);
         res.status(500).json({ error: 'Failed to create listing' });
     }
 });

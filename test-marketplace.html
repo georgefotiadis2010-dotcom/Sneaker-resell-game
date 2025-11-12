@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Marketplace</title>
+</head>
+<body>
+    <h1>Marketplace Debug Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testMarketplace() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/listings');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <h2>API Response:</h2>
+                    <p>Status: ✅ Success</p>
+                    <p>Listings Count: ${data.listings.length}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (err) {
+                resultsDiv.innerHTML = `
+                    <h2>Error:</h2>
+                    <p style="color: red;">${err.message}</p>
+                `;
+            }
+        }
+        
+        testMarketplace();
+    </script>
+</body>
+</html>

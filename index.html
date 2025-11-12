@@ -10983,6 +10983,10 @@
             }
             
             try {
+                console.log('[INIT] Attempting to register with server...');
+                console.log('[INIT] Player ID:', playerId);
+                console.log('[INIT] Player Name:', playerName);
+                
                 // Register with server
                 const response = await fetch('/api/player/register', {
                     method: 'POST',
@@ -10990,8 +10994,15 @@
                     body: JSON.stringify({ playerId, playerName })
                 });
                 
+                console.log('[INIT] Registration response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`Registration failed: ${response.status} ${response.statusText}`);
+                }
+                
                 const player = await response.json();
                 console.log('✅ Registered as:', player.player_name);
+                console.log('[INIT] Attempting to connect Socket.IO...');
                 
                 // Connect Socket.io
                 socket = io(window.location.origin);
