@@ -3036,16 +3036,15 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="tab-btn active" data-tab="buy">Buy Shoes</button>
-            <button class="tab-btn" data-tab="sell">Sell Shoes</button>
+            <button class="tab-btn active" data-tab="collection">Collection</button>
+            <button class="tab-btn" data-tab="buy">Buy Shoes</button>
+            <button class="tab-btn" data-tab="crates">Crates</button>
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
-            <button class="tab-btn" data-tab="crates">Crates</button>
-            <button class="tab-btn" data-tab="collection">Collection</button>
         </div>
 
         <!-- Buy Shoes Tab -->
-        <div id="buy-tab" class="tab-content active">
+        <div id="buy-tab" class="tab-content">
             <div class="section-header">
                 <span>Buy Your Kicks</span>
             </div>
@@ -3253,14 +3252,20 @@
         </div>
 
         <!-- Collection Tab -->
-        <div id="collection-tab" class="tab-content">
+        <div id="collection-tab" class="tab-content active">
             <div class="section-header">
                 <span>Your Collection</span>
             </div>
             
             <!-- Sub-tabs for Collection section -->
             <div class="sell-sub-tabs">
-                <div class="sell-sub-tab active" onclick="switchCollectionSubTab('history')">
+                <div class="sell-sub-tab active" onclick="switchCollectionSubTab('inventory')">
+                    Inventory
+                </div>
+                <div class="sell-sub-tab" onclick="switchCollectionSubTab('listed')">
+                    Listed Shoes
+                </div>
+                <div class="sell-sub-tab" onclick="switchCollectionSubTab('history')">
                     History
                 </div>
                 <div class="sell-sub-tab" onclick="switchCollectionSubTab('stash')">
@@ -3268,8 +3273,30 @@
                 </div>
             </div>
             
+            <!-- Inventory Sub-section -->
+            <div id="collection-inventory-content" class="sell-sub-content active">
+                <div class="sneaker-grid" id="collection-inventory-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No shoes in inventory</div>
+                        <p>Buy some shoes first to start flipping!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Listed Shoes Sub-section -->
+            <div id="collection-listed-content" class="sell-sub-content">
+                <div class="sneaker-grid" id="collection-listed-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No listed shoes</div>
+                        <p>List some shoes from your inventory!</p>
+                    </div>
+                </div>
+            </div>
+            
             <!-- History Sub-section -->
-            <div id="collection-history-content" class="sell-sub-content active">
+            <div id="collection-history-content" class="sell-sub-content">
                 <div class="section-header">
                     <span>Transaction History</span>
                 </div>
@@ -6120,7 +6147,13 @@
             const contents = collectionTab.querySelectorAll('.sell-sub-content');
             contents.forEach(c => c.classList.remove('active'));
             
-            if (tab === 'history') {
+            if (tab === 'inventory') {
+                document.getElementById('collection-inventory-content').classList.add('active');
+                renderCollectionInventoryTab();
+            } else if (tab === 'listed') {
+                document.getElementById('collection-listed-content').classList.add('active');
+                renderCollectionListedTab();
+            } else if (tab === 'history') {
                 document.getElementById('collection-history-content').classList.add('active');
                 renderHistoryTab();
             } else if (tab === 'stash') {
@@ -6679,7 +6712,8 @@
             
             showNotification(`Unlisted ${shoe.brand} ${shoe.model}`, 'info');
             updateUI();
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
         }
 
         function calculateBuyerInterest(shoe) {
@@ -7004,7 +7038,71 @@
 
         // ==================== COLLECTION TAB FUNCTIONS ====================
         function renderCollectionTab() {
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
             renderHistoryTab();
+            renderStashTab();
+        }
+
+        function renderCollectionInventoryTab() {
+            const inventoryGrid = document.getElementById('collection-inventory-grid');
+            
+            // Get all unlisted inventory shoes
+            const listedShoes = gameState.listedShoes.filter(shoe => shoe.listedForSale);
+            const unlistedFromSell = gameState.listedShoes.filter(shoe => !shoe.listedForSale);
+            const unlistedInventory = gameState.inventory.filter(shoe => !shoe.listedForSale && !gameState.listedShoes.find(s => s.id === shoe.id));
+            const allInventoryShoes = [...unlistedFromSell, ...unlistedInventory];
+            
+            // Render INVENTORY section
+            let inventoryHtml = '';
+            if (allInventoryShoes.length === 0) {
+                inventoryHtml = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No shoes in inventory</div>
+                        <p>Buy some shoes first to start flipping!</p>
+                    </div>
+                `;
+            } else {
+                inventoryHtml = allInventoryShoes.map(shoe => renderSneakerCard(shoe, 'inventory')).join('');
+            }
+            inventoryGrid.innerHTML = inventoryHtml;
+            
+            // Load images
+            if (allInventoryShoes.length > 0) {
+                setTimeout(() => {
+                    loadSneakerImagesInGrid(allInventoryShoes, inventoryGrid);
+                }, 100);
+            }
+        }
+
+        function renderCollectionListedTab() {
+            const listedGrid = document.getElementById('collection-listed-grid');
+            
+            // Get shoes listed for sale
+            const listedShoes = gameState.listedShoes.filter(shoe => shoe.listedForSale);
+            
+            // Render LISTED SHOES section
+            let listedHtml = '';
+            if (listedShoes.length === 0) {
+                listedHtml = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No listed shoes</div>
+                        <p>List some shoes from your inventory!</p>
+                    </div>
+                `;
+            } else {
+                listedHtml = listedShoes.map(shoe => renderListedShoeCard(shoe)).join('');
+            }
+            listedGrid.innerHTML = listedHtml;
+            
+            // Load images
+            if (listedShoes.length > 0) {
+                setTimeout(() => {
+                    loadSneakerImagesInGrid(listedShoes, listedGrid);
+                }, 100);
+            }
         }
 
         function renderHistoryTab() {
@@ -7146,7 +7244,8 @@
             showNotification(`${shoe.brand} ${shoe.model} stashed!`, 'success');
             
             // Update all relevant displays
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
             renderStashTab();
             
             saveGame();
@@ -7298,7 +7397,8 @@
                 }
                 
                 // Update all displays
-                renderSellTab();
+                renderCollectionInventoryTab();
+                renderCollectionListedTab();
                 renderStashTab();
                 
                 saveGame();
@@ -7328,7 +7428,8 @@
             gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
             
             // Update all displays
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
             renderStashTab();
             
             saveGame();
@@ -7899,7 +8000,8 @@
             document.getElementById('auction-my-auctions-content').classList.add('active');
             
             renderAuctionsTab();
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
         }
         
         // Cancel auction (only if no bids)
@@ -10455,9 +10557,6 @@
                     case 'buy':
                         renderBuyTab();
                         renderCustomersTab();
-                        break;
-                    case 'sell':
-                        renderSellTab();
                         break;
                     case 'auctions':
                         renderAuctionsTab();
