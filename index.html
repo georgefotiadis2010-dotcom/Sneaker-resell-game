@@ -4821,6 +4821,28 @@
             }
         }
 
+        function recordPurchase(shoe, purchasePrice) {
+            // Record purchase in history
+            const purchaseRecord = {
+                brand: shoe.brand,
+                model: shoe.model,
+                colorway: shoe.colorway,
+                size: shoe.size,
+                condition: shoe.condition,
+                rarity: shoe.rarity,
+                price: purchasePrice,
+                timestamp: gameState.timeElapsed,
+                wasHot: shoe.isHot
+            };
+            
+            gameState.purchaseHistory.unshift(purchaseRecord); // Add to front
+            
+            // Keep only last 100 purchases to prevent memory bloat
+            if (gameState.purchaseHistory.length > 100) {
+                gameState.purchaseHistory = gameState.purchaseHistory.slice(0, 100);
+            }
+        }
+
         // Generate market value range for display with 1-minute caching
         // The actual market value will be somewhere in the middle of this range
         // Range only updates every 60 seconds to provide consistency
@@ -9856,6 +9878,9 @@
             shoe.daysHeld = 0;
             gameState.inventory.push(shoe);
             
+            // Record purchase in history
+            recordPurchase(shoe, price);
+            
             // Remove customer from list
             gameState.customers = gameState.customers.filter(c => c.id !== customer.id);
             
@@ -10495,6 +10520,9 @@
             gameState.inventory.push(shoe);
             gameState.availableShoes = gameState.availableShoes.filter(s => s.id !== shoe.id);
             
+            // Record purchase in history
+            recordPurchase(shoe, price);
+            
             closeModal();
             showNotification(`Purchased ${shoe.brand} ${shoe.model} for ${formatCurrency(price)}!`, 'success');
             updateUI();
@@ -10586,79 +10614,65 @@
 
         // Crate odds definitions
         const CRATE_ODDS = {
-            entry: [
-                { tier: 'Standard', condition: 'Scuffed', probability: 25.67 },
-                { tier: 'Standard', condition: 'Celeb Worn', probability: 4.67 },
-                { tier: 'Standard', condition: 'Used', probability: 11.67 },
-                { tier: 'Standard', condition: 'VNDS', probability: 10.5 },
-                { tier: 'Standard', condition: 'Deadstock', probability: 8.17 },
-                { tier: 'Standard', condition: 'OG', probability: 5.83 },
-                { tier: 'Limited', condition: 'Scuffed', probability: 9.33 },
-                { tier: 'Limited', condition: 'Celeb Worn', probability: 3.5 },
-                { tier: 'Limited', condition: 'Used', probability: 7.0 },
-                { tier: 'Limited', condition: 'VNDS', probability: 7.0 },
-                { tier: 'Limited', condition: 'Deadstock', probability: 4.67 },
-                { tier: 'Limited', condition: 'OG', probability: 2.0 }
-            ],
             premium: [
-                { tier: 'Limited', condition: 'Scuffed', probability: 23.33 },
-                { tier: 'Limited', condition: 'Celeb Worn', probability: 4.67 },
-                { tier: 'Limited', condition: 'Used', probability: 14.0 },
-                { tier: 'Limited', condition: 'VNDS', probability: 11.67 },
-                { tier: 'Limited', condition: 'Deadstock', probability: 7.0 },
-                { tier: 'Limited', condition: 'OG', probability: 7.0 },
-                { tier: 'Premium', condition: 'Scuffed', probability: 7.0 },
-                { tier: 'Premium', condition: 'Celeb Worn', probability: 2.33 },
-                { tier: 'Premium', condition: 'Used', probability: 4.67 },
-                { tier: 'Premium', condition: 'VNDS', probability: 3.5 },
-                { tier: 'Premium', condition: 'Deadstock', probability: 2.33 },
-                { tier: 'Premium', condition: 'OG', probability: 1.63 },
-                { tier: 'Vaulted', condition: 'Scuffed', probability: 3.5 },
-                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 2.0 },
-                { tier: 'Vaulted', condition: 'Used', probability: 2.1 },
-                { tier: 'Vaulted', condition: 'VNDS', probability: 1.63 },
-                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.93 },
-                { tier: 'Vaulted', condition: 'OG', probability: 2.0 }
+                { tier: 'Limited', condition: 'Scuffed', probability: 8.54 },
+                { tier: 'Limited', condition: 'Celeb Worn', probability: 8.19 },
+                { tier: 'Limited', condition: 'Used', probability: 7.84 },
+                { tier: 'Limited', condition: 'VNDS', probability: 7.49 },
+                { tier: 'Limited', condition: 'Deadstock', probability: 7.15 },
+                { tier: 'Limited', condition: 'OG', probability: 6.80 },
+                { tier: 'Premium', condition: 'Scuffed', probability: 6.45 },
+                { tier: 'Premium', condition: 'Celeb Worn', probability: 6.10 },
+                { tier: 'Premium', condition: 'Used', probability: 5.75 },
+                { tier: 'Premium', condition: 'VNDS', probability: 5.41 },
+                { tier: 'Premium', condition: 'Deadstock', probability: 5.06 },
+                { tier: 'Premium', condition: 'OG', probability: 4.71 },
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 4.37 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 4.02 },
+                { tier: 'Vaulted', condition: 'Used', probability: 3.67 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 3.32 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 2.97 },
+                { tier: 'Vaulted', condition: 'OG', probability: 2.00 }
             ],
             elite: [
-                { tier: 'Premium', condition: 'Scuffed', probability: 24.81 },
-                { tier: 'Premium', condition: 'Celeb Worn', probability: 4.96 },
-                { tier: 'Premium', condition: 'Used', probability: 16.54 },
-                { tier: 'Premium', condition: 'VNDS', probability: 9.92 },
-                { tier: 'Premium', condition: 'Deadstock', probability: 4.96 },
-                { tier: 'Premium', condition: 'OG', probability: 3.31 },
-                { tier: 'Vaulted', condition: 'Scuffed', probability: 12.39 },
-                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 2.48 },
-                { tier: 'Vaulted', condition: 'Used', probability: 7.44 },
-                { tier: 'Vaulted', condition: 'VNDS', probability: 4.96 },
-                { tier: 'Vaulted', condition: 'Deadstock', probability: 2.48 },
-                { tier: 'Vaulted', condition: 'OG', probability: 1.65 },
-                { tier: 'Exclusive', condition: 'Scuffed', probability: 0.99 },
-                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.17 },
-                { tier: 'Exclusive', condition: 'Used', probability: 0.66 },
-                { tier: 'Exclusive', condition: 'VNDS', probability: 0.33 },
-                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.17 },
-                { tier: 'Exclusive', condition: 'OG', probability: 2.0 }
+                { tier: 'Premium', condition: 'Scuffed', probability: 8.54 },
+                { tier: 'Premium', condition: 'Celeb Worn', probability: 8.19 },
+                { tier: 'Premium', condition: 'Used', probability: 7.84 },
+                { tier: 'Premium', condition: 'VNDS', probability: 7.49 },
+                { tier: 'Premium', condition: 'Deadstock', probability: 7.15 },
+                { tier: 'Premium', condition: 'OG', probability: 6.80 },
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 6.45 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 6.10 },
+                { tier: 'Vaulted', condition: 'Used', probability: 5.75 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 5.41 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 5.06 },
+                { tier: 'Vaulted', condition: 'OG', probability: 4.71 },
+                { tier: 'Exclusive', condition: 'Scuffed', probability: 4.37 },
+                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 4.02 },
+                { tier: 'Exclusive', condition: 'Used', probability: 3.67 },
+                { tier: 'Exclusive', condition: 'VNDS', probability: 3.32 },
+                { tier: 'Exclusive', condition: 'Deadstock', probability: 2.97 },
+                { tier: 'Exclusive', condition: 'OG', probability: 2.00 }
             ],
             ultra: [
-                { tier: 'Vaulted', condition: 'Scuffed', probability: 33.85 },
-                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 8.46 },
-                { tier: 'Vaulted', condition: 'Used', probability: 16.92 },
-                { tier: 'Vaulted', condition: 'VNDS', probability: 13.54 },
-                { tier: 'Vaulted', condition: 'Deadstock', probability: 8.46 },
-                { tier: 'Vaulted', condition: 'OG', probability: 5.08 },
-                { tier: 'Exclusive', condition: 'Scuffed', probability: 3.38 },
-                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.85 },
-                { tier: 'Exclusive', condition: 'Used', probability: 1.69 },
-                { tier: 'Exclusive', condition: 'VNDS', probability: 0.85 },
-                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.51 },
-                { tier: 'Exclusive', condition: 'OG', probability: 0.34 },
-                { tier: 'Grail', condition: 'Scuffed', probability: 1.35 },
-                { tier: 'Grail', condition: 'Celeb Worn', probability: 0.42 },
-                { tier: 'Grail', condition: 'Used', probability: 0.68 },
-                { tier: 'Grail', condition: 'VNDS', probability: 0.42 },
-                { tier: 'Grail', condition: 'Deadstock', probability: 0.25 },
-                { tier: 'Grail', condition: 'OG', probability: 2.0 }
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 8.54 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 8.19 },
+                { tier: 'Vaulted', condition: 'Used', probability: 7.84 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 7.49 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 7.15 },
+                { tier: 'Vaulted', condition: 'OG', probability: 6.80 },
+                { tier: 'Exclusive', condition: 'Scuffed', probability: 6.45 },
+                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 6.10 },
+                { tier: 'Exclusive', condition: 'Used', probability: 5.75 },
+                { tier: 'Exclusive', condition: 'VNDS', probability: 5.41 },
+                { tier: 'Exclusive', condition: 'Deadstock', probability: 5.06 },
+                { tier: 'Exclusive', condition: 'OG', probability: 4.71 },
+                { tier: 'Grail', condition: 'Scuffed', probability: 4.37 },
+                { tier: 'Grail', condition: 'Celeb Worn', probability: 4.02 },
+                { tier: 'Grail', condition: 'Used', probability: 3.67 },
+                { tier: 'Grail', condition: 'VNDS', probability: 3.32 },
+                { tier: 'Grail', condition: 'Deadstock', probability: 2.97 },
+                { tier: 'Grail', condition: 'OG', probability: 2.00 }
             ]
         };
 
@@ -11569,6 +11583,17 @@
                 gameState.shoeTrends = gameState.shoeTrends || {};
             }
             
+            // Migration: Clear fake seed data from history
+            // Old versions had fake sales with invalid timestamps
+            if (gameState.salesHistory && gameState.salesHistory.length > 0) {
+                // Remove any sales with timestamps in the past (seed data had timestamps like timeElapsed - random(100, 3600))
+                const currentTime = gameState.timeElapsed || 0;
+                gameState.salesHistory = gameState.salesHistory.filter(sale => {
+                    // Keep only sales that have valid timestamps (not negative or unrealistic)
+                    return sale.timestamp >= 0 && sale.timestamp <= currentTime;
+                });
+            }
+            
             // Initialize trends for ALL shoes so they appear in market trends from the start
             SNEAKER_MODELS.forEach(shoeModel => {
                 const key = getShoeKey(shoeModel.brand, shoeModel.model);
@@ -11577,47 +11602,9 @@
                 }
             });
             
-            // Seed initial sales history if empty
-            if (!gameState.salesHistory || gameState.salesHistory.length === 0) {
+            // Initialize sales history if it doesn't exist
+            if (!gameState.salesHistory) {
                 gameState.salesHistory = [];
-                
-                // Generate 40-50 realistic historical sales for market data
-                const numSeeds = random(40, 50);
-                for (let i = 0; i < numSeeds; i++) {
-                    // Pick random shoe from model database
-                    const shoeModel = randomChoice(SNEAKER_MODELS);
-                    const fakeCondition = randomChoice(CONDITION_LEVELS);
-                    const fakeSize = random(7, 13) + (Math.random() > 0.5 ? 0.5 : 0);
-                    const fakeColorway = randomChoice(COLORWAYS);
-                    
-                    // Calculate realistic price based on comprehensive market value
-                    const trend = getShoeTrend(shoeModel.brand, shoeModel.model);
-                    const estimatedValue = calculateMarketValue({
-                        brand: shoeModel.brand,
-                        model: shoeModel.model,
-                        tier: shoeModel.tier,
-                        condition: fakeCondition.name,
-                        size: fakeSize,
-                        colorway: fakeColorway,
-                        trend: trend
-                    });
-                    
-                    // Historical sales at 85-110% of market value
-                    const salePrice = Math.floor(estimatedValue * random(85, 110) / 100);
-                    const isHot = trend > 10;
-                    
-                    gameState.salesHistory.push({
-                        brand: shoeModel.brand,
-                        model: shoeModel.model,
-                        colorway: fakeColorway,
-                        size: fakeSize,
-                        condition: fakeCondition.name,
-                        rarity: `${shoeModel.tier} ${fakeCondition.name}`,
-                        price: salePrice,
-                        timestamp: gameState.timeElapsed - random(100, 3600),
-                        wasHot: isHot
-                    });
-                }
             }
             
             // Generate initial shoes if none exist
