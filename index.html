@@ -2983,16 +2983,16 @@
             <!-- Sub-tabs for Auction levels -->
             <div class="buy-sub-tabs">
                 <div class="buy-sub-tab active" onclick="switchAuctionSubTab('entry')">
-                    ⚡ Entry
+                    Entry
                 </div>
                 <div class="buy-sub-tab" onclick="switchAuctionSubTab('premium')">
-                    💎 Premium
+                    Premium
                 </div>
                 <div class="buy-sub-tab" onclick="switchAuctionSubTab('elite')">
-                    🔥 Elite
+                    Elite
                 </div>
                 <div class="buy-sub-tab" onclick="switchAuctionSubTab('my-auctions')">
-                    📋 My Auctions
+                    My Auctions
                 </div>
             </div>
             
@@ -3177,7 +3177,7 @@
                 max-width: 400px;
             `;
             updateNotice.innerHTML = `
-                <div style="font-size: 24px; margin-bottom: 15px;">🎉 UPDATE AVAILABLE! 🎉</div>
+                <div style="font-size: 24px; margin-bottom: 15px;">UPDATE AVAILABLE!</div>
                 <div style="font-size: 14px; margin-bottom: 20px;">New features and improvements are ready!</div>
                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 5px;">Current: v${CLIENT_VERSION}</div>
                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 15px;">New: v${serverVersion}</div>
@@ -4120,31 +4120,55 @@
                 tough_grail: [
                     "These are GRAIL status. PRICE or I'm out.",
                     "Don't even start lowballing; you only get one shot at a legend.",
-                    "Collectors would kill for these, so I'm expecting top cash."
+                    "Collectors would kill for these, so I'm expecting top cash.",
+                    "This is a once-in-a-generation grail. PRICE or nothing.",
+                    "You know this pair runs the whole market. PRICE is the statement offer.",
+                    "If you want your store talked about, PRICE is what it takes.",
+                    "This is the kind of sneaker that built empires. Match its legacy with PRICE."
                 ],
                 tough_vaulted: [
                     "Vaulted kicks don't go for cheap. PRICE is my floor.",
                     "They don't make these anymore, so your offer better show respect.",
-                    "The factory closed the book on these—tell me you see the value."
+                    "The factory closed the book on these—tell me you see the value.",
+                    "Vaulted pairs like this get rarer with every year—PRICE is my cash deal.",
+                    "If you want true old-school, you won't find this anywhere else. PRICE.",
+                    "No restocks, no re-releases—PRICE is your only shot for a real vault piece.",
+                    "You can't pick this up at retail ever again; PRICE is serious cash.",
+                    "Super rare, zero chance of restock—PRICE proves you're a real collector's shop."
                 ],
                 tough_hot: [
                     "These are trending up. PRICE and that's being generous.",
-                    "Market's gone up—I want a better price than last season."
+                    "Market's gone up—I want a better price than last season.",
+                    "Saw these trending online, PRICE is what I need.",
+                    "StockX says higher—match it at PRICE and I'll sell."
+                ],
+                tough_limited: [
+                    "This is a limited release—PRICE is what it's worth.",
+                    "Don't see this every day, I'm looking for top cash at PRICE.",
+                    "If you pay what these are worth, PRICE, I'll let them go.",
+                    "I know these flip for a lot. PRICE is what you can really pay.",
+                    "You pay for heat? PRICE is the number for this fire.",
+                    "It's limited and pristine—PRICE is my real cash number."
                 ],
                 tough_standard: [
                     "Nah, PRICE or I'm keeping them.",
                     "I know what I got. PRICE, take it or leave it.",
                     "You're not hearing me - PRICE is the number.",
-                    "PRICE is as low as I'll go, period."
+                    "PRICE is as low as I'll go, period.",
+                    "Respect your business, but PRICE is what I need to sell."
                 ],
                 
                 collector_grail: [
                     "Grails like these don't come around. PRICE is fair.",
-                    "This is the kind of sneaker that built empires. PRICE matches its legacy."
+                    "This is the kind of sneaker that built empires. PRICE matches its legacy.",
+                    "I waited and camped for these, PRICE is what I need.",
+                    "People fly across continents to chase this grail. PRICE is my number."
                 ],
                 collector_vaulted: [
                     "Vaulted pairs are special to me. PRICE is the number.",
-                    "If you want true old-school, you won't find this anywhere else. PRICE."
+                    "If you want true old-school, you won't find this anywhere else. PRICE.",
+                    "People always ask about this when they see it. PRICE is what I want.",
+                    "Old release, legendary status—PRICE is the cash offer for history."
                 ],
                 collector_standard: [
                     "These mean something to me, but PRICE works.",
@@ -4159,18 +4183,34 @@
                     "Let's make it happen, PRICE?",
                     "How about PRICE? That's fair for both of us.",
                     "I just want to clear these out, PRICE in cash?",
-                    "Can we do cash today for these? PRICE?"
+                    "Can we do cash today for these? PRICE?",
+                    "Let's make this painless, PRICE is a fair cash deal.",
+                    "Just need money, not interested in haggling. PRICE works."
+                ],
+                eager_limited: [
+                    "Aight look, meet me at PRICE for this limited pair.",
+                    "I've held onto these for a while, PRICE and we're done.",
+                    "Let's make it happen, PRICE for this heat?",
+                    "PRICE works for me, I need to move these."
                 ],
                 
                 fair_deadstock: [
                     "Deadstock at PRICE is already a deal.",
-                    "Deadstock, never worn. PRICE is strong and fair."
+                    "Deadstock, never worn. PRICE is strong and fair.",
+                    "Box and tags still here—PRICE should be the offer.",
+                    "If you want collector condition, PRICE is fair for mine."
+                ],
+                fair_vnds: [
+                    "They're lightly used, but super clean. PRICE is fair.",
+                    "PRICE is reasonable for this condition.",
+                    "Just want some money back, PRICE works for me."
                 ],
                 fair_standard: [
                     "I'll come down to PRICE.",
                     "Meet me in the middle - PRICE?",
                     "PRICE is the lowest I can do.",
-                    "PRICE and we got a deal."
+                    "PRICE and we got a deal.",
+                    "If you treat me right, PRICE works for me."
                 ]
             },
             
@@ -4180,24 +4220,28 @@
                     "Respect your business, but I need a fair offer to sell.",
                     "If you treat me right, I'll keep bringing pairs.",
                     "Let's make this painless, I just want a fair cash deal.",
-                    "Show me you value repeat sellers."
+                    "Show me you value repeat sellers.",
+                    "Loyal seller—any chance at a better rate today?"
                 ],
                 frustrated: [
                     "Just need money, not interested in haggling for ages.",
                     "I can sell anywhere, I'm here for your rep and speed.",
                     "Fast deals suit me; don't overthink it.",
-                    "Moving my collection, want quick cash offers only."
+                    "Moving my collection, want quick cash offers only.",
+                    "Want to trade hype for cash, not store credit."
                 ],
                 confident: [
                     "Got cash buyers in line; convince me to sell to you.",
-                    "Loyal seller—any chance at a better rate today?"
+                    "Loyal seller—any chance at a better rate today?",
+                    "I can sell anywhere, I'm here for your rep and speed.",
+                    "If you treat me right, I'll keep bringing pairs."
                 ]
             }
         };
 
         const SELLER_REACTIONS = {
             accepted: { 
-                emoji: '😍', 
+                emoji: '', 
                 messages: [
                     'Bet, that\'s what I\'m talking about!',
                     'Respect! You know the value.',
@@ -4208,11 +4252,14 @@
                     'Fair price, let\'s do it',
                     'You got yourself a deal, my guy',
                     'Solid offer, I respect it',
-                    'Deal. That\'s reasonable'
+                    'Deal. That\'s reasonable',
+                    'Let\'s make it happen, deal!',
+                    'That\'s fair for both of us, done.',
+                    'Appreciate you treating me right. Sold!'
                 ]
             },
             counter: { 
-                emoji: '🤔', 
+                emoji: '', 
                 messages: [
                     'Nah that\'s kinda low for these...',
                     'I know what I got, that ain\'t it',
@@ -4220,21 +4267,25 @@
                     'You must be buggin\' with that price',
                     'I was thinking higher tbh...',
                     'That\'s a bit short, but I can work with you',
-                    'Close, but not quite there yet'
+                    'Close, but not quite there yet',
+                    'I need a fair offer to sell, that ain\'t it',
+                    'Come on, you can do better than that'
                 ]
             },
             coinflip: { 
-                emoji: '😐', 
+                emoji: '', 
                 messages: [
                     'Hmm... that\'s borderline',
                     'I\'m on the fence about this one',
                     'Tell you what, let\'s flip for it',
                     'That\'s risky for me... let\'s gamble on it',
-                    'Interesting offer... wanna take a chance?'
+                    'Interesting offer... wanna take a chance?',
+                    'Not quite there but... let\'s flip a coin',
+                    'That\'s on the edge... flip for it?'
                 ]
             },
             rejected: { 
-                emoji: '😤', 
+                emoji: '', 
                 messages: [
                     'Bro you\'re really trying to lowball me?',
                     'That\'s disrespectful honestly',
@@ -4245,10 +4296,103 @@
                     'Get outta here with that nonsense!',
                     'You\'re wasting my time',
                     'That\'s insulting. We\'re done here.',
-                    'You must think I\'m stupid or something'
+                    'You must think I\'m stupid or something',
+                    'Stop wasting my time with lowballs.',
+                    'I can sell anywhere, I\'m out.',
+                    'Got cash buyers in line who respect the value.'
                 ]
             }
         };
+        
+        // Function to get contextual reaction message based on shoe and personality
+        function getContextualReaction(reactionType, shoe, personality) {
+            const tier = shoe.rarityTier || shoe.tier || 'Standard';
+            const isTough = personality === 'tough';
+            const isCollector = personality === 'collector';
+            const isEager = personality === 'eager';
+            
+            if (reactionType === 'counter') {
+                // Use AI_DIALOGUE attitude lines for counter reactions
+                if (isTough) {
+                    return randomChoice([
+                        'I know what I got, that ain\'t it.',
+                        'You\'re not hearing me - come correct.',
+                        'Nah, that\'s too low. Counter coming.',
+                        tier === 'Grail' ? 'These are GRAILS. That offer ain\'t even close.' : 'These worth more than that, come on.'
+                    ]);
+                } else if (isEager) {
+                    return randomChoice([
+                        'That\'s a bit low, but let me counter.',
+                        'Close, but I need a bit more.',
+                        'Let\'s work together, I\'ll counter fair.',
+                        'I need to move these but that\'s too low.'
+                    ]);
+                } else if (isCollector) {
+                    return randomChoice([
+                        'These mean something to me. Need a better offer.',
+                        'For the right price I\'ll part with them, but not that.',
+                        'I don\'t usually let these go cheap.',
+                        tier === 'Vaulted' ? 'Vaulted pairs are special. Need more.' : 'That\'s not quite enough.'
+                    ]);
+                } else {
+                    return randomChoice(SELLER_REACTIONS.counter.messages);
+                }
+            } else if (reactionType === 'rejected') {
+                // Use AI_DIALOGUE attitude lines for rejections
+                if (isTough) {
+                    return randomChoice([
+                        'Stop wasting my time with lowballs.',
+                        'You\'re tryna play me. We\'re done.',
+                        'Come correct or don\'t come at all.',
+                        tier === 'Grail' ? 'You trying to disrespect me with that on GRAIL kicks?!' : 'That\'s disrespectful honestly.'
+                    ]);
+                } else if (isEager) {
+                    return randomChoice([
+                        'I need money but not that desperate.',
+                        'Fast deals are cool but fair deals matter.',
+                        'That\'s too low, even for a quick sale.',
+                        'I can\'t do that price, sorry.'
+                    ]);
+                } else if (isCollector) {
+                    return randomChoice([
+                        'I\'d rather keep them than take that.',
+                        'These are worth more to me than that offer.',
+                        'Can\'t let them go for that price.',
+                        tier === 'Vaulted' ? 'Vaulted pairs don\'t go for pennies.' : 'That\'s too low for what these mean to me.'
+                    ]);
+                } else {
+                    return randomChoice(SELLER_REACTIONS.rejected.messages);
+                }
+            } else if (reactionType === 'accepted') {
+                // Acceptance messages with personality flavor
+                if (isTough) {
+                    return randomChoice([
+                        'Aight, respect. You know the value.',
+                        'Now that\'s a real offer. Deal.',
+                        'Finally, someone who gets it. Sold.',
+                        'That\'s what I\'m talking about. Done.'
+                    ]);
+                } else if (isEager) {
+                    return randomChoice([
+                        'Perfect! Let\'s do it right now.',
+                        'That works for me! Deal!',
+                        'Let\'s make it happen, sold!',
+                        'Fair price, I\'m happy with that!'
+                    ]);
+                } else if (isCollector) {
+                    return randomChoice([
+                        'That\'s a fair offer. They\'re yours.',
+                        'For that price, I can let them go. Deal.',
+                        'Appreciate you valuing them properly. Sold.',
+                        'That respects what these are. Done.'
+                    ]);
+                } else {
+                    return randomChoice(SELLER_REACTIONS.accepted.messages);
+                }
+            }
+            
+            return randomChoice(SELLER_REACTIONS[reactionType].messages);
+        }
 
         // ==================== SNEAKS API INTEGRATION ====================
         const API_BASE_URL = window.location.origin + '/api';
@@ -5175,8 +5319,14 @@
                 cardBorderWidth = '5px';
             }
             
+            // Determine if shoe should be greyed out (stashed in inventory context)
+            const isStashedInInventory = context === 'inventory' && shoe.isStashed;
+            const cardOpacity = isStashedInInventory ? 0.5 : 1;
+            const greyFilter = isStashedInInventory ? 'grayscale(50%)' : 'none';
+            
             return `
-                <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden; opacity: ${cardOpacity}; filter: ${greyFilter};">
+                    ${isStashedInInventory ? '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; font-weight: 900; color: rgba(155, 89, 182, 0.3); z-index: 100; pointer-events: none; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">STASHED</div>' : ''}
                     <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
                     ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                     ${shoe.isTanking ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #4488ff; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">COLD</div>' : ''}
@@ -5271,9 +5421,31 @@
                         </div>
                     `}
                     
+                        ${context === 'inventory' ? `
+                            ${shoe.isStashed ? `
+                                <button class="action-btn" onclick="unstashShoe('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; margin-bottom: 8px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                                    <span>Unstash</span>
+                                </button>
+                                <button class="action-btn" disabled style="padding: 10px; font-size: 12px; width: 100%; background: #95a5a6; opacity: 0.5; cursor: not-allowed;">
+                                    <span>Stashed - Unstash to Sell</span>
+                                </button>
+                            ` : `
+                                <button class="action-btn" onclick="stashShoe('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; margin-bottom: 8px; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                                    <span>Stash</span>
+                                </button>
+                                <button class="action-btn sell" onclick="handleSell('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
+                                    <span>List for Sale</span>
+                                </button>
+                            `}
+                        ` : context === 'stash' ? `
+                            <button class="action-btn" onclick="unstashShoe('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                                <span>Unstash</span>
+                            </button>
+                        ` : `
                         <button class="action-btn ${context === 'buy' ? '' : 'sell'}" onclick="handle${context === 'buy' ? 'Buy' : 'Sell'}('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, ${context === 'buy' ? '#3498db 0%, #2980b9' : '#27ae60 0%, #229954'} 100%);">
                             <span>${context === 'buy' ? 'Negotiate' : 'List for Sale'}</span>
                         </button>
+                        `}
                     </div>
                 </div>
             `;
@@ -6620,6 +6792,151 @@
             }
         }
 
+        // ==================== COLLECTION TAB FUNCTIONS ====================
+        function renderCollectionTab() {
+            renderHistoryTab();
+        }
+
+        function renderHistoryTab() {
+            const historyGrid = document.getElementById('history-grid');
+            
+            // Combine purchases and sales, then sort by timestamp (most recent first)
+            const allTransactions = [
+                ...gameState.purchaseHistory.map(t => ({...t, type: 'purchase'})),
+                ...gameState.salesHistory.map(t => ({...t, type: 'sale'}))
+            ].sort((a, b) => b.timestamp - a.timestamp);
+            
+            if (allTransactions.length === 0) {
+                historyGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No transaction history yet</div>
+                        <p>Start buying and selling shoes to see your history!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+            
+            allTransactions.forEach(transaction => {
+                const isPurchase = transaction.type === 'purchase';
+                const bgColor = isPurchase ? 'rgba(52, 152, 219, 0.1)' : 'rgba(39, 174, 96, 0.1)';
+                const borderColor = isPurchase ? '#3498db' : '#27ae60';
+                const typeLabel = isPurchase ? 'BOUGHT' : 'SOLD';
+                
+                html += `
+                    <div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div style="font-weight: 700; font-size: 16px; color: #1a1a1a;">
+                                ${transaction.brand} ${transaction.model}
+                            </div>
+                            <div style="background: ${borderColor}; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800;">
+                                ${typeLabel}
+                            </div>
+                        </div>
+                        <div style="color: #666; font-size: 13px; line-height: 1.6;">
+                            <div><strong>Colorway:</strong> ${transaction.colorway}</div>
+                            <div><strong>Size:</strong> ${transaction.size}</div>
+                            <div><strong>Condition:</strong> ${transaction.condition}</div>
+                            <div><strong>Rarity:</strong> ${transaction.rarity}</div>
+                            <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 18px; font-weight: 800; color: ${borderColor};">
+                                    ${formatCurrency(transaction.price)}
+                                </div>
+                                <div style="font-size: 11px; color: #999;">
+                                    ${Math.floor(transaction.timestamp / 60)} min ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            historyGrid.innerHTML = html;
+        }
+
+        function renderStashTab() {
+            const stashGrid = document.getElementById('stash-grid');
+            
+            if (gameState.stashedShoes.length === 0) {
+                stashGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div class="empty-state-text">No stashed shoes</div>
+                        <p>Stash shoes from your inventory to keep them safe!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            gameState.stashedShoes.forEach(shoe => {
+                html += renderSneakerCard(shoe, 'stash');
+            });
+            
+            stashGrid.innerHTML = html;
+            
+            // Load images for stashed shoes
+            if (gameState.stashedShoes.length > 0) {
+                setTimeout(() => {
+                    loadSneakerImagesInGrid(gameState.stashedShoes, stashGrid);
+                }, 100);
+            }
+        }
+
+        function stashShoe(shoeId) {
+            const shoe = gameState.inventory.find(s => s.id === shoeId);
+            if (!shoe) return;
+            
+            // Check if already stashed
+            if (shoe.isStashed) {
+                showNotification('This shoe is already stashed!', 'info');
+                return;
+            }
+            
+            // Mark as stashed
+            shoe.isStashed = true;
+            
+            // Add to stashed shoes array (reference, not copy)
+            if (!gameState.stashedShoes.find(s => s.id === shoeId)) {
+                gameState.stashedShoes.push(shoe);
+            }
+            
+            showNotification(`${shoe.brand} ${shoe.model} stashed!`, 'success');
+            renderSellTab();
+            saveGame();
+        }
+
+        function unstashShoe(shoeId) {
+            const shoe = gameState.inventory.find(s => s.id === shoeId);
+            if (!shoe) {
+                // If not in inventory, try to find in stashed shoes
+                const stashedShoe = gameState.stashedShoes.find(s => s.id === shoeId);
+                if (stashedShoe) {
+                    stashedShoe.isStashed = false;
+                    gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
+                }
+                showNotification('Shoe unstashed!', 'success');
+                renderStashTab();
+                renderSellTab();
+                saveGame();
+                return;
+            }
+            
+            // Unmark as stashed
+            shoe.isStashed = false;
+            
+            // Remove from stashed shoes array
+            gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
+            
+            showNotification(`${shoe.brand} ${shoe.model} unstashed!`, 'success');
+            renderStashTab();
+            renderSellTab();
+            saveGame();
+        }
+
         // ==================== AUCTION SYSTEM ====================
         
         // Generate AI auction with specified value range
@@ -6689,9 +7006,9 @@
             
             // Different notification styles for different levels
             if (level === 3) {
-                showNotification(`🔥 ELITE AUCTION: ${shoe.brand} ${shoe.model} - ${formatCurrency(shoe.estimatedValue)}!`, 'success');
+                showNotification(`ELITE AUCTION: ${shoe.brand} ${shoe.model} - ${formatCurrency(shoe.estimatedValue)}!`, 'success');
             } else if (level === 2) {
-                showNotification(`💎 Premium Auction: ${shoe.brand} ${shoe.model} - ${formatCurrency(shoe.estimatedValue)}!`, 'info');
+                showNotification(`Premium Auction: ${shoe.brand} ${shoe.model} - ${formatCurrency(shoe.estimatedValue)}!`, 'info');
             } else {
                 showNotification(`New auction: ${shoe.brand} ${shoe.model}!`, 'info');
             }
@@ -7349,9 +7666,9 @@
                 // Determine auction level badge
                 const auctionLevel = auction.auctionLevel || 1;
                 const levelBadges = {
-                    1: { icon: '⚡', text: 'Entry', color: '#3498db' },
-                    2: { icon: '💎', text: 'Premium', color: '#9b59b6' },
-                    3: { icon: '🔥', text: 'Elite', color: '#e74c3c' }
+                    1: { icon: '', text: 'Entry', color: '#3498db' },
+                    2: { icon: '', text: 'Premium', color: '#9b59b6' },
+                    3: { icon: '', text: 'Elite', color: '#e74c3c' }
                 };
                 const levelBadge = levelBadges[auctionLevel] || levelBadges[1];
                 
@@ -7524,6 +7841,12 @@
         function handleSell(shoeId) {
             const shoe = gameState.inventory.find(s => s.id === shoeId);
             if (!shoe) return;
+            
+            // Check if shoe is stashed
+            if (shoe.isStashed) {
+                showNotification('This shoe is stashed! Unstash it first to sell.', 'error');
+                return;
+            }
             
             // Check if already listed - need to check the listedShoes array as well
             const listedShoe = gameState.listedShoes.find(s => s.id === shoeId);
@@ -8153,11 +8476,28 @@
                     const stayChance = Math.random();
                     if (stayChance < 0.3) {
                         // They stay - show message but keep them in the list
-                        showNotification('Offer rejected! They\'re still willing to negotiate.', 'error');
+                        const stayMsg = getContextualReaction('rejected', shoe, customer.personality) + ' But I\'m still here.';
+                        showNotification(`${customer.name}: "${stayMsg}"`, 'error');
                     } else {
                         // They walk away completely - remove from customers
                         gameState.customers = gameState.customers.filter(c => c.id !== customer.id);
-                        showNotification(`${customer.name} rejected your offer and walked away with their shoes!`, 'error');
+                        
+                        // Contextual walk away message
+                        let walkMsg;
+                        if (customer.personality === 'tough') {
+                            walkMsg = 'Stop wasting my time with lowballs. I\'m out.';
+                        } else if (customer.personality === 'eager') {
+                            walkMsg = 'I need money but not that desperate. Finding another buyer.';
+                        } else if (customer.personality === 'collector') {
+                            const tier = shoe.rarityTier || shoe.tier || 'Standard';
+                            walkMsg = (tier === 'Grail' || tier === 'Vaulted') 
+                                ? `I'd rather keep these ${tier} kicks than give them away.`
+                                : 'Can\'t let them go for that price.';
+                        } else {
+                            walkMsg = 'That offer is too low. I\'m taking these elsewhere.';
+                        }
+                        
+                        showNotification(`${customer.name}: "${walkMsg}" *walks away with their shoes*`, 'error');
                         closeModal();
                         renderCustomersTab(); // Update the UI to show they're gone
                     }
@@ -8245,54 +8585,57 @@
                 counterOffer = Math.floor(Math.max(theirBudget * 0.9, Math.min(counterBase, theirBudget)));
             }
             
-            // Generate personality-based counter messages
+            // Generate personality-based counter messages using AI_DIALOGUE
             let messages = [];
             
             if (customerType === 'seller') {
-                // Customer is selling to you
+                // Customer is selling to you - Use AI_DIALOGUE.counter
                 const isTough = customer.personality === 'tough';
                 const isCollector = customer.personality === 'collector';
                 const isEager = customer.personality === 'eager';
+                const tier = shoe.rarityTier || shoe.tier || 'Standard';
                 
                 if (isTough) {
-                    messages = [
-                        `"Nah, ${formatCurrency(counterOffer)} or I'm keeping them."`,
-                        `"I know what I got. ${formatCurrency(counterOffer)}, take it or leave it."`,
-                        `"You're not hearing me - ${formatCurrency(counterOffer)} is the number."`,
-                        shoe.isHot ? `"These are trending up. ${formatCurrency(counterOffer)} and that's being generous."` : `"${formatCurrency(counterOffer)} is as low as I'll go, period."`
-                    ];
-                    
-                    if (shoe.rarityTier === 'Grail' || shoe.tier === 'Grail') {
-                        messages.unshift(`"These are GRAIL status. ${formatCurrency(counterOffer)} or I'm out."`);
-                    } else if (shoe.rarityTier === 'Vaulted' || shoe.tier === 'Vaulted') {
-                        messages.unshift(`"Vaulted kicks don't go for cheap. ${formatCurrency(counterOffer)} is my floor."`);
+                    // Tough personality - use tier-specific lines
+                    if (tier === 'Grail') {
+                        messages.push(...AI_DIALOGUE.counter.tough_grail);
+                    } else if (tier === 'Vaulted') {
+                        messages.push(...AI_DIALOGUE.counter.tough_vaulted);
+                    } else if (tier === 'Limited' || shoe.rarity === 'Epic' || shoe.rarity === 'Legendary') {
+                        messages.push(...AI_DIALOGUE.counter.tough_limited);
+                    } else if (shoe.isHot || shoe.trend > 5) {
+                        messages.push(...AI_DIALOGUE.counter.tough_hot);
+                    } else {
+                        messages.push(...AI_DIALOGUE.counter.tough_standard);
                     }
                 } else if (isCollector) {
-                    messages = [
-                        `"These mean something to me, but ${formatCurrency(counterOffer)} works."`,
-                        `"I don't usually let these go, but I'll do ${formatCurrency(counterOffer)}."`,
-                        `"For the right price I'll part with them - ${formatCurrency(counterOffer)}."`,
-                        (shoe.rarityTier === 'Grail' || shoe.tier === 'Grail') ? `"Grails like these don't come around. ${formatCurrency(counterOffer)} is fair."` : `"${formatCurrency(counterOffer)} and they're yours."`
-                    ];
-                    
-                    if (shoe.rarityTier === 'Vaulted' || shoe.tier === 'Vaulted') {
-                        messages.push(`"Vaulted pairs are special to me. ${formatCurrency(counterOffer)} is the number."`);
+                    // Collector personality
+                    if (tier === 'Grail') {
+                        messages.push(...AI_DIALOGUE.counter.collector_grail);
+                    } else if (tier === 'Vaulted') {
+                        messages.push(...AI_DIALOGUE.counter.collector_vaulted);
+                    } else {
+                        messages.push(...AI_DIALOGUE.counter.collector_standard);
                     }
                 } else if (isEager) {
-                    messages = [
-                        `"Aight look, meet me at ${formatCurrency(counterOffer)} and we done."`,
-                        `"I need to move these - ${formatCurrency(counterOffer)} works for me."`,
-                        `"Let's make it happen, ${formatCurrency(counterOffer)}?"`,
-                        `"How about ${formatCurrency(counterOffer)}? That's fair for both of us."`
-                    ];
+                    // Eager personality
+                    if (tier === 'Limited' || shoe.rarity === 'Epic' || shoe.rarity === 'Legendary') {
+                        messages.push(...AI_DIALOGUE.counter.eager_limited);
+                    }
+                    messages.push(...AI_DIALOGUE.counter.eager_standard);
                 } else {
-                    messages = [
-                        `"I'll come down to ${formatCurrency(counterOffer)}."`,
-                        `"Meet me in the middle - ${formatCurrency(counterOffer)}?"`,
-                        `"${formatCurrency(counterOffer)} is the lowest I can do."`,
-                        (shoe.condition === 'Deadstock' || shoe.condition === 'OG') ? `"Deadstock at ${formatCurrency(counterOffer)} is already a deal."` : `"${formatCurrency(counterOffer)} and we got a deal."`
-                    ];
+                    // Fair/neutral personality - use condition-specific lines
+                    if (shoe.condition === 'Deadstock' || shoe.condition === 'OG' || shoe.condition === 'Celeb Worn') {
+                        messages.push(...AI_DIALOGUE.counter.fair_deadstock);
+                    } else if (shoe.condition === 'VNDS' || shoe.condition === 'Used') {
+                        messages.push(...AI_DIALOGUE.counter.fair_vnds);
+                    }
+                    messages.push(...AI_DIALOGUE.counter.fair_standard);
                 }
+                
+                // Replace PRICE placeholder with actual counter offer
+                messages = messages.map(msg => `"${msg.replace('PRICE', formatCurrency(counterOffer))}"`);
+                
             } else {
                 // Customer is buying from you
                 messages = [
@@ -8361,8 +8704,23 @@
             if (stayChance < 0.3) {
                 // They stay - customer is still willing to negotiate
                 closeModal();
+                
                 if (customerType === 'seller') {
-                    showNotification(`${customer.name} is disappointed but still here. Try a better offer?`, 'error');
+                    // Contextual "still here" messages based on personality
+                    const shoe = customer.shoe;
+                    let stayMessage;
+                    
+                    if (customer.personality === 'tough') {
+                        stayMessage = `${customer.name}: "You're testing my patience, but I'm still here. Better offer next time."`;
+                    } else if (customer.personality === 'eager') {
+                        stayMessage = `${customer.name}: "Alright, I need to move these. Still willing to talk."`;
+                    } else if (customer.personality === 'collector') {
+                        stayMessage = `${customer.name}: "These mean something to me. If you're serious, come back with respect."`;
+                    } else {
+                        stayMessage = `${customer.name} is disappointed but still here. Try a better offer?`;
+                    }
+                    
+                    showNotification(stayMessage, 'error');
                 } else {
                     showNotification(`${customer.name} looks frustrated but hasn't left yet...`, 'error');
                 }
@@ -8372,7 +8730,26 @@
                 closeModal();
                 
                 if (customerType === 'seller') {
-                    showNotification(`${customer.name} took their shoes and left! Deal lost.`, 'error');
+                    // Contextual walk away messages
+                    const shoe = customer.shoe;
+                    let walkAwayMessage;
+                    
+                    if (customer.personality === 'tough') {
+                        walkAwayMessage = `${customer.name}: "Stop wasting my time with lowballs. I'm out." *walks away*`;
+                    } else if (customer.personality === 'eager') {
+                        walkAwayMessage = `${customer.name}: "I need money but not that desperate. Finding another buyer." *leaves*`;
+                    } else if (customer.personality === 'collector') {
+                        const tier = shoe.rarityTier || shoe.tier || 'Standard';
+                        if (tier === 'Grail' || tier === 'Vaulted') {
+                            walkAwayMessage = `${customer.name}: "I'd rather keep these ${tier} kicks than give them away." *leaves*`;
+                        } else {
+                            walkAwayMessage = `${customer.name}: "Can't let them go for that. Sorry." *walks away*`;
+                        }
+                    } else {
+                        walkAwayMessage = `${customer.name} took their shoes and left! Deal lost.`;
+                    }
+                    
+                    showNotification(walkAwayMessage, 'error');
                 } else {
                     showNotification(`${customer.name} walked out of your shop! Sale lost.`, 'error');
                 }
@@ -8692,7 +9069,7 @@
                 message = randomChoice(acceptedMessages);
             } else if (percentage >= 95) {
                 accepted = Math.random() > 0.4;
-                reaction = accepted ? '😊' : '🤔';
+                reaction = accepted ? '' : '';
                 message = accepted ? 
                     randomChoice([
                         `"Close enough. ${selectedShoes.length} pairs, let's do it!"`,
@@ -8706,7 +9083,7 @@
                     ]);
             } else if (percentage >= 90) {
                 accepted = Math.random() > 0.7;
-                reaction = accepted ? '😊' : '🤔';
+                reaction = accepted ? '' : '';
                 message = accepted ? 
                     randomChoice([
                         `"Alright, you drive a hard bargain. Deal."`,
@@ -8720,7 +9097,7 @@
                     ]);
             } else if (percentage >= 85) {
                 accepted = Math.random() > 0.85;
-                reaction = accepted ? '😊' : '😐';
+                reaction = accepted ? '' : '';
                 message = accepted ? 
                     randomChoice([
                         `"Man... barely worth it but alright."`,
@@ -8734,7 +9111,7 @@
                     ]);
             } else {
                 accepted = false;
-                reaction = '😤';
+                reaction = '';
                 const rejectedMessages = [
                     `"Are you serious? That's way too low for ${selectedShoes.length} pairs. I'm out."`,
                     `"Bro you're really trying to lowball me on a bulk deal? Nah."`,
@@ -9285,20 +9662,26 @@
             
             // Choose reaction based on ACTUAL outcome
             let reaction;
+            let reactionType;
             if (accepted) {
                 reaction = SELLER_REACTIONS.accepted;
+                reactionType = 'accepted';
             } else if (shouldCounter) {
                 reaction = SELLER_REACTIONS.counter;
+                reactionType = 'counter';
             } else {
                 reaction = SELLER_REACTIONS.rejected;
+                reactionType = 'rejected';
             }
             
-            // Update seller reaction to match outcome
+            // Update seller reaction to match outcome (marketplace sellers are typically tough)
             document.getElementById('seller-avatar').innerHTML = `
                 👤
                 <div class="reaction-emoji">${reaction.emoji}</div>
             `;
-            document.getElementById('seller-message').textContent = `"${randomChoice(reaction.messages)}"`;
+            // Use contextual reaction with 'tough' personality for marketplace sellers
+            const marketplaceMessage = getContextualReaction(reactionType, shoe, 'tough');
+            document.getElementById('seller-message').textContent = `"${marketplaceMessage}"`;
             
             setTimeout(() => {
                 if (accepted) {
@@ -9701,78 +10084,78 @@
         // Crate odds definitions
         const CRATE_ODDS = {
             entry: [
-                { tier: 'Standard', condition: 'Scuffed', probability: 22 },
-                { tier: 'Standard', condition: 'Celeb Worn', probability: 4 },
-                { tier: 'Standard', condition: 'Used', probability: 10 },
-                { tier: 'Standard', condition: 'VNDS', probability: 9 },
-                { tier: 'Standard', condition: 'Deadstock', probability: 7 },
-                { tier: 'Standard', condition: 'OG', probability: 5 },
-                { tier: 'Limited', condition: 'Scuffed', probability: 8 },
-                { tier: 'Limited', condition: 'Celeb Worn', probability: 3 },
-                { tier: 'Limited', condition: 'Used', probability: 6 },
-                { tier: 'Limited', condition: 'VNDS', probability: 6 },
-                { tier: 'Limited', condition: 'Deadstock', probability: 4 },
-                { tier: 'Limited', condition: 'OG', probability: 4 }
+                { tier: 'Standard', condition: 'Scuffed', probability: 25.67 },
+                { tier: 'Standard', condition: 'Celeb Worn', probability: 4.67 },
+                { tier: 'Standard', condition: 'Used', probability: 11.67 },
+                { tier: 'Standard', condition: 'VNDS', probability: 10.5 },
+                { tier: 'Standard', condition: 'Deadstock', probability: 8.17 },
+                { tier: 'Standard', condition: 'OG', probability: 5.83 },
+                { tier: 'Limited', condition: 'Scuffed', probability: 9.33 },
+                { tier: 'Limited', condition: 'Celeb Worn', probability: 3.5 },
+                { tier: 'Limited', condition: 'Used', probability: 7.0 },
+                { tier: 'Limited', condition: 'VNDS', probability: 7.0 },
+                { tier: 'Limited', condition: 'Deadstock', probability: 4.67 },
+                { tier: 'Limited', condition: 'OG', probability: 2.0 }
             ],
             premium: [
-                { tier: 'Limited', condition: 'Scuffed', probability: 10 },
-                { tier: 'Limited', condition: 'Celeb Worn', probability: 2 },
-                { tier: 'Limited', condition: 'Used', probability: 6 },
-                { tier: 'Limited', condition: 'VNDS', probability: 5 },
-                { tier: 'Limited', condition: 'Deadstock', probability: 3 },
-                { tier: 'Limited', condition: 'OG', probability: 3 },
-                { tier: 'Premium', condition: 'Scuffed', probability: 3 },
-                { tier: 'Premium', condition: 'Celeb Worn', probability: 1 },
-                { tier: 'Premium', condition: 'Used', probability: 2 },
-                { tier: 'Premium', condition: 'VNDS', probability: 1.5 },
-                { tier: 'Premium', condition: 'Deadstock', probability: 1 },
-                { tier: 'Premium', condition: 'OG', probability: 0.7 },
-                { tier: 'Vaulted', condition: 'Scuffed', probability: 1.5 },
-                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 0.3 },
-                { tier: 'Vaulted', condition: 'Used', probability: 0.9 },
-                { tier: 'Vaulted', condition: 'VNDS', probability: 0.7 },
-                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.4 },
-                { tier: 'Vaulted', condition: 'OG', probability: 0.3 }
+                { tier: 'Limited', condition: 'Scuffed', probability: 23.33 },
+                { tier: 'Limited', condition: 'Celeb Worn', probability: 4.67 },
+                { tier: 'Limited', condition: 'Used', probability: 14.0 },
+                { tier: 'Limited', condition: 'VNDS', probability: 11.67 },
+                { tier: 'Limited', condition: 'Deadstock', probability: 7.0 },
+                { tier: 'Limited', condition: 'OG', probability: 7.0 },
+                { tier: 'Premium', condition: 'Scuffed', probability: 7.0 },
+                { tier: 'Premium', condition: 'Celeb Worn', probability: 2.33 },
+                { tier: 'Premium', condition: 'Used', probability: 4.67 },
+                { tier: 'Premium', condition: 'VNDS', probability: 3.5 },
+                { tier: 'Premium', condition: 'Deadstock', probability: 2.33 },
+                { tier: 'Premium', condition: 'OG', probability: 1.63 },
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 3.5 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 2.0 },
+                { tier: 'Vaulted', condition: 'Used', probability: 2.1 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 1.63 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.93 },
+                { tier: 'Vaulted', condition: 'OG', probability: 2.0 }
             ],
             elite: [
-                { tier: 'Premium', condition: 'Scuffed', probability: 3 },
-                { tier: 'Premium', condition: 'Celeb Worn', probability: 0.6 },
-                { tier: 'Premium', condition: 'Used', probability: 2 },
-                { tier: 'Premium', condition: 'VNDS', probability: 1.2 },
-                { tier: 'Premium', condition: 'Deadstock', probability: 0.6 },
-                { tier: 'Premium', condition: 'OG', probability: 0.4 },
-                { tier: 'Vaulted', condition: 'Scuffed', probability: 1.5 },
-                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 0.3 },
-                { tier: 'Vaulted', condition: 'Used', probability: 0.9 },
-                { tier: 'Vaulted', condition: 'VNDS', probability: 0.6 },
-                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.3 },
-                { tier: 'Vaulted', condition: 'OG', probability: 0.2 },
-                { tier: 'Exclusive', condition: 'Scuffed', probability: 0.12 },
-                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.02 },
-                { tier: 'Exclusive', condition: 'Used', probability: 0.08 },
-                { tier: 'Exclusive', condition: 'VNDS', probability: 0.04 },
-                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.02 },
-                { tier: 'Exclusive', condition: 'OG', probability: 0.01 }
+                { tier: 'Premium', condition: 'Scuffed', probability: 24.81 },
+                { tier: 'Premium', condition: 'Celeb Worn', probability: 4.96 },
+                { tier: 'Premium', condition: 'Used', probability: 16.54 },
+                { tier: 'Premium', condition: 'VNDS', probability: 9.92 },
+                { tier: 'Premium', condition: 'Deadstock', probability: 4.96 },
+                { tier: 'Premium', condition: 'OG', probability: 3.31 },
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 12.39 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 2.48 },
+                { tier: 'Vaulted', condition: 'Used', probability: 7.44 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 4.96 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 2.48 },
+                { tier: 'Vaulted', condition: 'OG', probability: 1.65 },
+                { tier: 'Exclusive', condition: 'Scuffed', probability: 0.99 },
+                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.17 },
+                { tier: 'Exclusive', condition: 'Used', probability: 0.66 },
+                { tier: 'Exclusive', condition: 'VNDS', probability: 0.33 },
+                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.17 },
+                { tier: 'Exclusive', condition: 'OG', probability: 2.0 }
             ],
             ultra: [
-                { tier: 'Vaulted', condition: 'Scuffed', probability: 2 },
-                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 0.5 },
-                { tier: 'Vaulted', condition: 'Used', probability: 1 },
-                { tier: 'Vaulted', condition: 'VNDS', probability: 0.8 },
-                { tier: 'Vaulted', condition: 'Deadstock', probability: 0.5 },
-                { tier: 'Vaulted', condition: 'OG', probability: 0.3 },
-                { tier: 'Exclusive', condition: 'Scuffed', probability: 0.2 },
-                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.05 },
-                { tier: 'Exclusive', condition: 'Used', probability: 0.1 },
-                { tier: 'Exclusive', condition: 'VNDS', probability: 0.05 },
-                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.03 },
-                { tier: 'Exclusive', condition: 'OG', probability: 0.02 },
-                { tier: 'Grail', condition: 'Scuffed', probability: 0.08 },
-                { tier: 'Grail', condition: 'Celeb Worn', probability: 0.025 },
-                { tier: 'Grail', condition: 'Used', probability: 0.04 },
-                { tier: 'Grail', condition: 'VNDS', probability: 0.025 },
-                { tier: 'Grail', condition: 'Deadstock', probability: 0.015 },
-                { tier: 'Grail', condition: 'OG', probability: 0.01 }
+                { tier: 'Vaulted', condition: 'Scuffed', probability: 33.85 },
+                { tier: 'Vaulted', condition: 'Celeb Worn', probability: 8.46 },
+                { tier: 'Vaulted', condition: 'Used', probability: 16.92 },
+                { tier: 'Vaulted', condition: 'VNDS', probability: 13.54 },
+                { tier: 'Vaulted', condition: 'Deadstock', probability: 8.46 },
+                { tier: 'Vaulted', condition: 'OG', probability: 5.08 },
+                { tier: 'Exclusive', condition: 'Scuffed', probability: 3.38 },
+                { tier: 'Exclusive', condition: 'Celeb Worn', probability: 0.85 },
+                { tier: 'Exclusive', condition: 'Used', probability: 1.69 },
+                { tier: 'Exclusive', condition: 'VNDS', probability: 0.85 },
+                { tier: 'Exclusive', condition: 'Deadstock', probability: 0.51 },
+                { tier: 'Exclusive', condition: 'OG', probability: 0.34 },
+                { tier: 'Grail', condition: 'Scuffed', probability: 1.35 },
+                { tier: 'Grail', condition: 'Celeb Worn', probability: 0.42 },
+                { tier: 'Grail', condition: 'Used', probability: 0.68 },
+                { tier: 'Grail', condition: 'VNDS', probability: 0.42 },
+                { tier: 'Grail', condition: 'Deadstock', probability: 0.25 },
+                { tier: 'Grail', condition: 'OG', probability: 2.0 }
             ]
         };
 
@@ -9941,11 +10324,11 @@
             
             const content = `
                 <div style="text-align: center; max-width: 400px; margin: 0 auto;">
-                    <h2 style="color: #1a1a1a; margin-bottom: 20px; font-size: 28px;">🎉 Crate Opened! 🎉</h2>
+                    <h2 style="color: #1a1a1a; margin-bottom: 20px; font-size: 28px;">Crate Opened!</h2>
                     
                     <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden; background: #fff;">
                         <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.tier} ${shoe.condition}</div>
-                        ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">🔥 HOT</div>' : ''}
+                        ${shoe.isHot ? '<div style="position: absolute; top: 12px; left: 12px; font-size: 14px; font-weight: 900; color: #e74c3c; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 4px; z-index: 10; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">HOT</div>' : ''}
                         
                         <!-- Image as centerpiece -->
                         <div id="crate-sneaker-img-${shoe.id}" style="width: 100%; height: 260px; background: linear-gradient(135deg, ${brandColor}dd 0%, ${brandColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
