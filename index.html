@@ -3154,7 +3154,7 @@
     <script>
         // ==================== AUTO-UPDATE SYSTEM ====================
         // Client version - this is checked against server version
-        const CLIENT_VERSION = '1.2.0';
+        const CLIENT_VERSION = '2.0.0-multiplayer';
         
         // Show update notification popup
         function showUpdateNotification(serverVersion) {
@@ -11066,8 +11066,17 @@
 
         // ==================== LIST SHOE FOR MULTIPLAYER ====================
         async function listShoeForMultiplayer(shoeId) {
+            // Check if multiplayer is enabled
+            if (!multiplayerEnabled) {
+                showNotification('⚠️ Multiplayer not connected. Please wait or refresh the page.', 'error');
+                return;
+            }
+            
             const shoe = gameState.inventory.find(s => s.id === shoeId);
-            if (!shoe) return;
+            if (!shoe) {
+                showNotification('❌ Shoe not found in inventory', 'error');
+                return;
+            }
             
             const price = prompt(`Enter asking price for ${shoe.brand} ${shoe.model}:\n\nEstimated Value: $${shoe.estimatedValue}`);
             if (!price || isNaN(price) || price < 1) {
@@ -11100,12 +11109,23 @@
                     gameState.inventory = gameState.inventory.filter(s => s.id !== shoeId);
                     showNotification(`✅ Listed ${shoe.brand} ${shoe.model} for $${askingPrice}`, 'success');
                     updateUI();
-                    renderInventoryTab();
+                    
+                    // Re-render the current tab to update display
+                    const sellTabBtn = document.querySelector('[data-tab="sell"]');
+                    if (sellTabBtn && sellTabBtn.classList.contains('active')) {
+                        // We're on sell tab - re-render it
+                        if (typeof renderSellTab === 'function') {
+                            renderSellTab();
+                        }
+                    }
+                    
                     saveGame();
+                } else {
+                    showNotification(`❌ Failed to list: ${data.error || 'Unknown error'}`, 'error');
                 }
             } catch (err) {
                 console.error('Failed to list shoe:', err);
-                showNotification('❌ Failed to create listing', 'error');
+                showNotification('❌ Failed to create listing. Check connection.', 'error');
             }
         }
 
