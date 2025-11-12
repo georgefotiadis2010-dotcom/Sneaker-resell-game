@@ -2887,7 +2887,6 @@
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
             <button class="tab-btn" data-tab="crates">Crates</button>
-            <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
         </div>
 
         <!-- Buy Shoes Tab -->
@@ -3138,11 +3137,6 @@
         </div>
     </div>
 
-    <!-- Leaderboard Tab -->
-    <div id="leaderboard-tab" class="tab-content">
-        <div id="leaderboard-content"></div>
-    </div>
-
     <!-- Modal -->
     <div class="modal" id="modal">
         <div class="modal-content">
@@ -3154,7 +3148,7 @@
     <script>
         // ==================== AUTO-UPDATE SYSTEM ====================
         // Client version - this is checked against server version
-        const CLIENT_VERSION = '1.3.0-leaderboards';
+        const CLIENT_VERSION = '1.2.0';
         
         // Show update notification popup
         function showUpdateNotification(serverVersion) {
@@ -9689,11 +9683,6 @@
                         renderMarketTab();
                         updateMarketTrendTimer();
                         break;
-                    case 'leaderboard':
-                        if (typeof renderLeaderboardTab === 'function') {
-                            renderLeaderboardTab();
-                        }
-                        break;
                 }
             });
         });
@@ -10940,210 +10929,6 @@
         
         // Apply mobile optimizations after game initializes
         initMobileOptimizations();
-
-        // ==================== LEADERBOARD SYSTEM ====================
-        let leaderboardData = {
-            cash: [],
-            shoes: [],
-            profit: [],
-            reputation: []
-        };
-
-        async function submitToLeaderboard() {
-            const playerName = prompt('Enter your name for the leaderboard:');
-            if (!playerName || playerName.trim().length === 0) {
-                showNotification('Name is required!', 'error');
-                return;
-            }
-
-            // Calculate total shoes collected (including sold ones from stats)
-            const currentInventory = gameState.inventory.length;
-            const totalShoesCollected = currentInventory + (gameState.totalShoesSold || 0);
-
-            try {
-                const response = await fetch('/api/leaderboard/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        playerName: playerName.trim(),
-                        cash: gameState.cash,
-                        shoesCollected: totalShoesCollected,
-                        totalProfit: gameState.totalProfit,
-                        reputation: gameState.reputation
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showNotification('🏆 Score submitted to leaderboard!', 'success');
-                    // Refresh leaderboards
-                    await loadLeaderboards();
-                    renderLeaderboardTab();
-                } else {
-                    showNotification(`Failed: ${data.error}`, 'error');
-                }
-            } catch (err) {
-                console.error('Leaderboard submission error:', err);
-                showNotification('❌ Failed to submit score', 'error');
-            }
-        }
-
-        async function loadLeaderboards() {
-            try {
-                const [cashRes, shoesRes, profitRes, repRes] = await Promise.all([
-                    fetch('/api/leaderboard/cash'),
-                    fetch('/api/leaderboard/shoes'),
-                    fetch('/api/leaderboard/profit'),
-                    fetch('/api/leaderboard/reputation')
-                ]);
-
-                leaderboardData.cash = (await cashRes.json()).leaderboard || [];
-                leaderboardData.shoes = (await shoesRes.json()).leaderboard || [];
-                leaderboardData.profit = (await profitRes.json()).leaderboard || [];
-                leaderboardData.reputation = (await repRes.json()).leaderboard || [];
-
-                console.log('🏆 Leaderboards loaded:', {
-                    cash: leaderboardData.cash.length,
-                    shoes: leaderboardData.shoes.length,
-                    profit: leaderboardData.profit.length,
-                    reputation: leaderboardData.reputation.length
-                });
-            } catch (err) {
-                console.error('Failed to load leaderboards:', err);
-            }
-        }
-
-        function renderLeaderboardTab() {
-            const content = document.getElementById('leaderboard-content');
-            if (!content) return;
-
-            let html = `
-                <div style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <h2 style="margin: 0 0 15px 0; font-size: 28px; text-align: center;">🏆 GLOBAL LEADERBOARDS 🏆</h2>
-                    <p style="margin: 0 0 10px 0; text-align: center; opacity: 0.9;">Compete with players worldwide!</p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; font-size: 14px;">
-                        <div style="background: rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; text-align: center;">
-                            <div style="font-size: 11px; opacity: 0.8;">Your Cash</div>
-                            <div style="font-size: 18px; font-weight: 900;">$${gameState.cash.toLocaleString()}</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; text-align: center;">
-                            <div style="font-size: 11px; opacity: 0.8;">Shoes Owned</div>
-                            <div style="font-size: 18px; font-weight: 900;">${gameState.inventory.length}</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; text-align: center;">
-                            <div style="font-size: 11px; opacity: 0.8;">Total Profit</div>
-                            <div style="font-size: 18px; font-weight: 900;">$${gameState.totalProfit.toLocaleString()}</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; text-align: center;">
-                            <div style="font-size: 11px; opacity: 0.8;">Reputation</div>
-                            <div style="font-size: 18px; font-weight: 900;">${'⭐'.repeat(gameState.reputation)}</div>
-                        </div>
-                    </div>
-                    <button onclick="submitToLeaderboard()" style="width: 100%; margin-top: 15px; padding: 12px; background: #27ae60; color: white; border: 2px solid #fff; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                        📊 Submit My Score
-                    </button>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            `;
-
-            // Render each leaderboard category
-            const categories = [
-                { 
-                    title: '💰 Richest Players', 
-                    data: leaderboardData.cash, 
-                    valueKey: 'cash', 
-                    valueLabel: 'Cash',
-                    formatValue: (val) => '$' + val.toLocaleString(),
-                    color: '#27ae60'
-                },
-                { 
-                    title: '👟 Top Collectors', 
-                    data: leaderboardData.shoes, 
-                    valueKey: 'shoes_collected', 
-                    valueLabel: 'Shoes',
-                    formatValue: (val) => val + ' shoes',
-                    color: '#3498db'
-                },
-                { 
-                    title: '📈 Profit Kings', 
-                    data: leaderboardData.profit, 
-                    valueKey: 'total_profit', 
-                    valueLabel: 'Profit',
-                    formatValue: (val) => '$' + val.toLocaleString(),
-                    color: '#9b59b6'
-                },
-                { 
-                    title: '⭐ Reputation Leaders', 
-                    data: leaderboardData.reputation, 
-                    valueKey: 'reputation', 
-                    valueLabel: 'Stars',
-                    formatValue: (val) => '⭐'.repeat(val),
-                    color: '#f39c12'
-                }
-            ];
-
-            categories.forEach(category => {
-                html += `
-                    <div style="background: white; border: 3px solid #000; border-radius: 8px; padding: 20px; box-shadow: 4px 4px 0 rgba(0,0,0,0.1);">
-                        <div style="background: ${category.color}; color: white; padding: 12px; border-radius: 5px; margin: -20px -20px 15px -20px; text-align: center;">
-                            <h3 style="margin: 0; font-size: 18px; font-weight: 900;">${category.title}</h3>
-                        </div>
-                `;
-
-                if (category.data.length === 0) {
-                    html += `
-                        <div style="text-align: center; padding: 40px 0; color: #999;">
-                            <div style="font-size: 40px; margin-bottom: 10px;">🏆</div>
-                            <p style="margin: 0; font-size: 14px;">No scores yet!</p>
-                            <p style="margin: 5px 0 0 0; font-size: 12px;">Be the first!</p>
-                        </div>
-                    `;
-                } else {
-                    html += '<div style="display: flex; flex-direction: column; gap: 10px;">';
-                    
-                    category.data.forEach((entry, index) => {
-                        const rankColor = index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : '#666';
-                        const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                        
-                        html += `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${index < 3 ? '#fff8e1' : '#f9f9f9'}; border: 2px solid ${index < 3 ? rankColor : '#ddd'}; border-radius: 5px;">
-                                <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                                    <span style="font-size: 20px; min-width: 35px; text-align: center;">${rankEmoji}</span>
-                                    <div style="flex: 1; min-width: 0;">
-                                        <div style="font-weight: bold; font-size: 14px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${entry.player_name}</div>
-                                        <div style="font-size: 11px; color: #666;">${new Date(entry.submitted_at).toLocaleDateString()}</div>
-                                    </div>
-                                </div>
-                                <div style="font-weight: 900; font-size: 16px; color: ${category.color}; white-space: nowrap;">
-                                    ${category.formatValue(entry[category.valueKey])}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    html += '</div>';
-                }
-
-                html += '</div>';
-            });
-
-            html += `
-                </div>
-                
-                <div style="margin-top: 20px; text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;">
-                    <p style="margin: 0 0 10px 0; color: #666; font-size: 13px;">
-                        💡 <strong>Tip:</strong> Keep playing to improve your stats, then submit your score to compete!
-                    </p>
-                    <button onclick="loadLeaderboards().then(() => renderLeaderboardTab())" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                        🔄 Refresh Leaderboards
-                    </button>
-                </div>
-            `;
-
-            content.innerHTML = html;
-        }
     </script>
 </body>
 </html>
