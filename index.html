@@ -8995,7 +8995,7 @@
             closeModal();
             showNotification(`Purchased ${shoe.brand} ${shoe.model} from ${customer.name} for ${formatCurrency(price)}!`, 'success');
             updateUI();
-            renderInventoryTab();
+            renderBuyTab();
             renderCustomersTab();
         }
 
@@ -9175,7 +9175,6 @@
             closeModal();
             showNotification(`${customer.name} bought it for ${formatCurrency(salePrice)}! Profit: ${formatCurrency(profit)}`, 'success');
             updateUI();
-            renderInventoryTab();
             renderSellTab();
             renderCustomersTab();
             checkMilestones();
@@ -9625,7 +9624,6 @@
             closeModal();
             showNotification(`Purchased ${shoe.brand} ${shoe.model} for ${formatCurrency(price)}!`, 'success');
             updateUI();
-            renderInventoryTab();
             renderBuyTab();
         }
 
