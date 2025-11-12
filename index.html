@@ -11303,13 +11303,26 @@
                 html += '</div>';
             }
             
+            console.log('[MARKETPLACE] Generated HTML length:', html.length);
+            console.log('[MARKETPLACE] HTML preview:', html.substring(0, 200));
+            
             marketplaceContent.innerHTML = html;
+            
+            console.log('[MARKETPLACE] innerHTML set, content length now:', marketplaceContent.innerHTML.length);
+            console.log('[MARKETPLACE] Grid element exists?', !!document.getElementById('marketplace-grid'));
             
             // Load real sneaker images for marketplace listings
             if (globalListings.length > 0) {
                 const shoes = globalListings.map(l => l.shoe_data);
+                console.log('[MARKETPLACE] Loading images for', shoes.length, 'shoes');
                 setTimeout(() => {
-                    loadSneakerImagesInGrid(shoes, document.getElementById('marketplace-grid'));
+                    const grid = document.getElementById('marketplace-grid');
+                    console.log('[MARKETPLACE] Grid for images:', !!grid);
+                    if (grid) {
+                        loadSneakerImagesInGrid(shoes, grid);
+                    } else {
+                        console.error('[MARKETPLACE] marketplace-grid not found for image loading!');
+                    }
                 }, 100);
             }
         }
