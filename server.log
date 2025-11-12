@@ -177,3 +177,46 @@ Player 21a8f2bd-a028-4734-bfcc-89bff4c7f8f4 registered
     price: 450
   }
 ]
+Player disconnected: aKh96Xazz9PhwhokAAAF
+Player connected: VQNFA5JpcFiF6NgTAAAH
+Player 21a8f2bd-a028-4734-bfcc-89bff4c7f8f4 registered
+📦 [LISTINGS] Fetching listings, excludePlayerId: 21a8f2bd-a028-4734-bfcc-89bff4c7f8f4
+✅ [LISTINGS] Found 6 active listings
+📊 [LISTINGS] Returning listings: [
+  {
+    id: '1762924285500-ezxnk48m1',
+    seller: 'AgentAlex1076',
+    shoe: 'Nike Dunk Low Syracuse',
+    price: 270
+  },
+  {
+    id: '1762924243705-nnpyq39wo',
+    seller: 'Player_7887',
+    shoe: 'Puma CA Pro Classic',
+    price: 67
+  },
+  {
+    id: '1762923365005-zmf6sioh0',
+    seller: 'Player_7887',
+    shoe: 'Nike Air Force 1 React White',
+    price: 100
+  },
+  {
+    id: '1762922314183-kwdhfhbvf',
+    seller: 'Player_7887',
+    shoe: 'Adidas Campus 80s Grey',
+    price: 100
+  },
+  {
+    id: '1762922059256-y6j6pdtrp',
+    seller: 'Player_7887',
+    shoe: 'Adidas Yeezy 700 Wave Runner',
+    price: 130
+  },
+  {
+    id: '1762921688912-db99euko1',
+    seller: 'Player_7887',
+    shoe: 'Nike Air Jordan 1 High Bio Hack',
+    price: 450
+  }
+]
