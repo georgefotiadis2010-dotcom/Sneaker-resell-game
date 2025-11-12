@@ -3038,7 +3038,6 @@
         <div class="nav-tabs">
             <button class="tab-btn active" data-tab="buy">Buy Shoes</button>
             <button class="tab-btn" data-tab="sell">Sell Shoes</button>
-            <button class="tab-btn" data-tab="stash">Stash</button>
             <button class="tab-btn" data-tab="auctions">Auctions</button>
             <button class="tab-btn" data-tab="market">Market Trends</button>
             <button class="tab-btn" data-tab="crates">Crates</button>
@@ -3084,63 +3083,6 @@
                         <div class="empty-state-text">No active buyers right now</div>
                         <p>Check back soon for new opportunities!</p>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sell Tab -->
-        <div id="sell-tab" class="tab-content">
-            <div class="section-header">
-                <span>Sell Your Kicks</span>
-            </div>
-            
-            <!-- Sub-tabs for Sell section -->
-            <div class="sell-sub-tabs">
-                <div class="sell-sub-tab active" onclick="switchSellSubTab('inventory')">
-                    Inventory
-                </div>
-                <div class="sell-sub-tab" onclick="switchSellSubTab('listed')">
-                    Listed Shoes
-                </div>
-            </div>
-            
-            <!-- Inventory Sub-section -->
-            <div id="sell-inventory-content" class="sell-sub-content active">
-                <div class="sneaker-grid" id="sell-inventory-grid">
-                    <div class="empty-state">
-                        <div class="empty-state-icon"></div>
-                        <div class="empty-state-text">No shoes in inventory</div>
-                        <p>Buy some shoes first to start flipping!</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Listed Shoes Sub-section -->
-            <div id="sell-listed-content" class="sell-sub-content">
-                <div class="sneaker-grid" id="sell-listed-grid">
-                    <div class="empty-state">
-                        <div class="empty-state-icon"></div>
-                        <div class="empty-state-text">No listed shoes</div>
-                        <p>List some shoes from your inventory!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stash Tab -->
-        <div id="stash-tab" class="tab-content">
-            <div class="section-header">
-                <span>Shoe Stash <span style="color: #3498db; font-size: 14px;">(Max 5 Shoes)</span></span>
-                <div style="font-size: 14px; color: #666; font-weight: 600;">
-                    Shoes gain 2.5% market value every 15 minutes
-                </div>
-            </div>
-            
-            <div class="sneaker-grid" id="stash-grid">
-                <div class="empty-state">
-                    <div class="empty-state-icon">💰</div>
-                    <div class="empty-state-text">No shoes in stash</div>
-                    <p>Store shoes here to gain passive market value over time!</p>
                 </div>
             </div>
         </div>
@@ -3343,13 +3285,16 @@
             <!-- Stash Sub-section -->
             <div id="collection-stash-content" class="sell-sub-content">
                 <div class="section-header">
-                    <span>Stashed Shoes</span>
+                    <span>Shoe Stash <span style="color: #3498db; font-size: 14px;">(Max 5 Shoes)</span></span>
+                    <div style="font-size: 14px; color: #666; font-weight: 600;">
+                        Shoes gain 2.5% market value every 15 minutes
+                    </div>
                 </div>
                 <div class="sneaker-grid" id="stash-grid">
                     <div class="empty-state">
-                        <div class="empty-state-icon"></div>
-                        <div class="empty-state-text">No stashed shoes</div>
-                        <p>Stash shoes from your inventory to keep them safe!</p>
+                        <div class="empty-state-icon">💰</div>
+                        <div class="empty-state-text">No shoes in stash</div>
+                        <p>Store shoes here to gain passive market value over time!</p>
                     </div>
                 </div>
             </div>
@@ -7273,6 +7218,59 @@
             return timeUntilNext;
         }
 
+        // Update only the timer displays in stash cards without re-rendering the entire tab
+        function updateStashDisplayTimers() {
+            const stashGrid = document.getElementById('stash-grid');
+            if (!stashGrid || gameState.stashedShoes.length === 0) return;
+            
+            gameState.stashedShoes.forEach(shoe => {
+                const card = stashGrid.querySelector(`[id*="sneaker-img-${shoe.id}"]`)?.closest('.sneaker-card');
+                if (!card) return;
+                
+                // Update timer at the top of card
+                const timerContainer = card.querySelector('.stash-timer-container span:last-child');
+                if (timerContainer) {
+                    timerContainer.textContent = formatStashTime(shoe.stashElapsedSeconds || 0);
+                }
+                
+                // Update stash value info section
+                const valueRows = card.querySelectorAll('.stash-value-row');
+                if (valueRows.length >= 5) {
+                    // Update Original Value (row 0)
+                    const originalValueSpan = valueRows[0]?.querySelector('.stash-value-amount');
+                    if (originalValueSpan) {
+                        originalValueSpan.textContent = formatCurrency(shoe.stashBaseValue || shoe.estimatedValue);
+                    }
+                    
+                    // Update Current Value (row 1)
+                    const currentValueSpan = valueRows[1]?.querySelector('.stash-value-amount');
+                    if (currentValueSpan) {
+                        currentValueSpan.textContent = formatCurrency(shoe.stashCurrentValue || shoe.estimatedValue);
+                    }
+                    
+                    // Update Total Gain (row 2)
+                    const gainBadge = valueRows[2]?.querySelector('.stash-gain-badge');
+                    if (gainBadge) {
+                        const totalGain = (shoe.stashCurrentValue || shoe.estimatedValue) - (shoe.stashBaseValue || shoe.estimatedValue);
+                        const gainPercent = (((shoe.stashCurrentValue || shoe.estimatedValue) / (shoe.stashBaseValue || shoe.estimatedValue) - 1) * 100).toFixed(1);
+                        gainBadge.textContent = `+${formatCurrency(totalGain)} (+${gainPercent}%)`;
+                    }
+                    
+                    // Update Time Stashed (row 3)
+                    const timeStashedSpan = valueRows[3]?.querySelectorAll('.stash-value-amount')[0];
+                    if (timeStashedSpan) {
+                        timeStashedSpan.textContent = formatStashTime(shoe.stashElapsedSeconds || 0);
+                    }
+                    
+                    // Update Next Gain In (row 4)
+                    const nextGainSpan = valueRows[4]?.querySelectorAll('.stash-value-amount')[0];
+                    if (nextGainSpan) {
+                        nextGainSpan.textContent = formatStashTime(getTimeUntilNextGain(shoe));
+                    }
+                }
+            });
+        }
+
         function unstashShoe(shoeId) {
             const shoe = gameState.inventory.find(s => s.id === shoeId);
             if (!shoe) {
@@ -8534,7 +8532,8 @@
             closeModal();
             showNotification(`Listed ${shoe.brand} ${shoe.model} for ${formatCurrency(listingPrice)}!`, 'success');
             updateUI();
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
         }
 
         function executeSale(shoeId, method) {
@@ -8584,7 +8583,8 @@
             closeModal();
             showNotification(`Sold for ${formatCurrency(salePrice)}! Profit: ${formatCurrency(profit)}`, profit > 0 ? 'success' : 'error');
             updateUI();
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
             checkMilestones();
         }
 
@@ -9615,7 +9615,8 @@
                 closeModal();
                 showNotification(`${customer.name} bought it for ${formatCurrency(counterPrice)}! Profit: ${formatCurrency(profit)}`, 'success');
                 updateUI();
-                renderSellTab();
+                renderCollectionInventoryTab();
+                renderCollectionListedTab();
                 renderCustomersTab();
                 checkMilestones();
             }
@@ -9939,7 +9940,8 @@
             closeModal();
             showNotification(`${customer.name} bought it for ${formatCurrency(salePrice)}! Profit: ${formatCurrency(profit)}`, 'success');
             updateUI();
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
             renderCustomersTab();
             checkMilestones();
         }
@@ -10945,7 +10947,8 @@
             
             showNotification(`${buyerName} bought your ${shoe.brand} ${shoe.model} for ${formatCurrency(shoe.listingPrice)}! Profit: ${formatCurrency(profit)}`, 'success');
             updateUI();
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
             checkMilestones();
             
             // Play a subtle success sound if exists
@@ -10979,9 +10982,9 @@
             // Update stash timers and apply compound interest
             updateStashTimers();
             
-            // Update stash tab display every second if active (to show live timer)
-            if (gameState.stashedShoes.length > 0 && document.getElementById('stash-tab').classList.contains('active')) {
-                renderStashTab();
+            // Update only the timer displays in stash tab if active (without re-rendering everything)
+            if (gameState.stashedShoes.length > 0 && document.getElementById('collection-stash-content').classList.contains('active')) {
+                updateStashDisplayTimers();
             }
             
             // Check listings for purchases
@@ -11445,7 +11448,8 @@
             updateUI();
             renderBuyTab();
             renderCustomersTab();
-            renderSellTab();
+            renderCollectionInventoryTab();
+            renderCollectionListedTab();
             renderMarketTab();
             renderAuctionsTab();
             
@@ -11589,6 +11593,7 @@
             setInterval(gameLoop, 1000);
             
             updateUI();
+            renderCollectionTab();
             renderMarketTab();
             updateMarketTrendTimer();
             updateNextAuctionTimer();
