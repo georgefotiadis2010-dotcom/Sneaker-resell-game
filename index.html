@@ -9696,8 +9696,13 @@
                         updateMarketTrendTimer();
                         break;
                     case 'marketplace':
+                        console.log('[TAB SWITCH] Marketplace tab clicked');
+                        console.log('[TAB SWITCH] renderMarketplaceTab exists?', typeof renderMarketplaceTab);
                         if (typeof renderMarketplaceTab === 'function') {
+                            console.log('[TAB SWITCH] Calling renderMarketplaceTab...');
                             renderMarketplaceTab();
+                        } else {
+                            console.error('[TAB SWITCH] renderMarketplaceTab function not found!');
                         }
                         break;
                 }
@@ -11227,8 +11232,17 @@
 
         // ==================== RENDER MARKETPLACE TAB ====================
         function renderMarketplaceTab() {
+            console.log('[MARKETPLACE] renderMarketplaceTab called!');
+            console.log('[MARKETPLACE] multiplayerEnabled:', multiplayerEnabled);
+            console.log('[MARKETPLACE] globalListings.length:', globalListings.length);
+            
             const marketplaceContent = document.getElementById('marketplace-content');
-            if (!marketplaceContent) return;
+            console.log('[MARKETPLACE] marketplaceContent element found?', !!marketplaceContent);
+            
+            if (!marketplaceContent) {
+                console.error('[MARKETPLACE] marketplace-content element not found!');
+                return;
+            }
             
             console.log(`[MARKETPLACE] Rendering ${globalListings.length} listings`);
             
