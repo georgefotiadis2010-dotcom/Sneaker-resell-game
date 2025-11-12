@@ -7299,7 +7299,13 @@
                     shoe.stashGainCount = intervalsCompleted;
                     
                     // Update the actual market value
-                    shoe.estimatedValue = shoe.stashCurrentValue;
+                    // IMPORTANT: This upgrade is INSTANCE-SPECIFIC - it only affects this particular shoe object.
+                    // Future shoes of the same model will get fresh market values calculated normally via calculateMarketValue().
+                    shoe.estimatedValue = shoe.stashCurrentValue; // Instance-specific property update
+                    
+                    // Clear cached market value range so it recalculates with new value
+                    delete shoe.marketValueRange;
+                    delete shoe.marketValueRangeTimestamp;
                     
                     // Show notification
                     const totalGain = shoe.stashCurrentValue - shoe.stashBaseValue;
@@ -7399,10 +7405,23 @@
                 const stashedShoe = gameState.stashedShoes.find(s => s.id === shoeId);
                 if (stashedShoe) {
                     // Apply gained value to actual market value
-                    if (stashedShoe.stashCurrentValue && stashedShoe.stashCurrentValue > stashedShoe.estimatedValue) {
-                        const gainAmount = stashedShoe.stashCurrentValue - stashedShoe.estimatedValue;
-                        stashedShoe.estimatedValue = stashedShoe.stashCurrentValue;
-                        showNotification(`${stashedShoe.brand} ${stashedShoe.model} unstashed with +${formatCurrency(gainAmount)} gain!`, 'success');
+                    // IMPORTANT: This upgrade is INSTANCE-SPECIFIC - it only affects this particular shoe object.
+                    // Future shoes of the same model will get fresh market values calculated normally via calculateMarketValue().
+                    // Always update estimatedValue from stashCurrentValue if it exists (even if equal, to ensure sync)
+                    if (stashedShoe.stashCurrentValue !== undefined) {
+                        const oldValue = stashedShoe.estimatedValue;
+                        stashedShoe.estimatedValue = stashedShoe.stashCurrentValue; // Instance-specific property update
+                        
+                        // Clear cached market value range so it recalculates with new value
+                        delete stashedShoe.marketValueRange;
+                        delete stashedShoe.marketValueRangeTimestamp;
+                        
+                        const gainAmount = stashedShoe.stashCurrentValue - oldValue;
+                        if (gainAmount > 0) {
+                            showNotification(`${stashedShoe.brand} ${stashedShoe.model} unstashed with +${formatCurrency(gainAmount)} gain!`, 'success');
+                        } else {
+                            showNotification('Shoe unstashed!', 'success');
+                        }
                     } else {
                         showNotification('Shoe unstashed!', 'success');
                     }
@@ -7428,10 +7447,23 @@
             }
             
             // Apply gained value to actual market value
-            if (shoe.stashCurrentValue && shoe.stashCurrentValue > shoe.estimatedValue) {
-                const gainAmount = shoe.stashCurrentValue - shoe.estimatedValue;
-                shoe.estimatedValue = shoe.stashCurrentValue;
-                showNotification(`${shoe.brand} ${shoe.model} unstashed with +${formatCurrency(gainAmount)} gain!`, 'success');
+            // IMPORTANT: This upgrade is INSTANCE-SPECIFIC - it only affects this particular shoe object.
+            // Future shoes of the same model will get fresh market values calculated normally via calculateMarketValue().
+            // Always update estimatedValue from stashCurrentValue if it exists (even if equal, to ensure sync)
+            if (shoe.stashCurrentValue !== undefined) {
+                const oldValue = shoe.estimatedValue;
+                shoe.estimatedValue = shoe.stashCurrentValue; // Instance-specific property update
+                
+                // Clear cached market value range so it recalculates with new value
+                delete shoe.marketValueRange;
+                delete shoe.marketValueRangeTimestamp;
+                
+                const gainAmount = shoe.stashCurrentValue - oldValue;
+                if (gainAmount > 0) {
+                    showNotification(`${shoe.brand} ${shoe.model} unstashed with +${formatCurrency(gainAmount)} gain!`, 'success');
+                } else {
+                    showNotification(`${shoe.brand} ${shoe.model} unstashed!`, 'success');
+                }
             } else {
                 showNotification(`${shoe.brand} ${shoe.model} unstashed!`, 'success');
             }

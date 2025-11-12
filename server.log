@@ -10594,3 +10594,206 @@ HTTPError: Response code 530 (undefined)
   }
 }
 [API] Successfully fetched: Jordan 1 Retro Low OG SP Travis Scott Medium Olive
+[API] Fetching sneaker: Asics Gel-1130 Oyster Grey
+[API] Fetching sneaker: Nike LeBron 9 Watch the Throne
+[API] Fetching sneaker: Nike Air Jordan 4 Kaws
+[API] Fetching sneaker: Nike SB Dunk Low Pigeon
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762949120156,
+    socket: 1762949120253,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762949120255,
+    response: 1762949120338,
+    end: 1762949120339,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 97,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 83,
+      download: 1,
+      total: 183
+    }
+  }
+}
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762949120167,
+    socket: 1762949120253,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762949120255,
+    response: 1762949120342,
+    end: 1762949120342,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 86,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 87,
+      download: 0,
+      total: 175
+    }
+  }
+}
+[API] Successfully fetched: ASICS Gel-1130 Oyster Grey
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762949120140,
+    socket: 1762949120253,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762949120255,
+    response: 1762949120343,
+    end: 1762949120343,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 113,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 88,
+      download: 0,
+      total: 203
+    }
+  }
+}
+[API] Successfully fetched: Nike SB Dunk Low Black Pigeon
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762949120819,
+    socket: 1762949120821,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762949120821,
+    response: 1762949120856,
+    end: 1762949120859,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 2,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 35,
+      download: 3,
+      total: 40
+    }
+  }
+}
+[API] Successfully fetched: Jordan 4 Retro Kaws
+[API] Fetching sneaker: Nike Air Jordan 4 Kaws
+[API] Successfully fetched: Nike LeBron 9 Watch the Throne (2022)
+[API] Fetching sneaker: Nike LeBron 9 Watch the Throne
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762949121462,
+    socket: 1762949121463,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762949121463,
+    response: 1762949121509,
+    end: 1762949121510,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 46,
+      download: 1,
+      total: 48
+    }
+  }
+}
+[API] Successfully fetched: Nike LeBron 9 Watch the Throne (2022)
+[API] Fetching sneaker: Nike LeBron 9 Watch the Throne
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762949121790,
+    socket: 1762949121791,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762949121791,
+    response: 1762949121822,
+    end: 1762949121825,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 31,
+      download: 3,
+      total: 35
+    }
+  }
+}
+[API] Successfully fetched: Nike LeBron 9 Watch the Throne (2022)
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762949121878,
+    socket: 1762949121879,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762949121879,
+    response: 1762949122056,
+    end: 1762949122057,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 177,
+      download: 1,
+      total: 179
+    }
+  }
+}
+[API] Successfully fetched: Jordan 4 Retro Kaws
