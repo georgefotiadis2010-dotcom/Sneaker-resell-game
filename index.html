@@ -7357,10 +7357,13 @@
                 } else {
                     shoe.stashGainCount = 0;
                 }
-                // Estimate elapsed seconds based on gain count (approximate)
-                shoe.stashElapsedSeconds = shoe.stashGainCount * INTERVAL_SECONDS;
+                // Calculate elapsed seconds based on gain count (this will be updated continuously by updateStashTimers)
+                const estimatedElapsedSeconds = shoe.stashGainCount * INTERVAL_SECONDS;
                 // Adjust stashStartTime backwards so timer continues from where it left off
-                shoe.stashStartTime = now - (shoe.stashElapsedSeconds * 1000);
+                // This ensures updateStashTimers calculates the correct elapsed time
+                shoe.stashStartTime = now - (estimatedElapsedSeconds * 1000);
+                // Initialize stashElapsedSeconds - it will be updated by updateStashTimers
+                shoe.stashElapsedSeconds = estimatedElapsedSeconds;
             } else {
                 // First time stashing: set fresh values
                 shoe.originalStashBaseValue = shoe.estimatedValue; // Store original base (never deleted)
@@ -7476,7 +7479,7 @@
                 
                 // Update stash value info section
                 const valueRows = card.querySelectorAll('.stash-value-row');
-                if (valueRows.length >= 5) {
+                if (valueRows.length >= 4) {
                     // Update Original Value (row 0)
                     const originalValueSpan = valueRows[0]?.querySelector('.stash-value-amount');
                     if (originalValueSpan) {
@@ -7498,7 +7501,7 @@
                     }
                     
                     // Update Next Gain In (row 3)
-                    const nextGainSpan = valueRows[3]?.querySelectorAll('.stash-value-amount')[0];
+                    const nextGainSpan = valueRows[3]?.querySelector('.stash-value-amount');
                     if (nextGainSpan) {
                         nextGainSpan.textContent = formatStashTime(getTimeUntilNextGain(shoe));
                     }
