@@ -7178,6 +7178,70 @@
             }
         }
 
+        function getBrandSolidColor(brandName) {
+            const brandColors = {
+                'Nike': '#FF6B35',
+                'Adidas': '#0066B3',
+                'New Balance': '#CC0000',
+                'Asics': '#0051BA',
+                'Converse': '#000000',
+                'Vans': '#DC0000'
+            };
+            return brandColors[brandName] || '#667eea';
+        }
+
+        function renderHistoryCard(transaction) {
+            const isPurchase = transaction.type === 'purchase';
+            const borderColor = isPurchase ? '#3498db' : '#27ae60';
+            const typeLabel = isPurchase ? 'BOUGHT' : 'SOLD';
+            
+            // Extract tier from rarity string
+            const tierMatch = transaction.rarity.match(/^(Standard|Limited|Premium|Vaulted|Exclusive|Grail|Unreleased)/);
+            const tier = tierMatch ? tierMatch[1] : 'Standard';
+            
+            // Get brand color for background
+            const brandSolidColor = getBrandSolidColor(transaction.brand);
+            
+            // Get brand initial
+            const brand = SNEAKER_BRANDS.find(b => b.name === transaction.brand);
+            const brandInitial = brand ? brand.initial : transaction.brand.substring(0, 2).toUpperCase();
+            
+            // Get rarity glow
+            const rarityGlow = getRarityGlow(transaction.rarity);
+            
+            // Create a unique ID for the image container (must match loadSneakerImages format)
+            const uniqueId = `history-${transaction.timestamp}-${transaction.type}`;
+            const imageId = `sneaker-img-${uniqueId}`;
+            
+            return `
+                <div class="sneaker-card" style="border: 3px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 10;">
+                        <div class="rarity-badge ${tier.toLowerCase()}-${transaction.condition.toLowerCase().replace(/ /g, '-')}">${transaction.rarity} ${transaction.condition}</div>
+                    </div>
+                    <div style="position: absolute; top: 12px; left: 12px; z-index: 10;">
+                        <div style="background: ${borderColor}; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                            ${typeLabel}
+                        </div>
+                    </div>
+                    
+                    <!-- Image as centerpiece -->
+                    <div id="${imageId}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandSolidColor}dd 0%, ${brandSolidColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                        <div class="sneaker-initial" style="font-size: 64px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 3px 3px 6px rgba(0,0,0,0.6);">${brandInitial}</div>
+                    </div>
+                    
+                    <!-- Price below image -->
+                    <div style="padding: 12px; text-align: center;">
+                        <div style="font-size: 9px; color: #666; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px;">
+                            ${isPurchase ? 'Bought For' : 'Sold For'}
+                        </div>
+                        <div style="font-size: 24px; font-weight: 900; color: ${borderColor}; font-family: 'Inter', sans-serif; line-height: 1;">
+                            ${formatCurrency(transaction.price)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderHistoryTab() {
             const historyGrid = document.getElementById('history-grid');
             
@@ -7198,62 +7262,28 @@
                 return;
             }
             
-            let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+            // Render cards in a grid layout
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">';
             
             allTransactions.forEach(transaction => {
-                const isPurchase = transaction.type === 'purchase';
-                const bgColor = isPurchase ? 'rgba(52, 152, 219, 0.1)' : 'rgba(39, 174, 96, 0.1)';
-                const borderColor = isPurchase ? '#3498db' : '#27ae60';
-                const typeLabel = isPurchase ? 'BOUGHT' : 'SOLD';
-                
-                // Calculate time elapsed since transaction
-                const timeElapsedSeconds = gameState.timeElapsed - transaction.timestamp;
-                const minutesAgo = Math.floor(timeElapsedSeconds / 60);
-                const hoursAgo = Math.floor(minutesAgo / 60);
-                const daysAgo = Math.floor(hoursAgo / 24);
-                
-                // Format time display
-                let timeDisplay;
-                if (daysAgo > 0) {
-                    timeDisplay = `${daysAgo}d ago`;
-                } else if (hoursAgo > 0) {
-                    timeDisplay = `${hoursAgo}h ago`;
-                } else if (minutesAgo > 0) {
-                    timeDisplay = `${minutesAgo}m ago`;
-                } else {
-                    timeDisplay = 'Just now';
-                }
-                
-                html += `
-                    <div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; padding: 15px; border-radius: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                            <div style="font-weight: 700; font-size: 16px; color: #1a1a1a;">
-                                ${transaction.brand} ${transaction.model}
-                            </div>
-                            <div style="background: ${borderColor}; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800;">
-                                ${typeLabel}
-                            </div>
-                        </div>
-                        <div style="color: #666; font-size: 13px; line-height: 1.6;">
-                            <div><strong>Colorway:</strong> ${transaction.colorway}</div>
-                            <div><strong>Size:</strong> ${transaction.size}</div>
-                            <div><strong>Condition:</strong> ${transaction.condition}</div>
-                            <div><strong>Rarity:</strong> ${transaction.rarity}</div>
-                            <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-                                <div style="font-size: 18px; font-weight: 800; color: ${borderColor};">
-                                    ${formatCurrency(transaction.price)}
-                                </div>
-                                <div style="font-size: 11px; color: #999;">
-                                    ${timeDisplay}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                html += renderHistoryCard(transaction);
             });
             
             html += '</div>';
             historyGrid.innerHTML = html;
+            
+            // Load images for history cards
+            const historyShoes = allTransactions.map(t => ({
+                id: `history-${t.timestamp}-${t.type}`,
+                brand: t.brand,
+                model: t.model,
+                colorway: t.colorway
+            }));
+            
+            // Load images after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                loadSneakerImages(historyShoes);
+            }, 100);
         }
 
         function renderStashTab() {
@@ -7309,11 +7339,37 @@
             
             // Mark as stashed and initialize timer data
             shoe.isStashed = true;
-            shoe.stashStartTime = Date.now(); // Track when shoe was stashed
-            shoe.stashElapsedSeconds = 0; // Track elapsed time in seconds
-            shoe.stashBaseValue = shoe.estimatedValue; // Store original value when stashed
-            shoe.stashCurrentValue = shoe.estimatedValue; // Current value (will compound)
-            shoe.stashGainCount = 0; // How many 15-min intervals have passed
+            const now = Date.now();
+            
+            // If shoe was previously stashed (has originalStashBaseValue), preserve it and continue
+            // Otherwise, set fresh base value
+            if (shoe.originalStashBaseValue !== undefined) {
+                // Restashing: preserve original base value and continue from current estimatedValue
+                shoe.stashBaseValue = shoe.originalStashBaseValue;
+                shoe.stashCurrentValue = shoe.estimatedValue; // Continue from current value
+                // Calculate how many intervals have passed based on accumulated value
+                const INTERVAL_SECONDS = 15 * 60;
+                const GAIN_PERCENT = 0.025;
+                // Reverse calculate intervals: if currentValue = baseValue * (1.025)^n, then n = log(currentValue/baseValue) / log(1.025)
+                if (shoe.stashCurrentValue > shoe.stashBaseValue) {
+                    const ratio = shoe.stashCurrentValue / shoe.stashBaseValue;
+                    shoe.stashGainCount = Math.floor(Math.log(ratio) / Math.log(1 + GAIN_PERCENT));
+                } else {
+                    shoe.stashGainCount = 0;
+                }
+                // Estimate elapsed seconds based on gain count (approximate)
+                shoe.stashElapsedSeconds = shoe.stashGainCount * INTERVAL_SECONDS;
+                // Adjust stashStartTime backwards so timer continues from where it left off
+                shoe.stashStartTime = now - (shoe.stashElapsedSeconds * 1000);
+            } else {
+                // First time stashing: set fresh values
+                shoe.originalStashBaseValue = shoe.estimatedValue; // Store original base (never deleted)
+                shoe.stashBaseValue = shoe.estimatedValue;
+                shoe.stashCurrentValue = shoe.estimatedValue;
+                shoe.stashElapsedSeconds = 0;
+                shoe.stashGainCount = 0;
+                shoe.stashStartTime = now;
+            }
             
             // Add to stashed shoes array (reference, not copy)
             if (!gameState.stashedShoes.find(s => s.id === shoeId)) {
@@ -7397,6 +7453,7 @@
         // Get time until next gain for a stashed shoe
         function getTimeUntilNextGain(shoe) {
             const INTERVAL_SECONDS = 15 * 60; // 15 minutes
+            if (!shoe.stashElapsedSeconds && shoe.stashElapsedSeconds !== 0) return INTERVAL_SECONDS;
             const timeInCurrentInterval = shoe.stashElapsedSeconds % INTERVAL_SECONDS;
             const timeUntilNext = INTERVAL_SECONDS - timeInCurrentInterval;
             return timeUntilNext;
@@ -7478,12 +7535,13 @@
                     }
                     
                     stashedShoe.isStashed = false;
-                    // Clean up stash properties
+                    // Clean up stash properties (but preserve originalStashBaseValue for future restashing)
                     delete stashedShoe.stashStartTime;
                     delete stashedShoe.stashElapsedSeconds;
                     delete stashedShoe.stashBaseValue;
                     delete stashedShoe.stashCurrentValue;
                     delete stashedShoe.stashGainCount;
+                    // NOTE: originalStashBaseValue is NOT deleted - it persists for future restashing
                     
                     gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
                 }
@@ -7522,12 +7580,13 @@
             // Unmark as stashed
             shoe.isStashed = false;
             
-            // Clean up stash properties
+            // Clean up stash properties (but preserve originalStashBaseValue for future restashing)
             delete shoe.stashStartTime;
             delete shoe.stashElapsedSeconds;
             delete shoe.stashBaseValue;
             delete shoe.stashCurrentValue;
             delete shoe.stashGainCount;
+            // NOTE: originalStashBaseValue is NOT deleted - it persists for future restashing
             
             // Remove from stashed shoes array
             gameState.stashedShoes = gameState.stashedShoes.filter(s => s.id !== shoeId);
