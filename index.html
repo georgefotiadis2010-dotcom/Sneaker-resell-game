@@ -6448,6 +6448,35 @@
                 speedColor = '#e74c3c';
             }
             
+            // Calculate time remaining until expected sale
+            let timeRemainingText = '';
+            let timeRemainingColor = speedColor;
+            
+            if (shoe.expectedSellTimeInSeconds) {
+                const timeRemaining = Math.max(0, shoe.expectedSellTimeInSeconds - (shoe.timeListedInSeconds || 0));
+                
+                if (timeRemaining <= 0) {
+                    timeRemainingText = 'Should sell soon...';
+                    timeRemainingColor = '#f39c12';
+                } else if (timeRemaining < 60) {
+                    timeRemainingText = `Sells in ~${timeRemaining}s`;
+                    timeRemainingColor = '#27ae60';
+                } else if (timeRemaining < 3600) {
+                    const mins = Math.floor(timeRemaining / 60);
+                    const secs = timeRemaining % 60;
+                    timeRemainingText = `Sells in ~${mins}m ${secs}s`;
+                    timeRemainingColor = '#27ae60';
+                } else {
+                    const hours = Math.floor(timeRemaining / 3600);
+                    const mins = Math.floor((timeRemaining % 3600) / 60);
+                    timeRemainingText = `Sells in ~${hours}h ${mins}m`;
+                    timeRemainingColor = timeRemaining < 14400 ? '#f39c12' : '#e74c3c';
+                }
+            } else if (saleSpeed) {
+                // Fallback to static saleSpeed if expectedSellTimeInSeconds not set
+                timeRemainingText = saleSpeed;
+            }
+            
             return `
                 <div class="sneaker-card" style="border: ${cardBorderWidth} solid ${cardBorderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                     <div class="rarity-badge ${shoe.tier.toLowerCase()}-${shoe.condition.toLowerCase().replace(/ /g, '-')}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">${shoe.rarity} ${shoe.condition}</div>
@@ -6519,8 +6548,8 @@
                                 <span style="font-size: 10px; color: #000; font-weight: 600; white-space: nowrap;">Views: ${shoe.viewCount || 0} | ${timeListedMins}m</span>
                         </div>
                         
-                        ${saleSpeed ? `<div style="text-align: center; font-size: 9px; font-weight: 700; color: ${speedColor}; margin-bottom: 8px; padding: 4px; background: ${speedColor}15; border-radius: 3px;">
-                            ${saleSpeed}
+                        ${timeRemainingText ? `<div style="text-align: center; font-size: 9px; font-weight: 700; color: ${timeRemainingColor}; margin-bottom: 8px; padding: 4px; background: ${timeRemainingColor}15; border-radius: 3px;">
+                            ${timeRemainingText}
                         </div>` : ''}
                         
                         <button class="action-btn danger" onclick="unlistShoe('${shoe.id}')" style="padding: 8px; font-size: 12px; width: 100%;">
@@ -9111,6 +9140,36 @@
             `;
         }
         
+        // Helper function to calculate expected sell time in seconds based on interest
+        function calculateExpectedSellTime(interest) {
+            let purchaseChance;
+            if (interest >= 180) {
+                purchaseChance = 0.03; // ~33 seconds average
+            } else if (interest >= 150) {
+                purchaseChance = 0.02; // ~50 seconds average
+            } else if (interest >= 120) {
+                purchaseChance = 0.01; // ~100 seconds average
+            } else if (interest >= 100) {
+                purchaseChance = 0.004; // ~250 seconds (4.17 min) average
+            } else if (interest >= 80) {
+                purchaseChance = 0.0015; // ~667 seconds (11.1 min) average
+            } else if (interest >= 60) {
+                purchaseChance = 0.0006; // ~1667 seconds (27.8 min) average
+            } else if (interest >= 40) {
+                purchaseChance = 0.0002; // ~5000 seconds (83.3 min) average
+            } else if (interest >= 25) {
+                purchaseChance = 0.00008; // ~12500 seconds (208.3 min) average
+            } else if (interest >= 15) {
+                purchaseChance = 0.00003; // ~33333 seconds (555.5 min) average
+            } else if (interest >= 5) {
+                purchaseChance = 0.00001; // ~100000 seconds (1666.7 min) average
+            } else {
+                purchaseChance = 0.000001; // ~1000000 seconds (16666.7 min) average
+            }
+            // Expected time = 1/purchaseChance (inverse of probability)
+            return Math.ceil(1 / purchaseChance);
+        }
+
         function listShoeForSale(shoeId, method) {
             // CRITICAL: Only allow listing if shoe exists in inventory
             // This prevents re-listing shoes that have already been sold
@@ -9132,6 +9191,9 @@
             // Calculate interest and sale speed for the listing
             const tempShoe = {...shoe, listingPrice: listingPrice, timeListedInSeconds: 0};
             const interest = calculateBuyerInterest(tempShoe);
+            
+            // Calculate expected sell time in seconds
+            const expectedSellTimeInSeconds = calculateExpectedSellTime(interest);
             
             // Determine sale speed based on interest level
             let saleSpeed = '';
@@ -9165,6 +9227,7 @@
             shoe.timeListedInSeconds = 0;
             shoe.viewCount = 0;
             shoe.saleSpeed = saleSpeed;
+            shoe.expectedSellTimeInSeconds = expectedSellTimeInSeconds;
             shoe.interestFactors = tempShoe.interestFactors;
             
             // Check if already in listedShoes array
@@ -9177,6 +9240,7 @@
                     timeListedInSeconds: 0,
                     viewCount: 0,
                     saleSpeed: saleSpeed,
+                    expectedSellTimeInSeconds: expectedSellTimeInSeconds,
                     interestFactors: tempShoe.interestFactors
                 });
             } else {
@@ -11803,8 +11867,10 @@
                     saleSpeed = 'Won\'t sell';
                 }
                 
-                // Store sale speed for display
+                // Store sale speed and recalculate expected sell time for display
                 shoe.saleSpeed = saleSpeed;
+                // Recalculate expected sell time based on current interest (may have changed)
+                shoe.expectedSellTimeInSeconds = calculateExpectedSellTime(interest);
                 
                 // Check if purchase happens
                 if (Math.random() < purchaseChance) {
@@ -11885,6 +11951,12 @@
             
             // Check listings for purchases
             checkListingsForPurchase();
+            
+            // Update listed tab display every second to show countdown (if active)
+            const listedContent = document.getElementById('collection-listed-content');
+            if (listedContent && listedContent.classList.contains('active') && gameState.listedShoes.filter(s => s.listedForSale).length > 0) {
+                renderCollectionListedTab();
+            }
             
             // Age inventory and update market values
             if (gameState.timeElapsed % 60 === 0) {
@@ -12505,6 +12577,226 @@
                 listedSortFilter.value = gameState.listedSortOrder;
             }
             
+            // ==================== IDLE GAME SYSTEM ====================
+            // Track when tab becomes hidden/visible for idle game functionality
+            let lastActiveTime = Date.now();
+            let isTabActive = true;
+            
+            // Catch-up function to process missed game time
+            function catchUpGameTime(secondsToCatchUp) {
+                // Cap catch-up at 24 hours to prevent issues
+                const maxCatchUp = 24 * 60 * 60; // 24 hours in seconds
+                secondsToCatchUp = Math.min(secondsToCatchUp, maxCatchUp);
+                
+                console.log(`[IDLE] Processing ${secondsToCatchUp} seconds of catch-up time...`);
+                
+                // Process catch-up in chunks to avoid blocking the UI
+                const chunkSize = 60; // Process 60 seconds at a time
+                let remaining = secondsToCatchUp;
+                
+                function processChunk() {
+                    const chunk = Math.min(chunkSize, remaining);
+                    remaining -= chunk;
+                    
+                    // Process game loop logic for this chunk
+                    for (let i = 0; i < chunk; i++) {
+                        // Update time elapsed
+                        gameState.timeElapsed++;
+                        gameState.nextRefresh--;
+                        
+                        // Auto refresh shoes if needed
+                        if (gameState.nextRefresh <= 0) {
+                            gameState.nextRefresh = 3600; // Reset to 1 hour
+                        }
+                        
+                        // Update customers (decrease urgency)
+                        gameState.customers = gameState.customers.filter(customer => {
+                            customer.urgencyInSeconds -= 1;
+                            return customer.urgencyInSeconds > 0;
+                        });
+                        
+                        // Maintain exactly 3 customers
+                        while (gameState.customers.length < 3) {
+                            gameState.customers.push(generateCustomer());
+                        }
+                        while (gameState.customers.length > 3) {
+                            gameState.customers.pop();
+                        }
+                        
+                        // Age inventory every 60 seconds
+                        if (gameState.timeElapsed % 60 === 0) {
+                            gameState.inventory.forEach(shoe => {
+                                shoe.daysHeld++;
+                            });
+                            gameState.listedShoes.forEach(shoe => {
+                                shoe.daysHeld++;
+                            });
+                        }
+                        
+                        // Update market trends every 5 minutes
+                        gameState.nextMarketTrend--;
+                        if (gameState.nextMarketTrend <= 0) {
+                            // Update existing trends
+                            Object.keys(gameState.shoeTrends).forEach(key => {
+                                const currentTrend = gameState.shoeTrends[key];
+                                const change = random(-5, 5);
+                                gameState.shoeTrends[key] = Math.max(-20, Math.min(20, currentTrend + change));
+                            });
+                            
+                            // Randomly spike some shoes
+                            const allKeys = Object.keys(gameState.shoeTrends);
+                            if (allKeys.length > 0 && Math.random() > 0.7) {
+                                const randomKey = allKeys[random(0, allKeys.length - 1)];
+                                gameState.shoeTrends[randomKey] = random(10, 20);
+                            }
+                            
+                            // Reset timer to 5 minutes
+                            gameState.nextMarketTrend = 300;
+                        }
+                        
+                        // Generate market sales
+                        if (gameState.timeElapsed % random(120, 300) === 0) {
+                            generateMarketSale();
+                        }
+                        
+                        // Update auctions
+                        gameState.activeAuctions.forEach(auction => {
+                            auction.timeRemaining--;
+                            if (auction.timeRemaining > 0) {
+                                evaluateAIBidding(auction);
+                            }
+                        });
+                        
+                        // Complete expired auctions
+                        gameState.activeAuctions = gameState.activeAuctions.filter(auction => {
+                            if (auction.timeRemaining <= 0) {
+                                completeAuction(auction);
+                                return false;
+                            }
+                            return true;
+                        });
+                        
+                        // Update auction timers
+                        gameState.nextAIAuctionLevel1--;
+                        if (gameState.nextAIAuctionLevel1 <= 0) {
+                            const success = generateAIAuction(750, 4999, 1);
+                            gameState.nextAIAuctionLevel1 = success ? 300 : random(60, 120);
+                        }
+                        
+                        gameState.nextAIAuctionLevel2--;
+                        if (gameState.nextAIAuctionLevel2 <= 0) {
+                            const success = generateAIAuction(5000, 49999, 2);
+                            gameState.nextAIAuctionLevel2 = success ? 300 : random(60, 120);
+                        }
+                        
+                        gameState.nextAIAuctionLevel3--;
+                        if (gameState.nextAIAuctionLevel3 <= 0) {
+                            const success = generateAIAuction(50000, 999999, 3);
+                            gameState.nextAIAuctionLevel3 = success ? 300 : random(60, 120);
+                        }
+                        
+                        // Check listings for purchases
+                        checkListingsForPurchase();
+                    }
+                    
+                    // Continue processing if there's more to catch up
+                    if (remaining > 0) {
+                        // Use setTimeout to allow UI updates between chunks
+                        setTimeout(processChunk, 10);
+                    } else {
+                        // Catch-up complete - update stash timers (they use Date.now() so they auto-catch-up)
+                        updateStashTimers();
+                        
+                        // Sync hot status after catch-up
+                        syncShoeHotStatus();
+                        
+                        // Update UI
+                        updateUI();
+                        renderCollectionTab();
+                        renderMarketTab();
+                        renderCustomersTab();
+                        updateMarketTrendTimer();
+                        updateNextAuctionTimer();
+                        
+                        // Show notification
+                        const hours = Math.floor(secondsToCatchUp / 3600);
+                        const minutes = Math.floor((secondsToCatchUp % 3600) / 60);
+                        let timeStr = '';
+                        if (hours > 0) {
+                            timeStr = `${hours}h ${minutes}m`;
+                        } else {
+                            timeStr = `${minutes}m`;
+                        }
+                        showNotification(`⏰ Welcome back! Processed ${timeStr} of idle time.`, 'success');
+                        
+                        console.log(`[IDLE] Catch-up complete! Processed ${secondsToCatchUp} seconds`);
+                    }
+                }
+                
+                // Start processing chunks
+                processChunk();
+            }
+            
+            // Initialize lastActiveTime
+            if (!gameState.lastActiveTime) {
+                gameState.lastActiveTime = Date.now();
+            } else {
+                // Calculate catch-up time if game was loaded after being away
+                const timeAway = Date.now() - gameState.lastActiveTime;
+                if (timeAway > 5000) { // Only catch up if away for more than 5 seconds
+                    catchUpGameTime(Math.floor(timeAway / 1000));
+                }
+            }
+            
+            // Handle visibility change (tab switching, minimizing window, etc.)
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Tab became hidden - store current time
+                    isTabActive = false;
+                    gameState.lastActiveTime = Date.now();
+                    lastActiveTime = Date.now();
+                    console.log('[IDLE] Tab hidden - game will continue running in background');
+                } else {
+                    // Tab became visible - catch up on missed time
+                    isTabActive = true;
+                    const timeAway = Date.now() - lastActiveTime;
+                    const secondsAway = Math.floor(timeAway / 1000);
+                    
+                    if (secondsAway > 5) { // Only catch up if away for more than 5 seconds
+                        console.log(`[IDLE] Tab visible - catching up ${secondsAway} seconds of game time`);
+                        catchUpGameTime(secondsAway);
+                    }
+                    
+                    lastActiveTime = Date.now();
+                    gameState.lastActiveTime = Date.now();
+                }
+            });
+            
+            // Also handle window blur/focus as backup (for some browsers)
+            window.addEventListener('blur', function() {
+                if (!document.hidden) {
+                    isTabActive = false;
+                    gameState.lastActiveTime = Date.now();
+                    lastActiveTime = Date.now();
+                }
+            });
+            
+            window.addEventListener('focus', function() {
+                if (!document.hidden && !isTabActive) {
+                    isTabActive = true;
+                    const timeAway = Date.now() - lastActiveTime;
+                    const secondsAway = Math.floor(timeAway / 1000);
+                    
+                    if (secondsAway > 5) {
+                        console.log(`[IDLE] Window focused - catching up ${secondsAway} seconds of game time`);
+                        catchUpGameTime(secondsAway);
+                    }
+                    
+                    lastActiveTime = Date.now();
+                    gameState.lastActiveTime = Date.now();
+                }
+            });
+            
             // Start game loop
             setInterval(gameLoop, 1000);
             
@@ -12518,6 +12810,7 @@
             preloadPopularSneakers();
             
             console.log('[GAME READY] Sneaker Hustle initialized! Let\'s get this bread!');
+            console.log('[IDLE] Idle game mode enabled - game continues running when tab is inactive');
         }
 
         // ==================== MOBILE DEVICE DETECTION & OPTIMIZATION ====================
