@@ -7313,7 +7313,12 @@
             if (sortedStashShoes.length > 0) {
                 setTimeout(() => {
                     loadSneakerImagesInGrid(sortedStashShoes, stashGrid);
+                    // Update timer displays after images load to ensure they're visible
+                    updateStashDisplayTimers();
                 }, 100);
+            } else {
+                // Even if no shoes, make sure timer updates are ready
+                updateStashDisplayTimers();
             }
         }
 
@@ -7452,7 +7457,10 @@
         // Get time until next gain for a stashed shoe
         function getTimeUntilNextGain(shoe) {
             const INTERVAL_SECONDS = 15 * 60; // 15 minutes
-            if (!shoe.stashElapsedSeconds && shoe.stashElapsedSeconds !== 0) return INTERVAL_SECONDS;
+            // If stashElapsedSeconds is undefined or null, return full interval
+            if (shoe.stashElapsedSeconds === undefined || shoe.stashElapsedSeconds === null) {
+                return INTERVAL_SECONDS;
+            }
             const timeInCurrentInterval = shoe.stashElapsedSeconds % INTERVAL_SECONDS;
             const timeUntilNext = INTERVAL_SECONDS - timeInCurrentInterval;
             return timeUntilNext;
@@ -7496,10 +7504,14 @@
                         gainBadge.textContent = `+${formatCurrency(totalGain)} (+${gainPercent}%)`;
                     }
                     
-                    // Update Next Gain In (row 3)
-                    const nextGainSpan = valueRows[3]?.querySelector('.stash-value-amount');
-                    if (nextGainSpan) {
-                        nextGainSpan.textContent = formatStashTime(getTimeUntilNextGain(shoe));
+                    // Update Next Gain In (row 3) - find the span with stash-value-amount class
+                    const nextGainRow = valueRows[3];
+                    if (nextGainRow) {
+                        const nextGainSpan = nextGainRow.querySelector('.stash-value-amount');
+                        if (nextGainSpan) {
+                            const timeUntilNext = getTimeUntilNextGain(shoe);
+                            nextGainSpan.textContent = formatStashTime(timeUntilNext);
+                        }
                     }
                 }
             });
