@@ -7192,15 +7192,11 @@
 
         function renderHistoryCard(transaction) {
             const isPurchase = transaction.type === 'purchase';
-            const borderColor = isPurchase ? '#3498db' : '#27ae60';
             const typeLabel = isPurchase ? 'BOUGHT' : 'SOLD';
             
             // Extract tier from rarity string
             const tierMatch = transaction.rarity.match(/^(Standard|Limited|Premium|Vaulted|Exclusive|Grail|Unreleased)/);
             const tier = tierMatch ? tierMatch[1] : 'Standard';
-            
-            // Get brand color for background
-            const brandSolidColor = getBrandSolidColor(transaction.brand);
             
             // Get brand initial
             const brand = SNEAKER_BRANDS.find(b => b.name === transaction.brand);
@@ -7214,19 +7210,19 @@
             const imageId = `sneaker-img-${uniqueId}`;
             
             return `
-                <div class="sneaker-card" style="border: 3px solid ${borderColor}; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
+                <div class="sneaker-card" style="border: 3px solid #000; box-shadow: ${rarityGlow}; padding: 0; position: relative; overflow: hidden;">
                     <div style="position: absolute; top: 12px; right: 12px; z-index: 10;">
                         <div class="rarity-badge ${tier.toLowerCase()}-${transaction.condition.toLowerCase().replace(/ /g, '-')}">${transaction.rarity} ${transaction.condition}</div>
                     </div>
                     <div style="position: absolute; top: 12px; left: 12px; z-index: 10;">
-                        <div style="background: ${borderColor}; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                        <div style="background: #000; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                             ${typeLabel}
                         </div>
                     </div>
                     
                     <!-- Image as centerpiece -->
-                    <div id="${imageId}" style="width: 100%; height: 220px; background: linear-gradient(135deg, ${brandSolidColor}dd 0%, ${brandSolidColor}88 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
-                        <div class="sneaker-initial" style="font-size: 64px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 3px 3px 6px rgba(0,0,0,0.6);">${brandInitial}</div>
+                    <div id="${imageId}" style="width: 100%; height: 220px; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                        <div class="sneaker-initial" style="font-size: 64px; font-weight: bold; color: #999; text-shadow: none;">${brandInitial}</div>
                     </div>
                     
                     <!-- Price below image -->
@@ -7234,7 +7230,7 @@
                         <div style="font-size: 9px; color: #666; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px;">
                             ${isPurchase ? 'Bought For' : 'Sold For'}
                         </div>
-                        <div style="font-size: 24px; font-weight: 900; color: ${borderColor}; font-family: 'Inter', sans-serif; line-height: 1;">
+                        <div style="font-size: 24px; font-weight: 900; color: #000; font-family: 'Inter', sans-serif; line-height: 1;">
                             ${formatCurrency(transaction.price)}
                         </div>
                     </div>
@@ -11462,17 +11458,31 @@
                     gameState.inventory.forEach(shoe => {
                         if (shoe.isStashed) {
                             // Initialize stash timer data if missing (for old saves)
+                            // But preserve existing stashStartTime if it exists (don't reset it!)
                             if (!shoe.stashStartTime) {
                                 shoe.stashStartTime = Date.now();
                                 shoe.stashElapsedSeconds = 0;
-                                shoe.stashBaseValue = shoe.estimatedValue;
-                                shoe.stashCurrentValue = shoe.estimatedValue;
-                                shoe.stashGainCount = 0;
+                                if (!shoe.stashBaseValue) {
+                                    shoe.stashBaseValue = shoe.estimatedValue;
+                                }
+                                if (!shoe.stashCurrentValue) {
+                                    shoe.stashCurrentValue = shoe.estimatedValue;
+                                }
+                                if (shoe.stashGainCount === undefined) {
+                                    shoe.stashGainCount = 0;
+                                }
+                            }
+                            // Ensure originalStashBaseValue is set (for restashing support)
+                            if (!shoe.originalStashBaseValue && shoe.stashBaseValue) {
+                                shoe.originalStashBaseValue = shoe.stashBaseValue;
                             }
                             gameState.stashedShoes.push(shoe);
                         }
                     });
                 }
+                
+                // Immediately recalculate stash gains for time that passed while page was closed
+                updateStashTimers();
                 
                 updateUI();
                 showNotification('Game loaded!', 'info');
