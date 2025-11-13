@@ -3577,9 +3577,9 @@
                 <div class="crate-box crate-mega">
                     <h2 class="crate-title">Mega Crate</h2>
                     <div class="crate-description">
-                        Choose from 2 exclusive options! Contains only Exclusive, Grail, and Unreleased tier sneakers.
+                        Contains only Exclusive, Grail, and Unreleased tier sneakers.
                     </div>
-                    <div class="crate-price">$100,000</div>
+                    <div class="crate-price">$150,000</div>
                     <div style="margin: 15px 0;">
                         <span class="crate-tier-badge tier-exclusive">Exclusive</span>
                         <span class="crate-tier-badge tier-grail">Grail</span>
@@ -7963,6 +7963,66 @@
             });
         }
 
+        function updateListedDisplayTimers() {
+            const listedGrid = document.getElementById('collection-listed-grid');
+            if (!listedGrid || gameState.listedShoes.filter(s => s.listedForSale).length === 0) return;
+            
+            gameState.listedShoes.forEach(shoe => {
+                if (!shoe.listedForSale) return;
+                
+                const card = listedGrid.querySelector(`[id*="sneaker-img-${shoe.id}"]`)?.closest('.sneaker-card');
+                if (!card) return;
+                
+                // Update time remaining display - find the div that contains the time remaining text
+                // It's the div with text-align: center, font-size: 9px, and font-weight: 700
+                const timeRemainingDiv = Array.from(card.querySelectorAll('div')).find(div => {
+                    const style = div.getAttribute('style') || '';
+                    return style.includes('text-align: center') && 
+                           style.includes('font-size: 9px') && 
+                           style.includes('font-weight: 700') &&
+                           (div.textContent.includes('Sells in') || div.textContent.includes('Should sell'));
+                });
+                
+                if (timeRemainingDiv && shoe.expectedSellTimeInSeconds) {
+                    const timeRemaining = Math.max(0, shoe.expectedSellTimeInSeconds - (shoe.timeListedInSeconds || 0));
+                    let timeRemainingText = '';
+                    let timeRemainingColor = '#666';
+                    
+                    if (timeRemaining <= 0) {
+                        timeRemainingText = 'Should sell soon...';
+                        timeRemainingColor = '#f39c12';
+                    } else if (timeRemaining < 60) {
+                        timeRemainingText = `Sells in ~${timeRemaining}s`;
+                        timeRemainingColor = '#27ae60';
+                    } else if (timeRemaining < 3600) {
+                        const mins = Math.floor(timeRemaining / 60);
+                        const secs = timeRemaining % 60;
+                        timeRemainingText = `Sells in ~${mins}m ${secs}s`;
+                        timeRemainingColor = '#27ae60';
+                    } else {
+                        const hours = Math.floor(timeRemaining / 3600);
+                        const mins = Math.floor((timeRemaining % 3600) / 60);
+                        timeRemainingText = `Sells in ~${hours}h ${mins}m`;
+                        timeRemainingColor = timeRemaining < 14400 ? '#f39c12' : '#e74c3c';
+                    }
+                    
+                    timeRemainingDiv.textContent = timeRemainingText;
+                    timeRemainingDiv.style.color = timeRemainingColor;
+                    // Update background color while preserving other styles
+                    const currentStyle = timeRemainingDiv.getAttribute('style') || '';
+                    const newStyle = currentStyle.replace(/background:\s*[^;]+;?/g, '') + ` background: ${timeRemainingColor}15;`;
+                    timeRemainingDiv.setAttribute('style', newStyle.trim());
+                }
+                
+                // Update views and time listed display
+                const viewsTimeSpan = card.querySelector('span[style*="Views:"]');
+                if (viewsTimeSpan) {
+                    const timeListedMins = Math.floor((shoe.timeListedInSeconds || 0) / 60);
+                    viewsTimeSpan.textContent = `Views: ${shoe.viewCount || 0} | ${timeListedMins}m`;
+                }
+            });
+        }
+
         function unstashShoe(shoeId) {
             const shoe = gameState.inventory.find(s => s.id === shoeId);
             if (!shoe) {
@@ -11987,9 +12047,10 @@
             checkListingsForPurchase();
             
             // Update listed tab display every second to show countdown (if active)
+            // Only update timers without re-rendering entire cards to prevent image reloading
             const listedContent = document.getElementById('collection-listed-content');
             if (listedContent && listedContent.classList.contains('active') && gameState.listedShoes.filter(s => s.listedForSale).length > 0) {
-                renderCollectionListedTab();
+                updateListedDisplayTimers();
             }
             
             // Age inventory and update market values
