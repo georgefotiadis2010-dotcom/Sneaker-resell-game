@@ -2188,23 +2188,33 @@
         }
 
         /* Notifications */
-        .notification {
+        .notification-container {
             position: fixed;
             top: 30px;
             right: 30px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 320px;
+            pointer-events: none;
+        }
+        
+        .notification {
+            position: relative;
             background: #000;
             color: #fff;
             padding: 18px 28px;
             border-radius: 0;
             border: 3px solid #000;
             box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
-            z-index: 2000;
             animation: slideIn 0.3s, slideOut 0.3s 2.7s;
-            max-width: 320px;
             font-weight: 700;
             font-size: 14px;
             letter-spacing: 0.3px;
             transform: skewX(-2deg);
+            pointer-events: auto;
+            width: 100%;
         }
         
         .notification::before {
@@ -2944,11 +2954,15 @@
             }
 
             /* Mobile Notification */
-            .notification {
+            .notification-container {
                 width: calc(100% - 20px);
                 left: 10px;
                 right: 10px;
                 top: 50px;
+            }
+            
+            .notification {
+                width: 100%;
                 padding: 12px 15px;
                 font-size: 12px;
                 border-width: 2px;
@@ -3072,6 +3086,10 @@
                 padding: 12px;
             }
 
+            .notification-container {
+                gap: 8px;
+            }
+            
             .notification {
                 font-size: 11px;
                 padding: 10px 12px;
@@ -5382,13 +5400,29 @@
         }
 
         function showNotification(message, type = 'info') {
+            // Get or create notification container
+            let container = document.querySelector('.notification-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'notification-container';
+                document.body.appendChild(container);
+            }
+            
+            // Create notification element
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.textContent = message;
-            document.body.appendChild(notification);
             
+            // Add to container (will stack automatically)
+            container.appendChild(notification);
+            
+            // Remove notification after animation completes
             setTimeout(() => {
                 notification.remove();
+                // Remove container if empty
+                if (container.children.length === 0) {
+                    container.remove();
+                }
             }, 3000);
         }
 
@@ -12590,6 +12624,21 @@
                 
                 console.log(`[IDLE] Processing ${secondsToCatchUp} seconds of catch-up time...`);
                 
+                // Show processing indicator
+                const hours = Math.floor(secondsToCatchUp / 3600);
+                const minutes = Math.floor((secondsToCatchUp % 3600) / 60);
+                const secs = secondsToCatchUp % 60;
+                let timeStr = '';
+                if (hours > 0) {
+                    timeStr = `${hours}h ${minutes}m ${secs}s`;
+                } else if (minutes > 0) {
+                    timeStr = `${minutes}m ${secs}s`;
+                } else {
+                    timeStr = `${secs}s`;
+                }
+                
+                showNotification(`⏳ Processing ${timeStr} of idle time...`, 'info');
+                
                 // Process catch-up in chunks to avoid blocking the UI
                 const chunkSize = 60; // Process 60 seconds at a time
                 let remaining = secondsToCatchUp;
@@ -12718,18 +12767,27 @@
                         updateMarketTrendTimer();
                         updateNextAuctionTimer();
                         
-                        // Show notification
+                        // Show completion notification with details
                         const hours = Math.floor(secondsToCatchUp / 3600);
                         const minutes = Math.floor((secondsToCatchUp % 3600) / 60);
+                        const secs = secondsToCatchUp % 60;
                         let timeStr = '';
                         if (hours > 0) {
-                            timeStr = `${hours}h ${minutes}m`;
+                            timeStr = `${hours}h ${minutes}m ${secs}s`;
+                        } else if (minutes > 0) {
+                            timeStr = `${minutes}m ${secs}s`;
                         } else {
-                            timeStr = `${minutes}m`;
+                            timeStr = `${secs}s`;
                         }
-                        showNotification(`⏰ Welcome back! Processed ${timeStr} of idle time.`, 'success');
+                        
+                        // Count what happened during catch-up
+                        const stashedCount = gameState.stashedShoes.length;
+                        const inventoryCount = gameState.inventory.length;
+                        
+                        showNotification(`✅ Welcome back! Processed ${timeStr} of idle time. Check your stash and inventory for updates!`, 'success');
                         
                         console.log(`[IDLE] Catch-up complete! Processed ${secondsToCatchUp} seconds`);
+                        console.log(`[IDLE] Current state: ${stashedCount} stashed shoes, ${inventoryCount} inventory items`);
                     }
                 }
                 
@@ -12738,24 +12796,58 @@
             }
             
             // Initialize lastActiveTime
+            // IMPORTANT: This works when you:
+            // 1. Switch tabs (tab becomes hidden) - catches up when you return
+            // 2. Minimize window - catches up when you restore
+            // 3. Close laptop lid (tab becomes hidden) - catches up when you reopen
+            // 4. Close browser tab completely - catches up when you reload the game
+            // 5. Shut down laptop - catches up when you restart and reload the game
+            // 
+            // NOTE: The game CANNOT run while completely closed/shut down (JavaScript stops).
+            // But it WILL catch up on all missed time when you reopen/reload the game!
             if (!gameState.lastActiveTime) {
                 gameState.lastActiveTime = Date.now();
+                console.log('[IDLE] Idle system initialized - last active time saved');
             } else {
                 // Calculate catch-up time if game was loaded after being away
                 const timeAway = Date.now() - gameState.lastActiveTime;
-                if (timeAway > 5000) { // Only catch up if away for more than 5 seconds
-                    catchUpGameTime(Math.floor(timeAway / 1000));
+                const secondsAway = Math.floor(timeAway / 1000);
+                
+                if (secondsAway > 5) { // Only catch up if away for more than 5 seconds
+                    console.log(`[IDLE] Game reloaded after ${secondsAway} seconds away - catching up...`);
+                    catchUpGameTime(secondsAway);
+                } else {
+                    console.log('[IDLE] Game reloaded - no significant time away');
                 }
             }
             
-            // Handle visibility change (tab switching, minimizing window, etc.)
+            // Save lastActiveTime periodically to ensure it's saved even if browser crashes
+            setInterval(() => {
+                if (isTabActive) {
+                    gameState.lastActiveTime = Date.now();
+                    // Save silently (don't show notification)
+                    try {
+                        localStorage.setItem('sneakerGameSave', JSON.stringify(gameState));
+                    } catch (err) {
+                        console.error('Error auto-saving idle time:', err);
+                    }
+                }
+            }, 30000); // Every 30 seconds
+            
+            // Handle visibility change (tab switching, minimizing window, closing laptop lid, etc.)
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden) {
                     // Tab became hidden - store current time
                     isTabActive = false;
                     gameState.lastActiveTime = Date.now();
                     lastActiveTime = Date.now();
-                    console.log('[IDLE] Tab hidden - game will continue running in background');
+                    console.log('[IDLE] Tab hidden - timestamp saved. Game will catch up when you return!');
+                    // Save immediately when tab becomes hidden
+                    try {
+                        localStorage.setItem('sneakerGameSave', JSON.stringify(gameState));
+                    } catch (err) {
+                        console.error('Error saving on tab hide:', err);
+                    }
                 } else {
                     // Tab became visible - catch up on missed time
                     isTabActive = true;
@@ -12763,8 +12855,10 @@
                     const secondsAway = Math.floor(timeAway / 1000);
                     
                     if (secondsAway > 5) { // Only catch up if away for more than 5 seconds
-                        console.log(`[IDLE] Tab visible - catching up ${secondsAway} seconds of game time`);
+                        console.log(`[IDLE] Tab visible again - you were away for ${secondsAway} seconds. Catching up...`);
                         catchUpGameTime(secondsAway);
+                    } else {
+                        console.log('[IDLE] Tab visible - no catch-up needed (< 5 seconds away)');
                     }
                     
                     lastActiveTime = Date.now();
@@ -12810,7 +12904,13 @@
             preloadPopularSneakers();
             
             console.log('[GAME READY] Sneaker Hustle initialized! Let\'s get this bread!');
-            console.log('[IDLE] Idle game mode enabled - game continues running when tab is inactive');
+            console.log('[IDLE] ⏰ Idle game mode enabled!');
+            console.log('[IDLE] The game will catch up on missed time when you:');
+            console.log('[IDLE]   - Switch back to the tab');
+            console.log('[IDLE]   - Reopen the browser window');
+            console.log('[IDLE]   - Reload the game after closing it');
+            console.log('[IDLE]   - Restart your laptop and reload the game');
+            console.log('[IDLE] Check the console (F12) to see catch-up messages!');
         }
 
         // ==================== MOBILE DEVICE DETECTION & OPTIMIZATION ====================
