@@ -5994,14 +5994,29 @@
                                 <button class="action-btn" disabled style="padding: 10px; font-size: 12px; width: 100%; background: #95a5a6; opacity: 0.5; cursor: not-allowed;">
                                     <span>Stashed - Unstash to Sell</span>
                                 </button>
-                            ` : `
-                                <button class="action-btn" onclick="stashShoe('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; margin-bottom: 8px; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
-                                    <span>Stash</span>
-                                </button>
-                                <button class="action-btn sell" onclick="handleSell('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
-                                    <span>List for Sale</span>
-                                </button>
-                            `}
+                            ` : (() => {
+                                // Check if shoe is already at 100% gain (cannot be stashed further)
+                                const baseValue = shoe.originalStashBaseValue || shoe.estimatedValue;
+                                const currentValue = shoe.estimatedValue;
+                                const gainPercentage = ((currentValue / baseValue) - 1) * 100;
+                                const isAtMaxGain = gainPercentage >= 100;
+                                
+                                return isAtMaxGain ? `
+                                    <button class="action-btn" disabled style="padding: 10px; font-size: 12px; width: 100%; margin-bottom: 8px; background: #95a5a6; opacity: 0.5; cursor: not-allowed;">
+                                        <span>Max Gain Reached (100%)</span>
+                                    </button>
+                                    <button class="action-btn sell" onclick="handleSell('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
+                                        <span>List for Sale</span>
+                                    </button>
+                                ` : `
+                                    <button class="action-btn" onclick="stashShoe('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; margin-bottom: 8px; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                                        <span>Stash</span>
+                                    </button>
+                                    <button class="action-btn sell" onclick="handleSell('${shoe.id}')" style="padding: 10px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
+                                        <span>List for Sale</span>
+                                    </button>
+                                `;
+                            })()}
                         ` : context === 'stash' ? `
                             <div class="stash-value-info">
                                 <div class="stash-value-row">
@@ -7668,8 +7683,19 @@
             // Otherwise, set fresh base value
             if (shoe.originalStashBaseValue !== undefined) {
                 // Restashing: preserve original base value and continue from current estimatedValue
-                shoe.stashBaseValue = shoe.originalStashBaseValue;
-                shoe.stashCurrentValue = shoe.estimatedValue; // Continue from current value
+                const baseValue = shoe.originalStashBaseValue;
+                const currentValue = shoe.estimatedValue;
+                
+                // Check if already at or above 100% gain (currentValue >= baseValue * 2)
+                const gainPercentage = ((currentValue / baseValue) - 1) * 100;
+                if (gainPercentage >= 100) {
+                    shoe.isStashed = false; // Reset the flag we set earlier
+                    showNotification(`Cannot stash ${shoe.brand} ${shoe.model}: Already at maximum gain (100%)!`, 'error');
+                    return;
+                }
+                
+                shoe.stashBaseValue = baseValue;
+                shoe.stashCurrentValue = currentValue; // Continue from current value
                 // Calculate how many intervals have passed based on accumulated value
                 const INTERVAL_SECONDS = 15 * 60;
                 const GAIN_PERCENT = 0.025;
@@ -7717,6 +7743,7 @@
             const now = Date.now();
             const INTERVAL_SECONDS = 15 * 60; // 15 minutes in seconds
             const GAIN_PERCENT = 0.025; // 2.5% gain
+            const shoesToUnstash = []; // Collect shoes that reached 100% gain
             
             gameState.stashedShoes.forEach(shoe => {
                 if (!shoe.stashStartTime) return;
@@ -7730,9 +7757,18 @@
                 
                 // If we've crossed a new interval threshold since last check
                 if (intervalsCompleted > shoe.stashGainCount) {
-                    // Apply compound interest for each new interval
+                    // Apply compound interest for each new interval, but cap at 100% gain
+                    const maxValue = shoe.stashBaseValue * 2; // 100% gain = 2x base value
+                    
                     for (let i = shoe.stashGainCount; i < intervalsCompleted; i++) {
-                        shoe.stashCurrentValue = shoe.stashCurrentValue * (1 + GAIN_PERCENT);
+                        const nextValue = shoe.stashCurrentValue * (1 + GAIN_PERCENT);
+                        // Cap at 100% gain (2x base value)
+                        if (nextValue >= maxValue) {
+                            shoe.stashCurrentValue = maxValue;
+                            break; // Stop applying gains once we hit the cap
+                        } else {
+                            shoe.stashCurrentValue = nextValue;
+                        }
                     }
                     
                     shoe.stashGainCount = intervalsCompleted;
@@ -7746,13 +7782,38 @@
                     delete shoe.marketValueRange;
                     delete shoe.marketValueRangeTimestamp;
                     
-                    // Show notification
-                    const totalGain = shoe.stashCurrentValue - shoe.stashBaseValue;
-                    showNotification(`💰 ${shoe.brand} ${shoe.model} gained +${formatCurrency(totalGain)}!`, 'success');
+                    // Check if we've reached 100% gain (stashCurrentValue >= stashBaseValue * 2)
+                    const gainPercentage = ((shoe.stashCurrentValue / shoe.stashBaseValue) - 1) * 100;
+                    if (gainPercentage >= 100) {
+                        // Mark for auto-unstash when reaching 100% gain
+                        shoesToUnstash.push(shoe.id);
+                    } else {
+                        // Show notification only if not at max
+                        const totalGain = shoe.stashCurrentValue - shoe.stashBaseValue;
+                        showNotification(`💰 ${shoe.brand} ${shoe.model} gained +${formatCurrency(totalGain)}!`, 'success');
+                    }
                 }
                 
-                // Update elapsed seconds for display
+                // Check if already at 100% gain (in case it was already there before this update)
+                const gainPercentage = ((shoe.stashCurrentValue / shoe.stashBaseValue) - 1) * 100;
+                if (gainPercentage >= 100) {
+                    // Mark for auto-unstash when reaching 100% gain
+                    if (!shoesToUnstash.includes(shoe.id)) {
+                        shoesToUnstash.push(shoe.id);
+                    }
+                }
+                
+                // Update elapsed seconds for display (for all shoes, even if at 100%)
                 shoe.stashElapsedSeconds = totalElapsedSeconds;
+            });
+            
+            // Unstash shoes that reached 100% gain (after iteration to avoid modifying array during loop)
+            shoesToUnstash.forEach(shoeId => {
+                const shoe = gameState.stashedShoes.find(s => s.id === shoeId);
+                if (shoe) {
+                    showNotification(`💰 ${shoe.brand} ${shoe.model} reached maximum gain (100%) and was automatically unstashed!`, 'success');
+                    unstashShoe(shoeId);
+                }
             });
         }
         
@@ -11157,11 +11218,11 @@
                 { tier: 'Grail', condition: 'VNDS', probability: 5.41 },
                 { tier: 'Grail', condition: 'Deadstock', probability: 5.06 },
                 { tier: 'Grail', condition: 'OG', probability: 4.71 },
-                { tier: 'Unreleased', condition: 'Scuffed', probability: 0.2 },
-                { tier: 'Unreleased', condition: 'Celeb Worn', probability: 0.2 },
-                { tier: 'Unreleased', condition: 'Used', probability: 0.2 },
-                { tier: 'Unreleased', condition: 'VNDS', probability: 0.2 },
-                { tier: 'Unreleased', condition: 'Deadstock', probability: 0.2 },
+                { tier: 'Unreleased', condition: 'Scuffed', probability: 0.6 },
+                { tier: 'Unreleased', condition: 'Celeb Worn', probability: 0.5 },
+                { tier: 'Unreleased', condition: 'Used', probability: 0.4 },
+                { tier: 'Unreleased', condition: 'VNDS', probability: 0.3 },
+                { tier: 'Unreleased', condition: 'Deadstock', probability: 0.3 },
                 { tier: 'Unreleased', condition: 'OG', probability: 0.2 }
             ]
         };
