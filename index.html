@@ -3279,6 +3279,15 @@
             
             <!-- Inventory Sub-section -->
             <div id="collection-inventory-content" class="sell-sub-content active">
+                <div class="section-header">
+                    <span>Your Inventory</span>
+                    <div>
+                        <select id="inventory-sort-filter" style="margin-right: 10px; padding: 8px 12px; border: 3px solid #000; background: #fff; font-weight: 700; font-size: 12px; cursor: pointer;" onchange="handleInventorySortChange()">
+                            <option value="default">Sort: Default</option>
+                            <option value="price-desc">Sort: Price (High to Low)</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="sneaker-grid" id="collection-inventory-grid">
                     <div class="empty-state">
                         <div class="empty-state-icon"></div>
@@ -3290,6 +3299,15 @@
             
             <!-- Listed Shoes Sub-section -->
             <div id="collection-listed-content" class="sell-sub-content">
+                <div class="section-header">
+                    <span>Listed Shoes</span>
+                    <div>
+                        <select id="listed-sort-filter" style="margin-right: 10px; padding: 8px 12px; border: 3px solid #000; background: #fff; font-weight: 700; font-size: 12px; cursor: pointer;" onchange="handleListedSortChange()">
+                            <option value="default">Sort: Default</option>
+                            <option value="price-desc">Sort: Price (High to Low)</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="sneaker-grid" id="collection-listed-grid">
                     <div class="empty-state">
                         <div class="empty-state-icon"></div>
@@ -3317,8 +3335,14 @@
             <div id="collection-stash-content" class="sell-sub-content">
                 <div class="section-header">
                     <span>Shoe Stash <span style="color: #3498db; font-size: 14px;">(Max 5 Shoes)</span></span>
-                    <div style="font-size: 14px; color: #666; font-weight: 600;">
-                        Shoes gain 2.5% market value every 15 minutes
+                    <div>
+                        <select id="stash-sort-filter" style="margin-right: 10px; padding: 8px 12px; border: 3px solid #000; background: #fff; font-weight: 700; font-size: 12px; cursor: pointer;" onchange="handleStashSortChange()">
+                            <option value="default">Sort: Default</option>
+                            <option value="price-desc">Sort: Price (High to Low)</option>
+                        </select>
+                        <span style="font-size: 14px; color: #666; font-weight: 600;">
+                            Shoes gain 2.5% market value every 15 minutes
+                        </span>
                     </div>
                 </div>
                 <div class="sneaker-grid" id="stash-grid">
@@ -4729,7 +4753,10 @@
             // Stash System
             stashedShoes: [], // Shoes in stash (max 5)
             stashLimit: 5,
-            shopSortOrder: 'default' // 'default' or 'price-desc'
+            shopSortOrder: 'default', // 'default' or 'price-desc'
+            inventorySortOrder: 'default', // 'default' or 'price-desc'
+            stashSortOrder: 'default', // 'default' or 'price-desc'
+            listedSortOrder: 'default' // 'default' or 'price-desc'
         };
 
         // ==================== UTILITY FUNCTIONS ====================
@@ -5839,6 +5866,24 @@
             const select = document.getElementById('shop-sort-filter');
             gameState.shopSortOrder = select.value;
             renderBuyTab();
+        }
+        
+        function handleInventorySortChange() {
+            const select = document.getElementById('inventory-sort-filter');
+            gameState.inventorySortOrder = select.value;
+            renderCollectionInventoryTab();
+        }
+        
+        function handleStashSortChange() {
+            const select = document.getElementById('stash-sort-filter');
+            gameState.stashSortOrder = select.value;
+            renderStashTab();
+        }
+        
+        function handleListedSortChange() {
+            const select = document.getElementById('listed-sort-filter');
+            gameState.listedSortOrder = select.value;
+            renderCollectionListedTab();
         }
 
         function renderCustomersTab() {
@@ -7069,7 +7114,12 @@
             const listedShoes = gameState.listedShoes.filter(shoe => shoe.listedForSale);
             const unlistedFromSell = gameState.listedShoes.filter(shoe => !shoe.listedForSale);
             const unlistedInventory = gameState.inventory.filter(shoe => !shoe.listedForSale && !gameState.listedShoes.find(s => s.id === shoe.id));
-            const allInventoryShoes = [...unlistedFromSell, ...unlistedInventory];
+            let allInventoryShoes = [...unlistedFromSell, ...unlistedInventory];
+            
+            // Sort shoes based on current sort order
+            if (gameState.inventorySortOrder === 'price-desc') {
+                allInventoryShoes.sort((a, b) => (b.estimatedValue || 0) - (a.estimatedValue || 0));
+            }
             
             // Render INVENTORY section
             let inventoryHtml = '';
@@ -7098,7 +7148,12 @@
             const listedGrid = document.getElementById('collection-listed-grid');
             
             // Get shoes listed for sale
-            const listedShoes = gameState.listedShoes.filter(shoe => shoe.listedForSale);
+            let listedShoes = gameState.listedShoes.filter(shoe => shoe.listedForSale);
+            
+            // Sort shoes based on current sort order
+            if (gameState.listedSortOrder === 'price-desc') {
+                listedShoes.sort((a, b) => (b.listingPrice || 0) - (a.listingPrice || 0));
+            }
             
             // Render LISTED SHOES section
             let listedHtml = '';
@@ -7215,17 +7270,23 @@
                 return;
             }
             
+            // Sort shoes based on current sort order
+            let sortedStashShoes = [...gameState.stashedShoes];
+            if (gameState.stashSortOrder === 'price-desc') {
+                sortedStashShoes.sort((a, b) => (b.estimatedValue || 0) - (a.estimatedValue || 0));
+            }
+            
             let html = '';
-            gameState.stashedShoes.forEach(shoe => {
+            sortedStashShoes.forEach(shoe => {
                 html += renderSneakerCard(shoe, 'stash');
             });
             
             stashGrid.innerHTML = html;
             
             // Load images for stashed shoes
-            if (gameState.stashedShoes.length > 0) {
+            if (sortedStashShoes.length > 0) {
                 setTimeout(() => {
-                    loadSneakerImagesInGrid(gameState.stashedShoes, stashGrid);
+                    loadSneakerImagesInGrid(sortedStashShoes, stashGrid);
                 }, 100);
             }
         }
@@ -11692,15 +11753,36 @@
             // Migrate all shoes to new rarity system
             syncShoeHotStatus();
             
-            // Initialize shop sort order if not present
+            // Initialize sort orders if not present
             if (!gameState.shopSortOrder) {
                 gameState.shopSortOrder = 'default';
             }
+            if (!gameState.inventorySortOrder) {
+                gameState.inventorySortOrder = 'default';
+            }
+            if (!gameState.stashSortOrder) {
+                gameState.stashSortOrder = 'default';
+            }
+            if (!gameState.listedSortOrder) {
+                gameState.listedSortOrder = 'default';
+            }
             
-            // Initialize shop sort filter dropdown
+            // Initialize sort filter dropdowns
             const shopSortFilter = document.getElementById('shop-sort-filter');
             if (shopSortFilter) {
                 shopSortFilter.value = gameState.shopSortOrder;
+            }
+            const inventorySortFilter = document.getElementById('inventory-sort-filter');
+            if (inventorySortFilter) {
+                inventorySortFilter.value = gameState.inventorySortOrder;
+            }
+            const stashSortFilter = document.getElementById('stash-sort-filter');
+            if (stashSortFilter) {
+                stashSortFilter.value = gameState.stashSortOrder;
+            }
+            const listedSortFilter = document.getElementById('listed-sort-filter');
+            if (listedSortFilter) {
+                listedSortFilter.value = gameState.listedSortOrder;
             }
             
             // Start game loop
