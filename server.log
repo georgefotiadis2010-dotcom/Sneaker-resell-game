@@ -10797,3 +10797,448 @@ HTTPError: Response code 530 (undefined)
   }
 }
 [API] Successfully fetched: Jordan 4 Retro Kaws
+[API] Fetching sneaker: Nike Dunk Low Panda
+[API] Fetching sneaker: Asics Gel-1130 Oyster Grey
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993765542,
+    socket: 1762993765896,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993765897,
+    response: 1762993765951,
+    end: 1762993765952,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 354,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 54,
+      download: 1,
+      total: 410
+    }
+  }
+}
+[API] Successfully fetched: Nike Dunk Low Retro White Black Panda
+[API] Fetching sneaker: Nike Air Jordan 1
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993766030,
+    socket: 1762993766030,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993766031,
+    response: 1762993766079,
+    end: 1762993766079,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 0,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 48,
+      download: 0,
+      total: 49
+    }
+  }
+}
+[API] Successfully fetched: ASICS Gel-1130 Oyster Grey
+[API] Fetching sneaker: test
+[API] No products found for: test
+Error: Could not connect to StockX while searching '
+    at Object.getProductsAndInfo (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/sneaks-api/scrapers/stockx-scraper.js:62:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[API] Fetching sneaker: Nike Dunk Low Panda
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993766663,
+    socket: 1762993766664,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993766674,
+    response: 1762993766708,
+    end: 1762993766709,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 34,
+      download: 1,
+      total: 46
+    }
+  }
+}
+[API] Successfully fetched: Air Jordan 1 Mid Tartan Swoosh
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993766693,
+    socket: 1762993766694,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993766695,
+    response: 1762993766725,
+    end: 1762993766730,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 30,
+      download: 5,
+      total: 37
+    }
+  }
+}
+[API] Successfully fetched: Nike Dunk Low Retro White Black Panda
+[API] Fetching sneaker: Nike Air Jordan 1
+[API] Fetching sneaker: Asics Gel-1130 Oyster Grey
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993767136,
+    socket: 1762993767136,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993767137,
+    response: 1762993767166,
+    end: 1762993767167,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 0,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 29,
+      download: 1,
+      total: 31
+    }
+  }
+}
+[API] Successfully fetched: Air Jordan 1 Mid Tartan Swoosh
+[API] Fetching sneaker: Adidas Yeezy 350
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993767397,
+    socket: 1762993767397,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993767399,
+    response: 1762993767433,
+    end: 1762993767436,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 0,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 34,
+      download: 3,
+      total: 39
+    }
+  }
+}
+[API] Successfully fetched: ASICS Gel-1130 Oyster Grey
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993767403,
+    socket: 1762993767403,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993767404,
+    response: 1762993767439,
+    end: 1762993767440,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 0,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 35,
+      download: 1,
+      total: 37
+    }
+  }
+}
+[API] Successfully fetched: adidas Yeezy Boost 350 V2 Bone
+[API] Fetching sneaker: Nike Air Force 1
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993767736,
+    socket: 1762993767737,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993767738,
+    response: 1762993767773,
+    end: 1762993767773,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 35,
+      download: 0,
+      total: 37
+    }
+  }
+}
+[API] Successfully fetched: Nike Air Force 1 Low '07 White
+[API] Fetching sneaker: New Balance 550
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993768022,
+    socket: 1762993768023,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993768023,
+    response: 1762993768056,
+    end: 1762993768056,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 33,
+      download: 0,
+      total: 34
+    }
+  }
+}
+[API] Successfully fetched: New Balance 550 White Green
+[API] Fetching sneaker: test
+[API] No products found for: test
+Error: Could not connect to StockX while searching '
+    at Object.getProductsAndInfo (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/sneaks-api/scrapers/stockx-scraper.js:62:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[API] Fetching sneaker: Nike Dunk Low Panda
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993768969,
+    socket: 1762993768970,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993768970,
+    response: 1762993769020,
+    end: 1762993769020,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 50,
+      download: 0,
+      total: 51
+    }
+  }
+}
+[API] Successfully fetched: Nike Dunk Low Retro White Black Panda
+[API] Fetching sneaker: Nike Air Jordan 1
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993769294,
+    socket: 1762993769294,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993769295,
+    response: 1762993769328,
+    end: 1762993769328,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 0,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 33,
+      download: 0,
+      total: 34
+    }
+  }
+}
+[API] Successfully fetched: Air Jordan 1 Mid Tartan Swoosh
+[API] Fetching sneaker: Adidas Yeezy 350
+[API] Fetching sneaker: Asics Gel-1130 Oyster Grey
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993769585,
+    socket: 1762993769586,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993769586,
+    response: 1762993769633,
+    end: 1762993769635,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 47,
+      download: 2,
+      total: 50
+    }
+  }
+}
+[API] Successfully fetched: adidas Yeezy Boost 350 V2 Bone
+[API] Fetching sneaker: Nike Air Force 1
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993769695,
+    socket: 1762993769695,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993769696,
+    response: 1762993769730,
+    end: 1762993769734,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 0,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 34,
+      download: 4,
+      total: 39
+    }
+  }
+}
+[API] Successfully fetched: ASICS Gel-1130 Oyster Grey
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993770012,
+    socket: 1762993770014,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993770016,
+    response: 1762993770060,
+    end: 1762993770061,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 2,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 44,
+      download: 1,
+      total: 49
+    }
+  }
+}
+[API] Successfully fetched: Nike Air Force 1 Low '07 White
+[API] Fetching sneaker: New Balance 550
+HTTPError: Response code 530 (undefined)
+    at Request.<anonymous> (/Users/georgefotiadis/Desktop/Sneaker resell game/node_modules/got/dist/source/as-promise/index.js:118:42)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_NON_2XX_3XX_RESPONSE',
+  timings: {
+    start: 1762993770315,
+    socket: 1762993770316,
+    lookup: undefined,
+    connect: undefined,
+    secureConnect: undefined,
+    upload: 1762993770316,
+    response: 1762993770350,
+    end: 1762993770350,
+    error: undefined,
+    abort: undefined,
+    phases: {
+      wait: 1,
+      dns: undefined,
+      tcp: undefined,
+      tls: undefined,
+      request: NaN,
+      firstByte: 34,
+      download: 0,
+      total: 35
+    }
+  }
+}
+[API] Successfully fetched: New Balance 550 White Green

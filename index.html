@@ -5634,12 +5634,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000;">
-                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                                    <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Days Held</div>
-                                    <div style="font-size: 14px; font-weight: 900; color: #666; font-family: 'Inter', sans-serif; line-height: 1;">${shoe.daysHeld || 0}</div>
-                                </div>
-                            </div>
                         </div>
                     `}
                     
@@ -5672,10 +5666,6 @@
                                 <div class="stash-value-row">
                                     <span class="stash-value-label">Total Gain</span>
                                     <span class="stash-gain-badge">+${formatCurrency((shoe.stashCurrentValue || shoe.estimatedValue) - (shoe.stashBaseValue || shoe.estimatedValue))} (+${(((shoe.stashCurrentValue || shoe.estimatedValue) / (shoe.stashBaseValue || shoe.estimatedValue) - 1) * 100).toFixed(1)}%)</span>
-                                </div>
-                                <div class="stash-value-row">
-                                    <span class="stash-value-label">Time Stashed</span>
-                                    <span class="stash-value-amount" style="color: #3498db;">${formatStashTime(shoe.stashElapsedSeconds || 0)}</span>
                                 </div>
                                 <div class="stash-value-row">
                                     <span class="stash-value-label">Next Gain In</span>
@@ -6579,12 +6569,6 @@
                                         </div>
                                     </div>`;
                                 })()}
-                                <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000;">
-                                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                                        <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Days Held</div>
-                                        <div style="font-size: 14px; font-weight: 900; color: #666; font-family: 'Inter', sans-serif; line-height: 1;">${shoe.daysHeld || 0}</div>
-                                    </div>
-                                </div>
                             </div>
                             
                             <button class="action-btn" onclick="handleSell('${shoe.id}')" style="padding: 8px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
@@ -6689,12 +6673,6 @@
                                         </div>
                                     </div>`;
                                 })()}
-                                <div style="background: #f5f5f5; padding: 8px; border: 2px solid #000;">
-                                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                                        <div style="font-size: 9px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1;">Days Held</div>
-                                        <div style="font-size: 14px; font-weight: 900; color: #666; font-family: 'Inter', sans-serif; line-height: 1;">${shoe.daysHeld || 0}</div>
-                                    </div>
-                                </div>
                             </div>
                             
                             <button class="action-btn" onclick="handleSell('${shoe.id}')" style="padding: 8px; font-size: 12px; width: 100%; background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
@@ -7401,14 +7379,8 @@
                         gainBadge.textContent = `+${formatCurrency(totalGain)} (+${gainPercent}%)`;
                     }
                     
-                    // Update Time Stashed (row 3)
-                    const timeStashedSpan = valueRows[3]?.querySelectorAll('.stash-value-amount')[0];
-                    if (timeStashedSpan) {
-                        timeStashedSpan.textContent = formatStashTime(shoe.stashElapsedSeconds || 0);
-                    }
-                    
-                    // Update Next Gain In (row 4)
-                    const nextGainSpan = valueRows[4]?.querySelectorAll('.stash-value-amount')[0];
+                    // Update Next Gain In (row 3)
+                    const nextGainSpan = valueRows[3]?.querySelectorAll('.stash-value-amount')[0];
                     if (nextGainSpan) {
                         nextGainSpan.textContent = formatStashTime(getTimeUntilNextGain(shoe));
                     }
@@ -7965,10 +7937,6 @@
                         <span style="color: #666;">Purchase Price:</span>
                         <span style="font-weight: bold; color: #e74c3c;">${formatCurrency(shoe.purchasePrice)}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px;">
-                        <span style="color: #666;">Days Held:</span>
-                        <span style="font-weight: bold;">${shoe.daysHeld} days</span>
-                    </div>
                     <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 4px; padding-top: 8px;">
                         <span style="color: #666;">Potential Profit:</span>
                         <span style="font-weight: bold; color: #27ae60;">${formatCurrency(shoe.estimatedValue - shoe.purchasePrice)}</span>
@@ -8403,7 +8371,6 @@
                     <p><strong>Rarity:</strong> ${shoe.rarity}</p>
                     <p><strong>Purchase Price:</strong> ${formatCurrency(shoe.purchasePrice)}</p>
                     <p><strong>Current Value:</strong> ${formatCurrency(shoe.estimatedValue)}</p>
-                    <p><strong>Days Held:</strong> ${shoe.daysHeld}</p>
                     <p><strong>Status:</strong> ${shoe.isHot ? '[HOT] Hot Item!' : 'Stable'}</p>
                 </div>
             `);
