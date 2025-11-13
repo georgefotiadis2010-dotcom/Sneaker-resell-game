@@ -3567,7 +3567,7 @@
                         <span class="crate-tier-badge tier-grail">Grail</span>
                         <span class="crate-tier-badge tier-unreleased">Unreleased</span>
                     </div>
-                    <button class="action-btn" onclick="openCrate('mega', 100000)" style="font-size: 16px; padding: 12px 30px; margin-top: 15px; width: 100%; max-width: 280px;">
+                    <button class="action-btn" onclick="openCrate('mega', 150000)" style="font-size: 16px; padding: 12px 30px; margin-top: 15px; width: 100%; max-width: 280px;">
                         Open Mega Crate
                     </button>
                     <div style="margin-top: 15px;">
@@ -11342,27 +11342,6 @@
                 
                 // Deduct cost
                 gameState.cash -= cost;
-                
-                // Mega crate special handling - generate 2 shoes and let player pick one
-                if (crateType === 'mega') {
-                    const shoe1 = generateCrateShoe(crateType);
-                    const shoe2 = generateCrateShoe(crateType);
-                    
-                    if (!shoe1 || !shoe2) {
-                        showNotification('Error generating shoes from mega crate!', 'error');
-                        gameState.cash += cost; // Refund
-                        return;
-                    }
-                    
-                    // Set purchase prices
-                    shoe1.purchasePrice = cost;
-                    shoe2.purchasePrice = cost;
-                    
-                    // Show selection modal
-                    showMegaCrateSelection(shoe1, shoe2, cost);
-                    updateUI();
-                    return;
-                }
                 
                 // Generate shoe from crate
                 const shoe = generateCrateShoe(crateType);
